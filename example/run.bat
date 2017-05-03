@@ -1,0 +1,3 @@
+javacc Example.jj
+
+pause
