@@ -1,0 +1,36 @@
+PARSER_BEGIN(Interpreter)
+
+public class Interpreter {
+   public static void main(String[] args) throws Exception {
+        int result = new Interpreter(System.in).S();
+        System.out.println(result);
+    }
+}
+
+PARSER_END(Interpreter)
+
+SKIP:  { " " | "\t" | "\r"                    }
+TOKEN: { "(" | ")" | "+" | "*" | "-" | <NUM: (["0"-"9"])+> }
+
+int S(): {int sum;}
+{
+  sum=E() "\n" {return sum;}
+}
+
+int E(): {int sum, x;}
+{
+  sum=T() 
+  ("+" x=T() {sum += x;} | "-" x=T() {sum -= x;} )* {return sum;}
+}
+
+int T(): {int sum, x;}
+{
+  sum=F() ("*" x=F() {sum *= x;} | "/" x=F() {sum /= x;} )* {return sum;}
+}
+
+int F(): {int x; Token n;}
+{
+  n=<NUM> {return Integer.parseInt(n.image);}
+|
+  "(" x=E() ")" {return x;}
+}
