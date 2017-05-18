@@ -1,0 +1,8 @@
+{
+    "version": "0.1.0",
+    "command": "javcc_compile_run.bat",
+    "isShellCommand": false,
+    "args": ["compiler/C0Parser.jj"],
+    "echoCommand": true,
+    "_runner": "terminal"
+}
