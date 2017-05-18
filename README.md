@@ -1,17 +1,11 @@
 ## Geplanter Projektverlauf:
 
-0. Launch Script erstellen
-0. Test-File in tests Ordner erstellen
-
-1. Skips zeichen definieren
- - für \n counter defiener
-
-2. Lexical Tokens für den Scanner definieren
-
-3. Start Produktion für den Parser definieren
-	z.b. Deklaration | Statement
-	
-4. Produktionen verfeinern
+1. Launch Script erstellen
+2. Test-File in tests Ordner erstellen
+3. Skips zeichen definieren (für \n counter definieren)
+4. Lexical Tokens für den Scanner definieren
+5. Start Produktion für den Parser definieren (z.b. Deklaration | Statement)	
+6. Produktionen verfeinern
 	Anfangen mit den einfachen Produktionen
 		- einfache Dekleration
 		- Arithmetische Operationen
