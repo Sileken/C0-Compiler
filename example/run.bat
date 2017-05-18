@@ -1,3 +1,2 @@
-javacc Example.jj
-
-pause
+cd bin
+cmd.exe

@@ -1,0 +1,14 @@
+PARSER_BEGIN(C0Parser)
+
+public class C0Parser {
+
+  public Node rootNode() {
+    //Start parsing ...
+    return new Node();
+  }  
+
+}
+
+PARSER_END(SPLParser)
+
+
