@@ -1,4 +1,5 @@
 import parser.*;
+import astnodes.*;
 
 public class C0Compiler {
   public static void main(String args[]) {
@@ -13,21 +14,20 @@ public class C0Compiler {
         return;
       }
     } else {
-      System.out.println("C0 Compiler: Usage :");
-      System.out.println("Please pass a C0 File-Path to the C0 Compiler.");
-      return;
+      //System.out.println("C0 Compiler: Usage :");
+      //System.out.println("Please pass a C0 File-Path to the C0 Compiler.");
+      System.out.println("C0 Compiler: Reading input from console.");
+      parser = new C0Parser(System.in);
     }
 
-    /*try {
-      //Call parsing ... 
-      //parser.CompilationUnit();
-      //parser.jjtree.rootNode().interpret();
+    try {
+      Node rootNode = parser.parseTree();
     } catch (ParseException e) {
-      System.out.println("C0 Compiler:  Encountered errors during parse.");
+      System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();
     } catch (Exception e1) {
-      System.out.println("C0 Compiler:  Encountered errors during interpretation/tree building.");
+      System.out.println("C0 Compiler: Encountered errors during interpretation/tree building.");
       e1.printStackTrace();
-    }*/
+    }
   }
 }

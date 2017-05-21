@@ -3,7 +3,7 @@ options {
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
-  DEBUG_PARSER = false;
+  DEBUG_PARSER = true;
   DEBUG_LOOKAHEAD = false;
   DEBUG_TOKEN_MANAGER = false;
   ERROR_REPORTING = true;
@@ -22,33 +22,9 @@ PARSER_BEGIN(C0Parser)
 
 package parser;
 
+import astnodes.*;
+
 public class C0Parser {
-
-  // public Node rootNode() {
-  //   //Start parsing ...
-  //   return new Node();
-  // }  
-  public static void main(String args[]) throws ParseException {
-      if(args.length > 0)
-      {
-        try {
-          C0Parser parser = new C0Parser(new java.io.FileInputStream(args[0]));
-          //parser.Input();
-          System.out.println("Success!");
-        } catch (java.io.FileNotFoundException e) {
-          System.out.println("C0 Compiler: File " + args[0] + " not found.");
-          return;
-        } 
-      }
-      else // No filepath was given. Use input from terminal.
-      {
-          System.out.println("Beenden sie die Eingabe mit einem Punkt:");
-          C0Parser parser = new C0Parser(System.in);
-          //parser.Input(); 
-      }
-
-    }
-
 }
 
 PARSER_END(C0Parser)
@@ -149,10 +125,15 @@ TOKEN [IGNORE_CASE] :
   < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
 }
 
-void doParse() :
-{}
+Node parseTree() :
 {
-  basic_expr() <EOF>
+  Node rootNode = new Node();
+}
+{
+  basic_expr() <EOF> 
+  {
+     return rootNode;
+  }
 }
 
 void basic_expr() :
