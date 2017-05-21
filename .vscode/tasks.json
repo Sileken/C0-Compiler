@@ -4,5 +4,6 @@
     "isShellCommand": false,
     "args": ["compiler/C0Parser.jj"],
     "echoCommand": true,
-    "_runner": "terminal"
+    "_runner": "terminal",
+    "isBuildCommand": true
 }
