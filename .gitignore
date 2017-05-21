@@ -13,3 +13,4 @@ hs_err_pid*
 /C0 Parser/nbproject/private/
 /C0 Parser/build/
 /compiler/bin/*
+/compiler/temp/*

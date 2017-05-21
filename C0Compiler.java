@@ -1,3 +1,5 @@
+import parser.*;
+
 public class C0Compiler {
   public static void main(String args[]) {
     C0Parser parser;
@@ -16,7 +18,7 @@ public class C0Compiler {
       return;
     }
 
-    try {
+    /*try {
       //Call parsing ... 
       //parser.CompilationUnit();
       //parser.jjtree.rootNode().interpret();
@@ -26,6 +28,6 @@ public class C0Compiler {
     } catch (Exception e1) {
       System.out.println("C0 Compiler:  Encountered errors during interpretation/tree building.");
       e1.printStackTrace();
-    }
+    }*/
   }
 }

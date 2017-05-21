@@ -20,6 +20,8 @@ options {
 
 PARSER_BEGIN(C0Parser)
 
+package parser;
+
 public class C0Parser {
 
   // public Node rootNode() {
@@ -31,7 +33,7 @@ public class C0Parser {
       {
         try {
           C0Parser parser = new C0Parser(new java.io.FileInputStream(args[0]));
-          parser.Input();
+          //parser.Input();
           System.out.println("Success!");
         } catch (java.io.FileNotFoundException e) {
           System.out.println("C0 Compiler: File " + args[0] + " not found.");
@@ -42,7 +44,7 @@ public class C0Parser {
       {
           System.out.println("Beenden sie die Eingabe mit einem Punkt:");
           C0Parser parser = new C0Parser(System.in);
-          parser.Input(); 
+          //parser.Input(); 
       }
 
     }

@@ -1,9 +1,19 @@
 {
     "version": "0.1.0",
-    "command": "javcc_compile_run.bat",
-    "isShellCommand": false,
-    "args": ["compiler/C0Parser.jj"],
-    "echoCommand": true,
-    "_runner": "terminal",
-    "isBuildCommand": true
+    "command": "powershell",
+    "args": [   
+        "-ExecutionPolicy",
+        "Unrestricted",
+        "-File",
+        "${cwd}/build.ps1"       
+    ],
+    "taskSelector": "-task ",
+    "showOutput": "always",
+    "tasks": [
+        {
+            "taskName": "build",
+            "showOutput": "always",
+            "isBuildCommand": true
+        }
+    ]
 }

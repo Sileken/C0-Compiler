@@ -3,7 +3,7 @@
 rem filename for the C0-INPUT-FILE. Set to NOTHING if you want to use console input
 SET c0_file=example.c0
 
-if defined c0_file (SET c0_dir=../C0Code/%c0_file%) else (SET c0_dir=)
+if defined c0_file (SET c0_dir=../../C0Code/%c0_file%) else (SET c0_dir=)
 
 rem Parser Name, specified in .jj
 SET parser_name=C0Parser
