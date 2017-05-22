@@ -1,9 +1,14 @@
 {
     "version": "0.1.0",
     "command": "powershell",
-    "taskSelector": "-task ",
     "showOutput": "always",
-    "args": ["${cwd}/taskManager.ps1"],
+    "args": [
+        "-ExecutionPolicy",
+        "Unrestricted",
+        "-NoProfile",
+        "-File",  
+        "${cwd}/taskManager.ps1"
+        ],
     "tasks": [
         {
             "taskName": "build",
