@@ -3,12 +3,22 @@
     "command": "powershell",
     "taskSelector": "-task ",
     "showOutput": "always",
-    "args": ["${cwd}/buildAndRun.ps1"],
+    "args": ["${cwd}/taskManager.ps1"],
     "tasks": [
         {
             "taskName": "build",
             "showOutput": "always",
             "isBuildCommand": true
+        },
+        {
+            "taskName": "test",
+            "showOutput": "always",
+            "isTestCommand": true
+        },
+        {
+            "taskName": "run",
+            "showOutput": "always",
+            "isTestCommand": true
         }
     ]
 }
