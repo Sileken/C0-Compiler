@@ -22,6 +22,7 @@ public class C0Compiler {
 
     try {
       Node rootNode = parser.parseTree();
+      System.out.println("SUCCESS!");
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();

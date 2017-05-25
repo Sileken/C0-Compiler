@@ -7,4 +7,6 @@ test
 
 /*blablalbalb*/
 /**/
-a = 252
+
+// Data-Type testing
+string[] str = 25

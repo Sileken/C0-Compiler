@@ -45,7 +45,7 @@ SKIP :
 TOKEN :
 {
   < INT: "int" >
-| < BOOLEAN: "bool" >
+| < BOOL: "bool" >
 | < STRING: "string" >
 | < CHAR: "char" >
 | < VOID: "void" >
@@ -141,7 +141,7 @@ TOKEN [IGNORE_CASE] :
   < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
 }
 
-/* COMMENTS */
+/* COMMENTS */      // CHECK LATER STUFF LIKE char* str = "Dies ist ein String mit /*, also kein Comment"
 SKIP :
 {
   < "//" (~["\r", "\n"])* >
@@ -173,10 +173,33 @@ Node parseTree() :
   }
 }
 
-
-
 void basic_expr() :
 {}
 {
-  <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
+  Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
+}
+
+///////////////////////////////////////
+/////         Data-Types          /////
+///////////////////////////////////////
+void Struct() :
+{}
+{
+  <STRUCT> <IDENTIFIER>
+}
+
+void PrimitiveType() :
+{}
+{
+  <INT>
+| <BOOL>
+| <STRING>
+| <CHAR>
+| <VOID>
+}
+
+void Type() :
+{}
+{
+  (PrimitiveType() | Struct()) [<STAR> | <LBRACKET> <RBRACKET>] // Pointers + Arrays optional
 }
