@@ -37,7 +37,7 @@ SKIP :
 | "\r"
 }
 
-TOKEN : /* RESERVED WORDS */
+TOKEN : /* RESERVED WORDS: Page 15 C0-Ref */
 {
   < INT: "int" >
 | < BOOLEAN: "bool" >
@@ -60,41 +60,47 @@ TOKEN : /* RESERVED WORDS */
 | < ALLOC_ARRAY: "alloc_array" >
 }
 
-TOKEN : /* OPERATORS */
+TOKEN : /* OPERATORS: Page 18 C0-Ref */
 {
-  < ASSIGN: "=" >
-| < GT: ">" >
-| < LT: "<" >
+  < PAR_L: "(" >
+| < PAR_R: ")">
+| < ARR_SUB_L: "[">
+| < ARR_SUB_R: "]">
+| < FIELD_DEREF: "->" >
+| < FIELD_SEL: "." >
 | < BANG: "!" >
 | < TILDE: "~" >
-| < HOOK: "?" >
-| < COLON: ":" >
-| < EQ: "==" >
-| < LE: "<=" >
-| < GE: ">=" >
-| < NE: "!=" >
-| < SC_OR: "||" >
-| < SC_AND: "&&" >
+| < STAR: "*" >
 | < INCR: "++" >
 | < DECR: "--" >
+| < SLASH: "/" >
+| < MOD: "%" > // was called REM before, i think MOD is more descriptive. ~S.H.
 | < PLUS: "+" >
 | < MINUS: "-" >
-| < STAR: "*" >
-| < SLASH: "/" >
-| < BIT_AND: "&" >
-| < BIT_OR: "|" >
-| < XOR: "^" >
-| < REM: "%" >
 | < LSHIFT: "<<" >
 | < RSIGNEDSHIFT: ">>" >
+| < LT: "<" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < GT: ">" >
+| < EQ: "==" >
+| < NE: "!=" >
+| < BIT_AND: "&" >
+| < XOR: "^" >
+| < BIT_OR: "|" >
+| < SC_AND: "&&" >
+| < SC_OR: "||" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < ASSIGN: "=" >
 | < PLUSASSIGN: "+=" >
 | < MINUSASSIGN: "-=" >
 | < STARASSIGN: "*=" >
 | < SLASHASSIGN: "/=" >
-| < ANDASSIGN: "&=" >
-| < ORASSIGN: "|=" >
-| < XORASSIGN: "^=" >
 | < REMASSIGN: "%=" >
+| < ANDASSIGN: "&=" >
+| < XORASSIGN: "^=" >
+| < ORASSIGN: "|=" >
 | < LSHIFTASSIGN: "<<=" >
 | < RSIGNEDSHIFTASSIGN: ">>=" >
 }
