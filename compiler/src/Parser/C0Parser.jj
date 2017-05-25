@@ -136,6 +136,12 @@ TOKEN :
   < #OCTAL_LITERAL: "0" (["0"-"7"])* >
 }
 
+TOKEN :
+{
+  < CHAR_LITERAL: "'" ~["\r", "\n", "\t"] "'" > // Empty ' ' allowed? e.g. char c = ' '
+| < STRING_LITERAL: "\"" (~["\r", "\n", "\t"])* "\"" > 
+}
+
 TOKEN [IGNORE_CASE] :
 {
   < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
@@ -176,16 +182,45 @@ Node parseTree() :
 void basic_expr() :
 {}
 {
-  Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
+  //Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
+  Expression()
+}
+
+///////////////////////////////////////
+/////    Different Identifiers    /////
+///////////////////////////////////////
+
+// Is it important to make a distinction?
+
+// For variable + function names
+void VID() :
+{}
+{
+  <IDENTIFIER>
+}
+
+// Structnames
+void SID() :
+{}
+{
+  <IDENTIFIER>
+}
+
+// Field names
+void FID() :
+{}
+{
+  <IDENTIFIER>
 }
 
 ///////////////////////////////////////
 /////         Data-Types          /////
 ///////////////////////////////////////
+
 void Struct() :
 {}
 {
-  <STRUCT> <IDENTIFIER>
+  <STRUCT> SID()
 }
 
 void PrimitiveType() :
@@ -201,5 +236,87 @@ void PrimitiveType() :
 void Type() :
 {}
 {
-  (PrimitiveType() | Struct()) [<STAR> | <LBRACKET> <RBRACKET>] // Pointers + Arrays optional
+  (PrimitiveType() | Struct()) [<STAR> | <LBRACKET> <RBRACKET>] // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
+}
+
+///////////////////////////////////////
+/////     How do we call it?      /////
+///////////////////////////////////////
+
+// Examples are: *test, test.data, test->data, (test)
+void Lv() :
+{}
+{ 
+  [<STAR>] VID() [<DOT> FID() | <FIELD_DEREF> FID() | Expression()] 
+  | <LPAREN> Lv() <RPAREN>
+}
+
+///////////////////////////////////////
+/////        Operators            /////
+///////////////////////////////////////
+
+void UnaryOperator() :
+{}
+{
+  <BANG>
+| <TILDE>
+| <INCR>
+| <DECR>
+| <MINUS>
+}
+
+void BinaryOperator() :
+{}
+{
+  <STAR>
+| <SLASH>
+| <MOD>
+| <PLUS>
+| <MINUS>
+| <LSHIFT>
+| <RSIGNEDSHIFT>
+| <LT>
+| <LE>
+| <GE>
+| <GT>
+| <EQ>
+| <NE>
+| <BIT_AND>
+| <XOR>
+| <BIT_OR>
+| <SC_AND>
+| <SC_OR>
+| <ASSIGN>
+| <PLUSASSIGN>
+| <MINUSASSIGN>
+| <STARASSIGN>
+| <SLASHASSIGN>
+| <REMASSIGN>
+| <ANDASSIGN>
+| <XORASSIGN>
+| <ORASSIGN>
+| <LSHIFTASSIGN>
+| <RSIGNEDSHIFTASSIGN>
+}
+
+///////////////////////////////////////
+/////        Expressions          /////
+///////////////////////////////////////
+
+void Expression() :
+{}
+{
+  <LPAREN> Expression() <RPAREN>
+| <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
+| <TRUE> | <FALSE> | <NULL>
+| VID()
+//| Expression() BinaryOperator() Expression()
+//| UnaryOperator() Expression()
+//| Expression() <HOOK> Expression() <COLON> Expression()
+//| VID() <LPAREN> Expression() (<COMMA> Expression())* <RPAREN>
+//| Expression() <DOT> FID()
+//| Expression() <FIELD_DEREF> FID()
+//| Expression() [Expression()]
+//| <ALLOC> <LPAREN> Type() <RPAREN>
+//| <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
 }
