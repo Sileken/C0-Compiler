@@ -39,31 +39,25 @@ SKIP :
 
 TOKEN : /* RESERVED WORDS */
 {
-  < BOOLEAN: "boolean" >
-| < BREAK: "break" >
-| < BYTE: "byte" >
-| < CASE: "case" >
-| < CATCH: "catch" >
-| < CONST: "const" >
-| < CONTINUE: "continue" >
-| < _DEFAULT: "default" >
-| < DO: "do" >
-| < ELSE: "else" >
-| < FALSE: "false" >
-| < FINALLY: "finally" >
-| < FOR: "for" >
-| < IF: "if" >
-| < INT: "int" >
-| < LONG: "long" >
-| < NULL: "null" >
-| < RETURN: "return" >
-| < STATIC: "static" >
-| < SWITCH: "switch" >
-| < TRUE: "true" >
-| < TRY: "try" >
+  < INT: "int" >
+| < BOOLEAN: "bool" >
+| < STRING: "string" >
+| < CHAR: "char" >
 | < VOID: "void" >
-| < VOLATILE: "volatile" >
+| < STRUCT: "struct" >
+| < IF: "if" >
+| < ELSE: "else" >
 | < WHILE: "while" >
+| < FOR: "for" >
+| < CONTINUE: "continue" >
+| < BREAK: "break" >
+| < RETURN: "return" >
+| < ASSERT: "assert" >
+| < TRUE: "true" >
+| < FALSE: "false" >
+| < NULL: "NULL" >
+| < ALLOC: "alloc" >
+| < ALLOC_ARRAY: "alloc_array" >
 }
 
 TOKEN : /* OPERATORS */
