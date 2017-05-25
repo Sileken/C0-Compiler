@@ -130,6 +130,9 @@ Node parseTree() :
   Node rootNode = new Node();
 }
 {
+  //global Sachen parsen <prog> (globale Deklarationen und globale Funktionen)
+  // Danach Statements, die expression usw.
+  
   basic_expr() <EOF> 
   {
      return rootNode;
