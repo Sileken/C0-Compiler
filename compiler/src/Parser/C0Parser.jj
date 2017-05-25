@@ -37,7 +37,8 @@ SKIP :
 | "\r"
 }
 
-TOKEN : /* RESERVED WORDS: Page 15 C0-Ref */
+/* RESERVED WORDS: Page 15 C0-Ref */
+TOKEN :
 {
   < INT: "int" >
 | < BOOLEAN: "bool" >
@@ -60,15 +61,25 @@ TOKEN : /* RESERVED WORDS: Page 15 C0-Ref */
 | < ALLOC_ARRAY: "alloc_array" >
 }
 
-TOKEN : /* OPERATORS: Page 18 C0-Ref */
+/* SEPARATORS */
+TOKEN :
 {
-  < PAR_L: "(" >
-| < PAR_R: ")">
-| < ARR_SUB_L: "[">
-| < ARR_SUB_R: "]">
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < SEMICOLON: ";" >
+| < COMMA: "," >
+| < DOT: "." >
 | < FIELD_DEREF: "->" >
-| < FIELD_SEL: "." >
-| < BANG: "!" >
+}
+
+/* OPERATORS: Page 18 C0-Ref */
+TOKEN : 
+{
+  < BANG: "!" >
 | < TILDE: "~" >
 | < STAR: "*" >
 | < INCR: "++" >
