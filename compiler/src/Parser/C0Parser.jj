@@ -125,6 +125,33 @@ TOKEN [IGNORE_CASE] :
   < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
 }
 
+/* COMMENTS */
+MORE :
+{
+  "//" : IN_SINGLE_LINE_COMMENT
+|
+  "/*" : IN_MULTI_LINE_COMMENT
+}
+
+<IN_SINGLE_LINE_COMMENT> 
+SKIP : // Sidenote: The original had "SPECIAL_TOKEN" instead of "SKIP"
+{
+  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
+}
+
+<IN_MULTI_LINE_COMMENT> 
+SKIP :
+{
+  <MULTI_LINE_COMMENT: "*/" > : DEFAULT
+}
+
+<IN_SINGLE_LINE_COMMENT, IN_MULTI_LINE_COMMENT>
+MORE :
+{
+  < ~[] > // ~[] = all characters
+}
+/* END COMMENTS */
+
 Node parseTree() :
 {
   Node rootNode = new Node();
