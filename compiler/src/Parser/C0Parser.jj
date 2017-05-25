@@ -29,6 +29,10 @@ public class C0Parser {
 
 PARSER_END(C0Parser)
 
+/************************************************
+ *        TOKEN SPECIFICATION STARTS HERE       *
+ ************************************************/
+
 SKIP :
 {
   " "
@@ -116,7 +120,8 @@ TOKEN :
 | < RSIGNEDSHIFTASSIGN: ">>=" >
 }
 
-TOKEN : /* LITERALS */
+/* LITERALS */
+TOKEN : 
 {
   < INTEGER_LITERAL:
         <DECIMAL_LITERAL> (["l","L"])?
@@ -137,31 +142,22 @@ TOKEN [IGNORE_CASE] :
 }
 
 /* COMMENTS */
-MORE :
-{
-  "//" : IN_SINGLE_LINE_COMMENT
-|
-  "/*" : IN_MULTI_LINE_COMMENT
-}
-
-<IN_SINGLE_LINE_COMMENT> 
-SKIP : // Sidenote: The original had "SPECIAL_TOKEN" instead of "SKIP"
-{
-  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
-}
-
-<IN_MULTI_LINE_COMMENT> 
 SKIP :
 {
-  <MULTI_LINE_COMMENT: "*/" > : DEFAULT
+  < "//" (~["\r", "\n"])* >
+|
+  < "/*" > : MULTI_LINE_COMMENT
 }
 
-<IN_SINGLE_LINE_COMMENT, IN_MULTI_LINE_COMMENT>
-MORE :
+<MULTI_LINE_COMMENT> SKIP :
 {
-  < ~[] > // ~[] = all characters
+  < "*/" > : DEFAULT
+| < ~[] > // ~[] = all characters
 }
-/* END COMMENTS */
+
+/************************************************
+ * THE C0 GRAMMAR SPECIFICATION STARTS HERE *
+ ************************************************/
 
 Node parseTree() :
 {
@@ -176,6 +172,8 @@ Node parseTree() :
      return rootNode;
   }
 }
+
+
 
 void basic_expr() :
 {}
