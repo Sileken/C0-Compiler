@@ -2,6 +2,7 @@
     "version": "0.1.0",
     "command": "powershell",
     "showOutput": "always",
+    "_runner": "terminal",
     "args": [
         "-ExecutionPolicy",
         "Unrestricted",
