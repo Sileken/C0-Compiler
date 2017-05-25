@@ -22,6 +22,11 @@
             "isTestCommand": true
         },
         {
+            "taskName": "testown",
+            "showOutput": "always",
+            "isTestCommand": true
+        },
+        {
             "taskName": "run",
             "showOutput": "always",
             "isTestCommand": true
