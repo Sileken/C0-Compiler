@@ -1,40 +1,14 @@
 
-// 1. Comment
-/* Noch ein Comment!!!
-test
-test
-*/
-
-/*blablalbalb*/
-/**/
-
-// Data-Type testing
-//struct Test s = 25
-//int* a = 2
-
-//*test 
-//test.age 
-//*test->age
-// char c = ''
-//( WasIstHierLos )
-//string s = "Dies ist ein String mit \" apostrophe"
-//string s = "Und noch ein string... Diesmal mit \\ backslash"
-//string s = "Dies ist ein string /*, also kein comment"
-//string s = "test"
-//a > b ? true : false
-//func(blbla,a > b ? true : false,bal)
-//'A'
-//int i = (5 + 35);
-//for(int i = 0; i < 10; i++) a += i;
 int main() {
-  assert(exp(0,0) == 1);
-  assert(exp(0,1) == 0);
-  assert(exp(1,0) == 1);
-  assert(exp(1,17) == 1);
-  assert(exp(2,7) == 128);
-  assert(exp(-2,7) == -128);
-  assert(exp(3,4) == 81);
-  assert(exp(-3,4) == 81);
-  assert(exp(2,30) == (1<<30));
+  exp(0,0) == 1;
+  exp(0,1) == 0;
+  exp(1,0) == 1;
+  exp(1,17) == 1;
+  exp(2,7) == 128;
+  exp(-2,7) == -128;
+  exp(3,4) == 81;
+  exp(-3,4) == 81;
+  exp(2,30) == (1<<30);
+  string s = "Patrick fährt gerne Fahrrad"; // Jörg fragen
   return 0;
 }

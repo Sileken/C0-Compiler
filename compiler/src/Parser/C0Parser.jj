@@ -57,13 +57,11 @@ TOKEN :
 | < CONTINUE: "continue" >
 | < BREAK: "break" >
 | < RETURN: "return" >
-| < ASSERT: "assert" >
 | < TRUE: "true" >
 | < FALSE: "false" >
 | < NULL: "NULL" >
 | < ALLOC: "alloc" >
 | < ALLOC_ARRAY: "alloc_array" >
-| < ERROR: "error" >
 }
 
 /* SEPARATORS */
@@ -207,10 +205,6 @@ Node parseTree() :
 void prog() :
 {}
 {
-  //Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
-  //(<STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>)*
-// ( Expression() )*
-  //(BinaryOp() | STMT() | GDEFN())*
   (GDECL() | GDEFN())*
 }
 
@@ -407,8 +401,6 @@ void STMT() :
 | <FOR> <LPAREN> [Simple()] <SEMICOLON> Expression() <SEMICOLON> [Simple()] <RPAREN> STMT()
 | <RETURN> [Expression()] <SEMICOLON>
 | <LBRACE> (STMT())* <RBRACE>
-| <ASSERT> <LPAREN> Expression() <RPAREN> <SEMICOLON>
-| <ERROR> <LPAREN> Expression() <RPAREN> <SEMICOLON>
 }
 
 ///////////////////////////////////////
