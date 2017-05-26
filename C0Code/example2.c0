@@ -1,0 +1,53 @@
+struct person {
+  int id;
+  string name;
+  int age;
+  int[] friendsIds;
+};
+
+int getId(struct person* p);
+int getName(struct person* p);
+int getAge(struct person* p);
+struct person* copyPerson(struct person* p);
+bool is_person(struct person*);
+
+int main(){
+    struct person* p = alloc(struct person);
+    p->friendsIds = alloc_array(int, 5);
+    
+    for(int i = 0; i > 5; i++){
+        p->friendsIds[i] = i;
+    }
+    
+    int id = getId(p);
+    string name = getName(p);
+    int age = getAge(p);
+    struct person* newp = copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p);
+    bool isP = is_person(p);
+}
+
+int getId(struct person* p){
+    return p->id;
+}
+
+int getName(struct person* p){
+     return p->name;
+}
+
+int getAge(struct person* p){
+     return p->age;
+}
+
+struct person* copyPerson(struct person* p){
+    struct person* p2 = alloc(struct person);
+    p2->id = p->id;
+    p2->name = p->name;
+    p2->age = p->age;
+}
+
+bool is_person(struct person* p) {
+  if (p == NULL) return false;        /* test this first! */
+  if (!(p->id > 0)) return false;     /* so that this dereference is safe */
+  if (!(0 <= p->age && p->age < 200)) return false;
+  return true;
+}

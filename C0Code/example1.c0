@@ -1,0 +1,50 @@
+int global1;
+int global2;
+int global3;
+
+//testComment
+/* Test Comment */
+
+int main()
+{
+    global1 = 12;
+    global2 = 2 + 1;
+    global3 = 5;
+
+    int result = 0;
+    if(global1 > global2){
+        result += global2;
+    }else{
+        result -= global1;
+        if(global1 <= global3){
+            result *= global3;
+        }
+    }
+
+    int[] A = alloc_array(int, 5);
+    for (i = 0; i < 5; i = i+1){
+        result[i] = i * result;
+    }
+
+    int k = 6
+    while(k >= 1){
+        result[k] = result[k] / k;
+        k--;
+    }
+
+    bool wb = true;
+    while(wb){
+        bool wb2 = true;
+        while(wb2){
+            int c = 100;
+            for(int i = 0; i < 100; i++){
+                if(i % 2 == 0){
+                    wb2 = false;
+                }
+                if(i % 10 = 0){
+                    wb = false;
+                }
+            }
+        }
+    }  
+}

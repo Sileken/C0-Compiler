@@ -1,0 +1,11 @@
+string a = "qweqwe";
+string b = "qweqwe\n\t";
+string c = "\\\n\t\v\r\f\a\\\'\"";
+
+
+char d = 'a';
+char e = '\n';
+char f = '\\';
+char g = '\'';
+
+char e = 'e';
