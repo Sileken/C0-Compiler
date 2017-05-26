@@ -16,6 +16,8 @@ test
 //test.age 
 //*test->age
 // char c = ''
-( WasIstHierLos )
+//( WasIstHierLos )
 //string s = "Dies ist ein String mit \" apostrophe"
 //string s = "Und noch ein string... Diesmal mit \\ backslash"
+//string s = "Dies ist ein string /*, also kein comment"
+//string s = "test"

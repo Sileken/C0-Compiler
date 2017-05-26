@@ -139,7 +139,26 @@ TOKEN :
 TOKEN :
 {
   < CHAR_LITERAL: "'" ~["\r", "\n", "\t", "'"] "'" > // Should empty ' ' allowed? e.g. char c = ' '. For now it is
-| < STRING_LITERAL: "\"" (~["\r", "\n", "\t", "\"", "\\"] | "\\\"" | "\\\\" )* "\"" > // Last two optionals are \" and \\ 
+// | < STRING_LITERAL: "\"" (~["\r", "\n", "\t", "\"", "\\"] | "\\\"" | "\\\\" )* "\"" >
+}
+
+MORE :
+{
+  < STRING_BEGIN: "\"" > : IN_STRING_LITERAL 
+}
+
+<IN_STRING_LITERAL>
+TOKEN :
+{
+  <STRING_LITERAL: "\""> : DEFAULT
+}
+
+<IN_STRING_LITERAL>
+MORE :
+{
+ <~["\r", "\n", "\t", "\"", "\\"]> // every character except those in parentheses 
+| "\\\"" // \" in string allowed
+| "\\\\" // \\ in string allowed
 }
 
 TOKEN [IGNORE_CASE] :
@@ -147,7 +166,7 @@ TOKEN [IGNORE_CASE] :
   < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
 }
 
-/* COMMENTS */      // CHECK LATER STUFF LIKE char* str = "Dies ist ein String mit /*, also kein Comment"
+/* COMMENTS */
 SKIP :
 {
   < "//" (~["\r", "\n"])* >
@@ -183,7 +202,7 @@ void basic_expr() :
 {}
 {
   //Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
-  <STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>
+  (<STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>)*
  | Expression()
 }
 
