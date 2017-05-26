@@ -1,5 +1,5 @@
 options {
-  LOOKAHEAD = 2;
+  LOOKAHEAD = 10;
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
@@ -63,6 +63,7 @@ TOKEN :
 | < NULL: "NULL" >
 | < ALLOC: "alloc" >
 | < ALLOC_ARRAY: "alloc_array" >
+| < ERROR: "error" >
 }
 
 /* SEPARATORS */
@@ -197,19 +198,20 @@ Node parseTree() :
   //global Sachen parsen <prog> (globale Deklarationen und globale Funktionen)
   // Danach Statements, die expression usw.
   
-  basic_expr() <EOF> 
+  prog() <EOF> 
   {
      return rootNode;
   }
 }
 
-void basic_expr() :
+void prog() :
 {}
 {
   //Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
   //(<STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>)*
 // ( Expression() )*
-  BinaryOp()
+  //(BinaryOp() | STMT() | GDEFN())*
+  (GDECL() | GDEFN())*
 }
 
 ///////////////////////////////////////
@@ -266,7 +268,7 @@ void Type() :
 }
 
 ///////////////////////////////////////
-/////     How do we call it?      /////
+/////          L-Value            /////
 ///////////////////////////////////////
 
 // Examples are: *test, test.data, test->data, (test)
@@ -307,9 +309,7 @@ void UnaryOp() :
 void BinaryOp() :
 {}
 {
-  <DOT>
-| <FIELD_DEREF>
-| <STAR>
+  <STAR>
 | <SLASH>
 | <REM>
 | <PLUS>
@@ -327,8 +327,10 @@ void BinaryOp() :
 | <BIT_OR>
 | <SC_AND>
 | <SC_OR>
-| <HOOK> // How is this a binary expression?
-| <COLON> // How is this a binary expression?
+| <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
+| <FIELD_DEREF> // How is this a binary expression?
+| <HOOK>        // How is this a binary expression?
+| <COLON>       // How is this a binary expression?
 }
 
 void AsnOp() :
@@ -386,5 +388,47 @@ void Expression() :
 void Simple() :
 {}
 {
- Lv()
+  Lv() AsnOp() Expression()
+| Lv() PostOp()
+| Expression()
+| Type() VID() [ <ASSIGN> Expression() ]
+}
+
+///////////////////////////////////////
+/////          Stmt               /////
+///////////////////////////////////////
+
+void STMT() :
+{}
+{
+  Simple() <SEMICOLON>
+| <IF> <LPAREN> Expression() <RPAREN> STMT() [<ELSE> STMT()]
+| <WHILE> <LPAREN> Expression() <RPAREN> STMT()
+| <FOR> <LPAREN> [Simple()] <SEMICOLON> Expression() <SEMICOLON> [Simple()] <RPAREN> STMT()
+| <RETURN> [Expression()] <SEMICOLON>
+| <LBRACE> (STMT())* <RBRACE>
+| <ASSERT> <LPAREN> Expression() <RPAREN> <SEMICOLON>
+| <ERROR> <LPAREN> Expression() <RPAREN> <SEMICOLON>
+}
+
+///////////////////////////////////////
+/////          GDEFN              /////
+///////////////////////////////////////
+
+void GDEFN() :
+{}
+{
+  <STRUCT> SID() <LBRACE> (Type() FID() <SEMICOLON>)* <RBRACE> <SEMICOLON>
+| Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <LBRACE> (STMT())* <RBRACE>
+}
+
+///////////////////////////////////////
+/////          GDECL              /////
+///////////////////////////////////////
+
+void GDECL() :
+{}
+{
+  <STRUCT> SID() <SEMICOLON>
+| Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <SEMICOLON> 
 }

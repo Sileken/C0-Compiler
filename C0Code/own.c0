@@ -24,4 +24,17 @@ test
 //a > b ? true : false
 //func(blbla,a > b ? true : false,bal)
 //'A'
-+
+//int i = (5 + 35);
+//for(int i = 0; i < 10; i++) a += i;
+int main() {
+  assert(exp(0,0) == 1);
+  assert(exp(0,1) == 0);
+  assert(exp(1,0) == 1);
+  assert(exp(1,17) == 1);
+  assert(exp(2,7) == 128);
+  assert(exp(-2,7) == -128);
+  assert(exp(3,4) == 81);
+  assert(exp(-3,4) == 81);
+  assert(exp(2,30) == (1<<30));
+  return 0;
+}
