@@ -1,5 +1,5 @@
 options {
-  LOOKAHEAD = 1;
+  LOOKAHEAD = 2;
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
@@ -89,11 +89,11 @@ TOKEN :
 | < INCR: "++" >
 | < DECR: "--" >
 | < SLASH: "/" >
-| < MOD: "%" > // was called REM before, i think MOD is more descriptive. ~S.H.
+| < REM: "%" >
 | < PLUS: "+" >
 | < MINUS: "-" >
 | < LSHIFT: "<<" >
-| < RSIGNEDSHIFT: ">>" >
+| < RSHIFT: ">>" >
 | < LT: "<" >
 | < LE: "<=" >
 | < GE: ">=" >
@@ -117,29 +117,27 @@ TOKEN :
 | < XORASSIGN: "^=" >
 | < ORASSIGN: "|=" >
 | < LSHIFTASSIGN: "<<=" >
-| < RSIGNEDSHIFTASSIGN: ">>=" >
+| < RSHIFTASSIGN: ">>=" >
 }
 
 /* LITERALS */
 TOKEN : 
 {
   < INTEGER_LITERAL:
-        <DECIMAL_LITERAL> (["l","L"])?
-      | <HEX_LITERAL> (["l","L"])?
-      | <OCTAL_LITERAL> (["l","L"])?
+        <DECIMAL_LITERAL>
+      | <HEX_LITERAL> 
   >
 |
-  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+  < #DECIMAL_LITERAL: "0" | ["1"-"9"] (["0"-"9"])* >
 |
   < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
-|
-  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
 }
 
+/* Char's + String's */
 TOKEN :
 {
-  < CHAR_LITERAL: "'" ~["\r", "\n", "\t", "'"] "'" > // Should empty ' ' allowed? e.g. char c = ' '. For now it is
-// | < STRING_LITERAL: "\"" (~["\r", "\n", "\t", "\"", "\\"] | "\\\"" | "\\\\" )* "\"" >
+  < CHAR_LITERAL: "'" (~["\r", "\n", "\t", "'"] | "\\0") "'" > // Should empty ' ' allowed? e.g. char c = ' '. For now it is
+// | < STRING_LITERAL: "\"" (~["\r", "\n", "\t", "\"", "\\"] | "\\\"" | "\\\\" )* "\"" > // Hard to understand, so i splitted it
 }
 
 MORE :
@@ -147,20 +145,27 @@ MORE :
   < STRING_BEGIN: "\"" > : IN_STRING_LITERAL 
 }
 
-<IN_STRING_LITERAL>
-TOKEN :
+<IN_STRING_LITERAL> TOKEN :
 {
   <STRING_LITERAL: "\""> : DEFAULT
 }
 
-<IN_STRING_LITERAL>
-MORE :
+<IN_STRING_LITERAL> MORE :
 {
- <~["\r", "\n", "\t", "\"", "\\"]> // every character except those in parentheses 
-| "\\\"" // \" in string allowed
-| "\\\\" // \\ in string allowed
+ <~["\r", "\n", "\t", "\"", "\\"]> // every character except those in brackets
+| "\\n"  // \n
+| "\\t"  // \t
+| "\\v"  // \v
+| "\\b"  // \b
+| "\\r"  // \r
+| "\\f"  // \f
+| "\\a"  // \a
+| "\\\\" // \\
+| "\\'"  // \'
+| "\\\"" // \"
 }
 
+/* Identifiers */
 TOKEN [IGNORE_CASE] :
 {
   < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
@@ -202,8 +207,9 @@ void basic_expr() :
 {}
 {
   //Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
-  (<STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>)*
- | Expression()
+  //(<STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>)*
+// ( Expression() )*
+  BinaryOp()
 }
 
 ///////////////////////////////////////
@@ -268,33 +274,48 @@ void Lv() :
 {}
 { 
   [<STAR>] VID() [<DOT> FID() | <FIELD_DEREF> FID() | Expression()] 
-  | <LPAREN> Lv() <RPAREN>
+| <LPAREN> Lv() <RPAREN>
 }
 
 ///////////////////////////////////////
 /////        Operators            /////
 ///////////////////////////////////////
 
-void UnaryOperator() :
+// Page 15 C0-Reference - Can we transfer those to the lexer?
+void Sep() :
+{}
+{
+  <LPAREN>
+| <RPAREN>
+| <LBRACKET>
+| <RBRACKET>
+| <LBRACE>
+| <RBRACE>
+| <COMMA>
+| <SEMICOLON>
+}
+
+void UnaryOp() :
 {}
 {
   <BANG>
 | <TILDE>
-| <INCR>
-| <DECR>
 | <MINUS>
+| <STAR>
 }
 
-void BinaryOperator() :
+void BinaryOp() :
 {}
 {
-  <STAR>
+  <DOT>
+| <FIELD_DEREF>
+| <STAR>
 | <SLASH>
-| <MOD>
+| <REM>
 | <PLUS>
 | <MINUS>
 | <LSHIFT>
-| <RSIGNEDSHIFT>
+| <RSHIFT>
 | <LT>
 | <LE>
 | <GE>
@@ -306,17 +327,30 @@ void BinaryOperator() :
 | <BIT_OR>
 | <SC_AND>
 | <SC_OR>
-| <ASSIGN>
+| <HOOK> // How is this a binary expression?
+| <COLON> // How is this a binary expression?
+}
+
+void AsnOp() :
+{}
+{
+  <ASSIGN>
 | <PLUSASSIGN>
 | <MINUSASSIGN>
 | <STARASSIGN>
 | <SLASHASSIGN>
 | <REMASSIGN>
+| <LSHIFTASSIGN>
+| <RSHIFTASSIGN>
 | <ANDASSIGN>
 | <XORASSIGN>
 | <ORASSIGN>
-| <LSHIFTASSIGN>
-| <RSIGNEDSHIFTASSIGN>
+}
+
+void PostOp() :
+{}
+{
+  <DECR> | <INCR>
 }
 
 ///////////////////////////////////////
@@ -326,17 +360,31 @@ void BinaryOperator() :
 void Expression() :
 {}
 {
+  (
   <LPAREN> Expression() <RPAREN>
 | <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
 | <TRUE> | <FALSE> | <NULL>
-| VID()
-//| Expression() BinaryOperator() Expression()
-//| UnaryOperator() Expression()
-//| Expression() <HOOK> Expression() <COLON> Expression()
-//| VID() <LPAREN> Expression() (<COMMA> Expression())* <RPAREN>
-//| Expression() <DOT> FID()
-//| Expression() <FIELD_DEREF> FID()
-//| Expression() [Expression()]
+| VID() [<LPAREN> Expression() (<COMMA> Expression())* <RPAREN>]
+| UnaryOp() Expression()
 | <ALLOC> <LPAREN> Type() <RPAREN>
 | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+  )
+
+  [
+    BinaryOp() Expression()                   // Expression() BinaryOp() Expression()
+  | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
+  | <DOT> FID()                               // Expression() <DOT> FID()
+  | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
+  | Expression()                              // Expression() [Expression()]
+  ]
+}
+
+///////////////////////////////////////
+/////          Simple             /////
+///////////////////////////////////////
+
+void Simple() :
+{}
+{
+ Lv()
 }
