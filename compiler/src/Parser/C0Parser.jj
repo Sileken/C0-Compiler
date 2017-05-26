@@ -138,8 +138,8 @@ TOKEN :
 
 TOKEN :
 {
-  < CHAR_LITERAL: "'" ~["\r", "\n", "\t"] "'" > // Empty ' ' allowed? e.g. char c = ' '
-| < STRING_LITERAL: "\"" (~["\r", "\n", "\t"])* "\"" > 
+  < CHAR_LITERAL: "'" ~["\r", "\n", "\t", "'"] "'" > // Should empty ' ' allowed? e.g. char c = ' '. For now it is
+| < STRING_LITERAL: "\"" (~["\r", "\n", "\t", "\"", "\\"] | "\\\"" | "\\\\" )* "\"" > // Last two optionals are \" and \\ 
 }
 
 TOKEN [IGNORE_CASE] :
@@ -183,7 +183,8 @@ void basic_expr() :
 {}
 {
   //Type() <IDENTIFIER> <ASSIGN> <INTEGER_LITERAL>
-  Expression()
+  <STRING> <IDENTIFIER> <ASSIGN> <STRING_LITERAL>
+ | Expression()
 }
 
 ///////////////////////////////////////
@@ -317,6 +318,6 @@ void Expression() :
 //| Expression() <DOT> FID()
 //| Expression() <FIELD_DEREF> FID()
 //| Expression() [Expression()]
-//| <ALLOC> <LPAREN> Type() <RPAREN>
-//| <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+| <ALLOC> <LPAREN> Type() <RPAREN>
+| <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
 }
