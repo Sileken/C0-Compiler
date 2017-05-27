@@ -8,13 +8,13 @@ int main(){
     struct list* lastList;
 
     while(i >= 0){
-         struct list l* = alloc(struct list);
+         struct list* l = alloc(struct list);
          l->data = i;
          
          if(lastList != NULL){
              l->next = lastList;
          }
-         i = i -1;
+         i = i - 1;
     }
 }
 
