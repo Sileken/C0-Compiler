@@ -25,6 +25,8 @@ package parser;
 import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
+import ast.expression.*;
+import ast.statement.*;
 
 public class C0Parser {
 }
@@ -211,11 +213,11 @@ ASTNode prog() :
 {
    (
     node = GDECL() 
-    { rootNode.addChild(node); }
+      { rootNode.addChild(node); }
     | node = GDEFN()
-    { rootNode.addChild(node); }
+      { rootNode.addChild(node); }
    )* 
-   {  return (ASTNode) rootNode; }
+   { return (ASTNode) rootNode; }
 }
 
 ///////////////////////////////////////
@@ -225,50 +227,90 @@ ASTNode prog() :
 // Is it important to make a distinction?
 
 // For variable + function names
-void VID() :
-{}
+Token VID() :
+{
+  Token token;
+}
 {
   <IDENTIFIER>
+  { return token; } 
 }
 
 // Structnames
-void SID() :
-{}
+Token SID() :
 {
-  <IDENTIFIER>
+  Token token;
+}
+{
+  token = <IDENTIFIER>
+  { return token; }
 }
 
 // Field names
-void FID() :
-{}
+Token FID() :
+{
+    Token token;
+}
 {
   <IDENTIFIER>
+  { return token; }
 }
 
 ///////////////////////////////////////
 /////         Data-Types          /////
 ///////////////////////////////////////
 
-void Struct() :
-{}
+StructType Struct() :
 {
-  <STRUCT> SID()
+  Token token;
+}
+{
+  <STRUCT> token = SID()
+  {
+    StructType structType = new StructType(); //set SID...
+    return structType;
+  }
 }
 
-void PrimitiveType() :
-{}
+PrimitiveType PrimitiveType() :
 {
-  <INT>
-| <BOOL>
-| <STRING>
-| <CHAR>
-| <VOID>
+  Token token;
+}
+{
+  token = <INT>
+  | token = <BOOL>
+  | token = <STRING>
+  | token = <CHAR>
+  | token = <VOID>
+  {
+    PrimitiveType primitiveType = new PrimitiveType(); //set type name..
+    return primitiveType;
+  }
 }
 
-void Type() :
-{}
+Type Type() :
 {
-  (PrimitiveType() | Struct()) [<STAR> | <LBRACKET> <RBRACKET>] // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
+  Type type;  
+}
+{
+   type = (
+    PrimitiveType() 
+    | Struct()
+  ) [ // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
+      <STAR> 
+      {
+        ReferenceType refType = new ReferenceType();
+        //refType... = type ... 
+        type = refType;
+      }
+      | <LBRACKET> <RBRACKET>
+      {
+        ArrayType arrType = new ArrayType();
+        // arrType ... = type ...
+        type = arrType;
+      }
+    ]
+    { return type; } 
 }
 
 ///////////////////////////////////////
@@ -292,7 +334,7 @@ void Lv() :
 /////        Operators            /////
 ///////////////////////////////////////
 
-// Page 15 C0-Reference - Can we transfer those to the lexer?
+// Page 15 C0-Reference - Can we transfer those to the lexer? Ja
 void Sep() :
 {}
 {
@@ -306,40 +348,53 @@ void Sep() :
 | <SEMICOLON>
 }
 
-void UnaryOp() :
-{}
+Token UnaryOp() :
+{ 
+  Token token;
+}
 {
-  <BANG>
-| <TILDE>
-| <MINUS>
-| <STAR>
+  token = (
+      <BANG>
+    | <TILDE>
+    | <MINUS>
+    | <STAR>
+  ){
+    return token; // use Token
+  }
 }
 
-void BinaryOp() :
-{}
+Token BinaryOp() :
 {
-  <STAR>
-| <SLASH>
-| <REM>
-| <PLUS>
-| <MINUS>
-| <LSHIFT>
-| <RSHIFT>
-| <LT>
-| <LE>
-| <GE>
-| <GT>
-| <EQ>
-| <NE>
-| <BIT_AND>
-| <XOR>
-| <BIT_OR>
-| <SC_AND>
-| <SC_OR>
-| <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
-| <FIELD_DEREF> // How is this a binary expression?
-| <HOOK>        // How is this a binary expression?
-| <COLON>       // How is this a binary expression?
+  Token token;
+}
+{
+  token = (
+      <STAR>
+    | <SLASH>
+    | <REM>
+    | <PLUS>
+    | <MINUS>
+    | <LSHIFT>
+    | <RSHIFT>
+    | <LT>
+    | <LE>
+    | <GE>
+    | <GT>
+    | <EQ>
+    | <NE>
+    | <BIT_AND>
+    | <XOR>
+    | <BIT_OR>
+    | <SC_AND>
+    | <SC_OR>
+    | <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
+    | <FIELD_DEREF> // How is this a binary expression?
+    | <HOOK>        // How is this a binary expression?
+    | <COLON>       // How is this a binary expression?
+  )
+  {
+    return token;
+  }
 }
 
 void AsnOp() :
@@ -395,11 +450,12 @@ void Expression() :
 }
 
 ///////////////////////////////////////
-/////          Simple             /////
+/////      Simple Statement       /////
 ///////////////////////////////////////
 
 void Simple() :
-{}
+{ 
+}
 {
   Lv() AsnOp() Expression()
 | Lv() PostOp()
@@ -408,43 +464,136 @@ void Simple() :
 }
 
 ///////////////////////////////////////
-/////          Stmt               /////
+/////          Statement          /////
 ///////////////////////////////////////
 
-void STMT() :
-{}
+ASTNode STMT() :
 {
-  Simple() <SEMICOLON>
-| <IF> <LPAREN> Expression() <RPAREN> STMT() [<ELSE> STMT()]
-| <WHILE> <LPAREN> Expression() <RPAREN> STMT()
-| <FOR> <LPAREN> [Simple()] <SEMICOLON> Expression() <SEMICOLON> [Simple()] <RPAREN> STMT()
-| <RETURN> [Expression()] <SEMICOLON>
-| <LBRACE> (STMT())* <RBRACE>
+  ASTNode node;
+}
+{
+  node = Simple() <SEMICOLON>
+    { return node; }
+  | node = IfStatement()   
+    { return node; }
+  | node = WhileStatement()   
+    { return node; }
+  | node = ForStatement()
+    { return node; }
+  | node = ReturnStatement()
+    { return node; }
+  | node = BlockStatement()
+    { return node; }
+}
+
+IfStatement IfStatement():
+{
+  // use expression, statement objects
+}
+{
+  <IF> <LPAREN> Expression() <RPAREN> STMT() [<ELSE> STMT()]
+  { return new IfStatement(); }
+}
+
+WhileStatement WhileStatement():
+{
+  // use expression and statement object
+}
+{
+  <WHILE> <LPAREN> Expression() <RPAREN> STMT()
+  { return new WhileStatement(); }
+}
+
+ForStatement ForStatement():
+{
+  //use simple-, expression- and statement-objects
+}
+{
+  <FOR> <LPAREN> [Simple()] <SEMICOLON> Expression() <SEMICOLON> [Simple()] <RPAREN> STMT()
+  { return new ForStatement(); }
+}
+
+ReturnStatement ReturnStatement():
+{
+  //use expression object
+}
+{
+  <RETURN> [Expression()] <SEMICOLON>
+  { return new ReturnStatement(); }
+}
+
+BlockStatement BlockStatement():
+{
+  // use statements-objets
+}
+{
+  <LBRACE> (STMT())* <RBRACE>
+  { return new BlockStatement(); }
 }
 
 ///////////////////////////////////////
-/////          GDEFN              /////
+/////     Global Definition       /////
 ///////////////////////////////////////
 
 ASTNode GDEFN() :
-{}
+{
+  ASTNode node;
+}
+{
+  GlobalStructDefinition()
+    { return node; }
+  | GlobalFunctionDefinition()
+    { return node; }
+}
+
+StructDefinition GlobalStructDefinition():
+{
+  // use types, identifiers
+}
 {
   <STRUCT> SID() <LBRACE> (Type() FID() <SEMICOLON>)* <RBRACE> <SEMICOLON>
   { return new StructDefinition();  }
-| Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <LBRACE> (STMT())* <RBRACE>
+}
+
+FunctionDefinition GlobalFunctionDefinition():
+{
+  // use types, identifiers
+}
+{
+   Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <LBRACE> (STMT())* <RBRACE>
   { return new FunctionDefinition();  }
 }
 
+
 ///////////////////////////////////////
-/////          GDECL              /////
+/////      Global Declaration     /////
 ///////////////////////////////////////
 
 ASTNode GDECL() :
-{ }
+{
+  ASTNode node;
+}
+{
+  node = GlobalStructDeklaration()
+    { return node; }
+  | node = GlobalFunctionDeclartion()
+    { return node; }
+}
+
+StructDeclaration GlobalStructDeklaration():
+{
+  //use struct type, identifier
+}
 {
   <STRUCT> SID() <SEMICOLON>
   { return new StructDeclaration();  }
-| Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <SEMICOLON>
-  { return new FunctionDeclaration();  }
+}
 
+FunctionDeclaration GlobalFunctionDeclartion():
+{
+  //use types, identifiers ...
+}
+{
+  Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <SEMICOLON>
+  { return new FunctionDeclaration();  }
 }
