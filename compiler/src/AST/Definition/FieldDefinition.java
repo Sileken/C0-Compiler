@@ -5,10 +5,9 @@ import ast.identifier.*;
 
 public class FieldDefinition extends Definition {
     private Type fieldType;
-    private FieldIdentifier fieldId;
 
     public FieldDefinition(Type fieldType, FieldIdentifier fieldId){
+        super(fieldId);
         this.fieldType = fieldType;
-        this.fieldId = fieldId;
     }
 }

@@ -232,13 +232,23 @@ ASTNode prog() :
 // Is it important to make a distinction?
 
 // For variable + function names
-Token VID() :
+VariableFunctionIdentifier VID() :
 {
   Token token;
 }
 {
   token = <IDENTIFIER>
-  { return token; } 
+  { return new VariableFunctionIdentifier(token); } 
+}
+
+// For function parameter
+ParameterIdentifier PARAID() :
+{
+  Token token;
+}
+{
+  token = <IDENTIFIER>
+  { return new ParameterIdentifier(token); } 
 }
 
 // Structnames
@@ -272,7 +282,7 @@ StructType Struct() :
 {
   <STRUCT> structId = SID()
   {
-    StructType structType = new StructType(); //set SID...
+    StructType structType = new StructType(structId);
     return structType;
   }
 }
@@ -566,7 +576,7 @@ StructDefinition GlobalStructDefinition() :
     { fieldDefs.add(fieldDef); }
   )* 
   <RBRACE> <SEMICOLON>
-  { return new StructDefinition(structId, fieldDefs); }
+  { return new StructDefinition(new StructType(structId), structId, fieldDefs); }
 }
 
 FieldDefinition FieldDefinition():
@@ -583,11 +593,13 @@ FieldDefinition FieldDefinition():
 
 FunctionDefinition GlobalFunctionDefinition() :
 {
-  // use types, identifiers
+  Type returnType;
+  VariableFunctionIdentifier funcId;
+  List<ParameterDefinition> parameterDefs;
 }
 {
-   Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <LBRACE> (STMT())* <RBRACE>
-  { return new FunctionDefinition();  }
+  returnType = Type() funcId = VID() <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> <LBRACE> (STMT())* <RBRACE>
+  { return new FunctionDefinition(returnType, funcId, parameterDefs);  }
 }
 
 
@@ -608,18 +620,42 @@ ASTNode GDECL() :
 
 StructDeclaration GlobalStructDeklaration() :
 {
-  //use struct type, identifier
+  StructIdentifier structId;
 }
 {
-  <STRUCT> SID() <SEMICOLON>
-  { return new StructDeclaration();  }
+  <STRUCT> structId = SID() <SEMICOLON>
+  { return new StructDeclaration(new StructType(structId), structId); }
 }
 
 FunctionDeclaration GlobalFunctionDeclartion() :
 {
-  //use types, identifiers ...
+  Type returnType;
+  VariableFunctionIdentifier funcId;
+  List<ParameterDefinition> parameterDefs;
 }
 {
-  Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <SEMICOLON>
-  { return new FunctionDeclaration();  }
+  returnType = Type() funcId = VID() <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> <SEMICOLON>
+  { return new FunctionDeclaration(returnType, funcId, parameterDefs); }
+}
+
+List<ParameterDefinition> ParameterDefinitions() :
+{
+  List<ParameterDefinition> parameterDefs = new ArrayList<ParameterDefinition>();
+  Type firstParaType;
+  ParameterIdentifier firstParaId;
+}
+{
+  [ 
+    firstParaType = Type() firstParaId = PARAID() 
+    { parameterDefs.add(new ParameterDefinition(firstParaType, firstParaId)); } 
+    (
+      {   
+        Type additionalParaType;
+        ParameterIdentifier additionalParaId;         
+      }
+      <COMMA> additionalParaType = Type() additionalParaId = PARAID()
+      { parameterDefs.add(new ParameterDefinition(additionalParaType, additionalParaId)); }
+    )* 
+  ]
+  { return parameterDefs; }
 }
