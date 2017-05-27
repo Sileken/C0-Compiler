@@ -16,7 +16,7 @@ int main(){
     p->friendsIds = alloc_array(int, 5);
     
     for(int i = 0; i > 5; i++){
-        //p->friendsIds[i] = i; // Same as in example1 array indexing in combination with more makes kinda problems
+        //p->friendsIds[i] = i; // Does not work. Why?
     }
     
     int id = getId(p);
@@ -47,7 +47,7 @@ struct person* copyPerson(struct person* p){
 
 bool is_person(struct person* p) { 
   if (p == NULL) return false;        /* test this first! */
-  //if (!(p->id > 0)) return false;   /* so that this dereference is safe */      // Again Field-Access + BinaryOperator does not work yet
-  //if (!(0 <= p->age && p->age < 200)) return false;
+  if (!(p->id > 0)) return false;     /* so that this dereference is safe */
+  if (!(0 <= p->age && p->age < 200)) return false;
   return true;
 }

@@ -353,6 +353,7 @@ void PostOp() :
 /////        Expressions          /////
 ///////////////////////////////////////
 
+// THIS IS NOT OPTIMAL. BEST WOULD BE TO USE LOCAL LOOKAHEADS AND MAKE THE GLOBAL LOOKAHEAD SMALLER
 void Expression() :
 {}
 {
@@ -365,14 +366,16 @@ void Expression() :
 | <ALLOC> <LPAREN> Type() <RPAREN>
 | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
   )
-  // k[0] > 3 don't work, but why??
-  // VID() <LPAREN> VID() <RPAREN> /*now it should go to below*/ BinaryOp() VID()
+
   [
-    BinaryOp() Expression()                   // Expression() BinaryOp() Expression()
-  | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
+//  BinaryOp() Expression() | // Putting this again below allows to parse expressions like k[] = 3
+    <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
   | <DOT> FID()                               // Expression() <DOT> FID()
   | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
   | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
+  ]
+  [
+    BinaryOp() Expression()                   // Expression() BinaryOp() Expression()
   ]
 }
 
