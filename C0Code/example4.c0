@@ -1,11 +1,14 @@
-string a = "qweqwe";
-string b = "qweqwe\n\t";
-string c = "\\\n\t\v\r\f\a\\\'\"";
 
 
-char d = 'a';
-char e = '\n';
-char f = '\\';
-char g = '\'';
+int main()
+{
+  string a = "qweqwe";
+  string b = "qweqwe\n\t";
+  string c = "\\\n\t\v\r\f\a\\\'\""; 
 
-char e = 'e';
+  char d = 'a';
+  //char e = '\n'; // not allowed yet
+  //char f = '\\'; // not allowed yet
+  //char g = '\''; // not allowed yet
+  char e = 'e';
+}

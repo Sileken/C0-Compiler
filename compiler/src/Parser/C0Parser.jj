@@ -135,7 +135,7 @@ TOKEN :
 /* Char's + String's */
 TOKEN :
 {
-  < CHAR_LITERAL: "'" (~["\r", "\n", "\t", "'"] | "\\0") "'" > // Should empty ' ' allowed? e.g. char c = ' '. For now it is
+  < CHAR_LITERAL: "'" (~["\r", "\n", "\t", "'", "\\"] | "\\0") "'" > // Should empty ' ' allowed? e.g. char c = ' '. For now it is
 // | < STRING_LITERAL: "\"" (~["\r", "\n", "\t", "\"", "\\"] | "\\\"" | "\\\\" )* "\"" > // Hard to understand, so i splitted it
 }
 
