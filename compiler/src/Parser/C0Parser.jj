@@ -15,7 +15,7 @@ options {
   BUILD_PARSER = true;
   BUILD_TOKEN_MANAGER = true;
   SANITY_CHECK = true;
-  FORCE_LA_CHECK = false;
+  FORCE_LA_CHECK = true;
 }
 
 PARSER_BEGIN(C0Parser)
@@ -269,8 +269,13 @@ void Type() :
 void Lv() :
 {}
 { 
-  [<STAR>] VID() [<DOT> FID() | <FIELD_DEREF> FID() | (<LBRACKET> Expression() <RBRACKET>)] 
-| <LPAREN> Lv() <RPAREN>
+<LPAREN> Lv() <RPAREN>
+| VID() [
+          <DOT> FID() 
+          | <FIELD_DEREF> FID() 
+          | (<LBRACKET> Expression() <RBRACKET>)
+        ]
+| <STAR> Lv()
 }
 
 ///////////////////////////////////////
@@ -321,10 +326,10 @@ void BinaryOp() :
 | <BIT_OR>
 | <SC_AND>
 | <SC_OR>
-//| <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
-//| <FIELD_DEREF> // How is this a binary expression?
-//| <HOOK>        // How is this a binary expression?
-//| <COLON>       // How is this a binary expression?
+| <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
+| <FIELD_DEREF> // How is this a binary expression?
+| <HOOK>        // How is this a binary expression?
+| <COLON>       // How is this a binary expression?
 }
 
 void AsnOp() :
@@ -368,15 +373,15 @@ void Expression() :
   )
 
   [
-//  BinaryOp() Expression() | // Putting this again below allows to parse expressions like k[] = 3
-    <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
+    BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
+  | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
   | <DOT> FID()                               // Expression() <DOT> FID()
   | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
   | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
   ]
-  [
+  /*[
     BinaryOp() Expression()                   // Expression() BinaryOp() Expression()
-  ]
+  ]*/
 }
 
 ///////////////////////////////////////

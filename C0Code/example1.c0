@@ -1,17 +1,10 @@
-
-// Global Variables are not allowed, only functions
-//int global1;
-//int global2;
-//int global3;
-
-//testComment
 /* Test Comment */
 
 int main()
 {
-    global1 = 12;
-    global2 = 2 + 1;
-    global3 = 5;
+    int global1 = 12;
+    int global2 = 2 + 1;
+    int global3 = 5;
 
     int result = 0;
     if(global1 > global2){

@@ -2,7 +2,6 @@ struct person {
   int id;
   string name;
   int age;
-  //int[] friendsIds; // ARRAY'S IN STRUCTS ARE NOT ALLOWED (at least i didn't find anything in the spec)
 };
 
 int getId(struct person* p);
@@ -15,15 +14,10 @@ int main(){
     struct person* p = alloc(struct person);
     p->friendsIds = alloc_array(int, 5);
     
-    for(int i = 0; i > 5; i++){
-        //p->friendsIds[i] = i; // Does not work, because arrays in structs are not allowed
-    }
-    
     int id = getId(p);
     string name = getName(p);
     int age = getAge(p);
-    // Is a function call on a function call allowed? EDIT: I think it's not allowed, but im not 100% sure
-    //struct person* newp = copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p);
+    struct person* newp = copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p);
     bool isP = is_person(p);
 }
 
