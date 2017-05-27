@@ -380,7 +380,7 @@ void Expression() :
   | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
   ]
   /*[
-    BinaryOp() Expression()                   // Expression() BinaryOp() Expression()
+    BinaryOp() Expression()                   // Expression() BinaryOp() Expression() -- still need?
   ]*/
 }
 
