@@ -1,5 +1,5 @@
 options {
-  LOOKAHEAD = 10;
+  LOOKAHEAD = 15;
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
@@ -167,7 +167,7 @@ MORE :
 /* Identifiers */
 TOKEN [IGNORE_CASE] :
 {
-  < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] )* >
+  < IDENTIFIER: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] | "_")* >
 }
 
 /* COMMENTS */

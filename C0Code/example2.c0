@@ -9,20 +9,20 @@ int getId(struct person* p);
 int getName(struct person* p);
 int getAge(struct person* p);
 struct person* copyPerson(struct person* p);
-bool is_person(struct person*);
+bool is_person(struct person* p);
 
 int main(){
     struct person* p = alloc(struct person);
     p->friendsIds = alloc_array(int, 5);
     
     for(int i = 0; i > 5; i++){
-        p->friendsIds[i] = i;
+        //p->friendsIds[i] = i; // Same as in example1 array indexing in combination with more makes kinda problems
     }
     
     int id = getId(p);
     string name = getName(p);
     int age = getAge(p);
-    struct person* newp = copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p);
+    //struct person* newp = copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p); // Is a function call on a function call allowed?
     bool isP = is_person(p);
 }
 
@@ -45,9 +45,9 @@ struct person* copyPerson(struct person* p){
     p2->age = p->age;
 }
 
-bool is_person(struct person* p) {
+bool is_person(struct person* p) { 
   if (p == NULL) return false;        /* test this first! */
-  if (!(p->id > 0)) return false;     /* so that this dereference is safe */
-  if (!(0 <= p->age && p->age < 200)) return false;
+  //if (!(p->id > 0)) return false;   /* so that this dereference is safe */      // Again Field-Access + BinaryOperator does not work yet
+  //if (!(0 <= p->age && p->age < 200)) return false;
   return true;
 }
