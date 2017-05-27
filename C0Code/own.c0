@@ -30,6 +30,11 @@ char* functDecl17();
 string * functDecl18();
 int functDecl123(int* para1, bool* para2, char* para3, string* para4, struct x* qwe);
 
+struct p******** testType();
+int[][][] testArray();
+
+int[]*[]*[] testArray();
+
 int main() {
   exp(0,0) == 1;
   exp(0,1) == 0;

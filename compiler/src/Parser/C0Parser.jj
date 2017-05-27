@@ -234,9 +234,6 @@ FileUnit prog() :
 /////    Different Identifiers    /////
 ///////////////////////////////////////
 
-// Is it important to make a distinction?
-
-// For variable + function names
 VariableFunctionIdentifier VID() :
 {
   Token token;
@@ -246,7 +243,6 @@ VariableFunctionIdentifier VID() :
   { return new VariableFunctionIdentifier(token); } 
 }
 
-// For function parameter
 ParameterIdentifier PARAID() :
 {
   Token token;
@@ -256,7 +252,6 @@ ParameterIdentifier PARAID() :
   { return new ParameterIdentifier(token); } 
 }
 
-// Structnames
 StructIdentifier SID() :
 {
   Token token;
@@ -266,7 +261,6 @@ StructIdentifier SID() :
   { return new StructIdentifier(token); }
 }
 
-// Field names
 FieldIdentifier FID() :
 {
     Token token;
@@ -305,7 +299,7 @@ PrimitiveType PrimitiveType() :
     | token = <VOID>
   )
   {
-    PrimitiveType primitiveType = new PrimitiveType(); //set type name..
+    PrimitiveType primitiveType = new PrimitiveType(token.image);
     return primitiveType;
   }
 }
@@ -320,20 +314,16 @@ Type Type() :
       type = PrimitiveType() 
       | type = Struct()
     )
-    [ // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
-        <STAR> 
+    (
+        <STAR> //Pointer
         {
-          ReferenceType refType = new ReferenceType();
-          //refType... = type ... 
-          type = refType;
+          type = new ReferenceType(type);
         }
-        | <LBRACKET> <RBRACKET>
+        | <LBRACKET> <RBRACKET> // Array
         {
-          ArrayType arrType = new ArrayType();
-          // arrType ... = type ...
-          type = arrType;
-        }
-    ]
+          type = new ArrayType(type);
+        }      
+    )*
   )
   { return type; } 
 }
