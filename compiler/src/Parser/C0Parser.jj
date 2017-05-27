@@ -22,10 +22,14 @@ PARSER_BEGIN(C0Parser)
 
 package parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
 import ast.expression.*;
+import ast.identifier.*;
 import ast.statement.*;
 import ast.type.*;
 
@@ -238,23 +242,23 @@ Token VID() :
 }
 
 // Structnames
-Token SID() :
+StructIdentifier SID() :
 {
   Token token;
 }
 {
   token = <IDENTIFIER>
-  { return token; }
+  { return new StructIdentifier(token); }
 }
 
 // Field names
-Token FID() :
+FieldIdentifier FID() :
 {
     Token token;
 }
 {
   token = <IDENTIFIER>
-  { return token; }
+  { return new FieldIdentifier(token); }
 }
 
 ///////////////////////////////////////
@@ -263,10 +267,10 @@ Token FID() :
 
 StructType Struct() :
 {
-  Token token;
+  StructIdentifier structId;
 }
 {
-  <STRUCT> token = SID()
+  <STRUCT> structId = SID()
   {
     StructType structType = new StructType(); //set SID...
     return structType;
@@ -551,11 +555,30 @@ ASTNode GDEFN() :
 
 StructDefinition GlobalStructDefinition() :
 {
-  // use types, identifiers
+  StructIdentifier structId;
+  List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition>();
 }
 {
-  <STRUCT> SID() <LBRACE> (Type() FID() <SEMICOLON>)* <RBRACE> <SEMICOLON>
-  { return new StructDefinition();  }
+  <STRUCT> structId = SID() <LBRACE> 
+  (
+    { FieldDefinition fieldDef; }
+    fieldDef = FieldDefinition()
+    { fieldDefs.add(fieldDef); }
+  )* 
+  <RBRACE> <SEMICOLON>
+  { return new StructDefinition(structId, fieldDefs); }
+}
+
+FieldDefinition FieldDefinition():
+{
+  Type fieldType;
+  FieldIdentifier fieldId;
+}
+{
+  fieldType = Type() fieldId = FID() <SEMICOLON>
+  {
+    return new FieldDefinition(fieldType, fieldId);
+  }
 }
 
 FunctionDefinition GlobalFunctionDefinition() :
