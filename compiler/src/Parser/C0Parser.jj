@@ -27,6 +27,7 @@ import ast.declaration.*;
 import ast.definition.*;
 import ast.expression.*;
 import ast.statement.*;
+import ast.type.*;
 
 public class C0Parser {
 }
@@ -232,7 +233,7 @@ Token VID() :
   Token token;
 }
 {
-  <IDENTIFIER>
+  token = <IDENTIFIER>
   { return token; } 
 }
 
@@ -252,7 +253,7 @@ Token FID() :
     Token token;
 }
 {
-  <IDENTIFIER>
+  token = <IDENTIFIER>
   { return token; }
 }
 
@@ -293,10 +294,10 @@ Type Type() :
   Type type;  
 }
 {
-   type = (
-    PrimitiveType() 
-    | Struct()
-  ) [ // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
+    
+  type = PrimitiveType() 
+  | type = Struct()
+  [ // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
       <STAR> 
       {
         ReferenceType refType = new ReferenceType();
@@ -352,13 +353,12 @@ Token UnaryOp() :
 { 
   Token token;
 }
-{
-  token = (
-      <BANG>
-    | <TILDE>
-    | <MINUS>
-    | <STAR>
-  ){
+{   
+    token = <BANG>
+  | token = <TILDE>
+  | token = <MINUS>
+  | token = <STAR>
+  {
     return token; // use Token
   }
 }
@@ -368,30 +368,28 @@ Token BinaryOp() :
   Token token;
 }
 {
-  token = (
-      <STAR>
-    | <SLASH>
-    | <REM>
-    | <PLUS>
-    | <MINUS>
-    | <LSHIFT>
-    | <RSHIFT>
-    | <LT>
-    | <LE>
-    | <GE>
-    | <GT>
-    | <EQ>
-    | <NE>
-    | <BIT_AND>
-    | <XOR>
-    | <BIT_OR>
-    | <SC_AND>
-    | <SC_OR>
-    | <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
-    | <FIELD_DEREF> // How is this a binary expression?
-    | <HOOK>        // How is this a binary expression?
-    | <COLON>       // How is this a binary expression?
-  )
+    token = <STAR>
+  | token = <SLASH>
+  | token = <REM>
+  | token = <PLUS>
+  | token = <MINUS>
+  | token = <LSHIFT>
+  | token = <RSHIFT>
+  | token = <LT>
+  | token = <LE>
+  | token = <GE>
+  | token = <GT>
+  | token = <EQ>
+  | token = <NE>
+  | token = <BIT_AND>
+  | token = <XOR>
+  | token = <BIT_OR>
+  | token = <SC_AND>
+  | token = <SC_OR>
+  | token = <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
+  | token = <FIELD_DEREF> // How is this a binary expression?
+  | token = <HOOK>        // How is this a binary expression?
+  | token = <COLON>       // How is this a binary expression?
   {
     return token;
   }
@@ -453,14 +451,19 @@ void Expression() :
 /////      Simple Statement       /////
 ///////////////////////////////////////
 
-void Simple() :
+ASTNode Simple() :
 { 
+  ASTNode node = null;
 }
 {
-  Lv() AsnOp() Expression()
-| Lv() PostOp()
-| Expression()
-| Type() VID() [ <ASSIGN> Expression() ]
+    Lv() AsnOp() Expression()
+     { return node; }
+  | Lv() PostOp()
+    { return node; }
+  | Expression()
+    { return node; }
+  | Type() VID() [ <ASSIGN> Expression() ]
+    { return node; }
 }
 
 ///////////////////////////////////////
@@ -486,7 +489,7 @@ ASTNode STMT() :
     { return node; }
 }
 
-IfStatement IfStatement():
+IfStatement IfStatement() :
 {
   // use expression, statement objects
 }
@@ -495,7 +498,7 @@ IfStatement IfStatement():
   { return new IfStatement(); }
 }
 
-WhileStatement WhileStatement():
+WhileStatement WhileStatement() :
 {
   // use expression and statement object
 }
@@ -504,7 +507,7 @@ WhileStatement WhileStatement():
   { return new WhileStatement(); }
 }
 
-ForStatement ForStatement():
+ForStatement ForStatement() :
 {
   //use simple-, expression- and statement-objects
 }
@@ -513,7 +516,7 @@ ForStatement ForStatement():
   { return new ForStatement(); }
 }
 
-ReturnStatement ReturnStatement():
+ReturnStatement ReturnStatement() :
 {
   //use expression object
 }
@@ -522,7 +525,7 @@ ReturnStatement ReturnStatement():
   { return new ReturnStatement(); }
 }
 
-BlockStatement BlockStatement():
+BlockStatement BlockStatement() :
 {
   // use statements-objets
 }
@@ -540,13 +543,13 @@ ASTNode GDEFN() :
   ASTNode node;
 }
 {
-  GlobalStructDefinition()
+  node = GlobalStructDefinition()
     { return node; }
-  | GlobalFunctionDefinition()
+  | node = GlobalFunctionDefinition()
     { return node; }
 }
 
-StructDefinition GlobalStructDefinition():
+StructDefinition GlobalStructDefinition() :
 {
   // use types, identifiers
 }
@@ -555,7 +558,7 @@ StructDefinition GlobalStructDefinition():
   { return new StructDefinition();  }
 }
 
-FunctionDefinition GlobalFunctionDefinition():
+FunctionDefinition GlobalFunctionDefinition() :
 {
   // use types, identifiers
 }
@@ -580,7 +583,7 @@ ASTNode GDECL() :
     { return node; }
 }
 
-StructDeclaration GlobalStructDeklaration():
+StructDeclaration GlobalStructDeklaration() :
 {
   //use struct type, identifier
 }
@@ -589,7 +592,7 @@ StructDeclaration GlobalStructDeklaration():
   { return new StructDeclaration();  }
 }
 
-FunctionDeclaration GlobalFunctionDeclartion():
+FunctionDeclaration GlobalFunctionDeclartion() :
 {
   //use types, identifiers ...
 }
