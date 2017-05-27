@@ -205,7 +205,7 @@ Node parseTree() :
 void prog() :
 {}
 {
-  (GDECL() | GDEFN())*
+  (GDECL() | GDEFN())* 
 }
 
 ///////////////////////////////////////
@@ -269,7 +269,7 @@ void Type() :
 void Lv() :
 {}
 { 
-  [<STAR>] VID() [<DOT> FID() | <FIELD_DEREF> FID() | Expression()] 
+  [<STAR>] VID() [<DOT> FID() | <FIELD_DEREF> FID() | (<LBRACKET> Expression() <RBRACKET>)] 
 | <LPAREN> Lv() <RPAREN>
 }
 
@@ -321,10 +321,10 @@ void BinaryOp() :
 | <BIT_OR>
 | <SC_AND>
 | <SC_OR>
-| <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
-| <FIELD_DEREF> // How is this a binary expression?
-| <HOOK>        // How is this a binary expression?
-| <COLON>       // How is this a binary expression?
+//| <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
+//| <FIELD_DEREF> // How is this a binary expression?
+//| <HOOK>        // How is this a binary expression?
+//| <COLON>       // How is this a binary expression?
 }
 
 void AsnOp() :
@@ -360,18 +360,19 @@ void Expression() :
   <LPAREN> Expression() <RPAREN>
 | <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
 | <TRUE> | <FALSE> | <NULL>
-| VID() [<LPAREN> Expression() (<COMMA> Expression())* <RPAREN>]
+| VID() [<LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN>]
 | UnaryOp() Expression()
 | <ALLOC> <LPAREN> Type() <RPAREN>
 | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
   )
-
+  // k[0] > 3 don't work, but why??
+  // VID() <LPAREN> VID() <RPAREN> /*now it should go to below*/ BinaryOp() VID()
   [
     BinaryOp() Expression()                   // Expression() BinaryOp() Expression()
   | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
   | <DOT> FID()                               // Expression() <DOT> FID()
   | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
-  | Expression()                              // Expression() [Expression()]
+  | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
   ]
 }
 

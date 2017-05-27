@@ -10,5 +10,13 @@ int main() {
   exp(-3,4) == 81;
   exp(2,30) == (1<<30);
   string s = "Patrick fährt gerne Fahrrad"; // Jörg fragen
+  
+  int k = 6;
+  while(k >= 1)
+  {
+    a[0] + k;
+    k--;
+  }
+
   return 0;
 }

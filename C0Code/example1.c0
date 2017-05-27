@@ -1,6 +1,8 @@
-int global1;
-int global2;
-int global3;
+
+// Global Variables are not allowed, only functions
+//int global1;
+//int global2;
+//int global3;
 
 //testComment
 /* Test Comment */
@@ -26,9 +28,9 @@ int main()
         result[i] = i * result;
     }
 
-    int k = 6
+    int k = 6;
     while(k >= 1){
-        result[k] = result[k] / k;
+        // result[k] = result[k] / k; // AN ARRAY ACCESS IN COMBINATION WITH A BINARY-OPERATOR DONT WORK
         k--;
     }
 
@@ -41,7 +43,7 @@ int main()
                 if(i % 2 == 0){
                     wb2 = false;
                 }
-                if(i % 10 = 0){
+                if(i % 10 == 0){
                     wb = false;
                 }
             }
