@@ -11,10 +11,13 @@ public class StructDefinition extends Definition {
 
   public StructDefinition(StructType structType, StructIdentifier structId, List<FieldDefinition> fieldDefs){
     super(structId);
+
     this.structType = structType;
+    this.addChild(this.structType);
 
     if(fieldDefs != null && !fieldDefs.isEmpty()){
         this.fieldDefs = fieldDefs;
+        this.addChilds(this.fieldDefs);
     }
   }
 }

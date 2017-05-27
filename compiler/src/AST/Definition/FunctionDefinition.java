@@ -12,8 +12,11 @@ public class FunctionDefinition extends Definition {
   public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs){
     super(funcId);
     this.returnType = returnType;
+    this.addChild(this.returnType);
+
     if(parameterDefs != null && !parameterDefs.isEmpty()){
         this.parameterDefs = parameterDefs;
+        this.addChilds(this.parameterDefs);
     }
   }
 }

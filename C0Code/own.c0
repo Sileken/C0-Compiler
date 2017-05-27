@@ -13,6 +13,22 @@ struct list3 {
   struct list* next;
 };
 
+struct decl1;
+struct decl2;
+int functDecl();
+bool functDecl2();
+struct list3 functDecl4();
+void functDecl6();
+char functDecl7();
+string functDecl8();
+
+int* functDecl1();
+bool* functDecl12();
+//struct* list3 functDecl14();
+void* functDecl16();
+char* functDecl17();
+string * functDecl18();
+
 int main() {
   exp(0,0) == 1;
   exp(0,1) == 0;

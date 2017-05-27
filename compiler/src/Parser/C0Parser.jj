@@ -5,7 +5,7 @@ options {
   STATIC = true;
   DEBUG_PARSER = true;
   DEBUG_LOOKAHEAD = false;
-  DEBUG_TOKEN_MANAGER = false;
+  DEBUG_TOKEN_MANAGER = true;
   ERROR_REPORTING = true;
   JAVA_UNICODE_ESCAPE = false;
   UNICODE_INPUT = false;
@@ -200,7 +200,7 @@ SKIP :
 AST parseTree() :
 {
   AST ast = new AST();
-  ASTNode rootNode; 
+  FileUnit rootNode; 
 }
 {
   rootNode = prog() <EOF> 
@@ -210,19 +210,24 @@ AST parseTree() :
   }
 }
 
-ASTNode prog() :
-{ 
-  FileUnit rootNode = new FileUnit();
-  ASTNode node;
- }
+FileUnit prog() :
 {
-   (
-    node = GDECL() 
-      { rootNode.addChild(node); }
-    | node = GDEFN()
-      { rootNode.addChild(node); }
-   )* 
-   { return (ASTNode) rootNode; }
+  List<Declaration> globalDeclarations = new ArrayList<Declaration>();
+  List<Definition> globalDefinitions = new ArrayList<Definition>();
+}
+{
+  (
+    { Declaration decl; }
+    decl = GDECL() 
+    { globalDeclarations.add(decl); }
+    | 
+    { Definition def; } 
+    def = GDEFN()
+    { globalDefinitions.add(def); }
+  )* 
+  { 
+     return new FileUnit(globalDeclarations, globalDefinitions); 
+  }
 }
 
 ///////////////////////////////////////
@@ -292,11 +297,13 @@ PrimitiveType PrimitiveType() :
   Token token;
 }
 {
-  token = <INT>
-  | token = <BOOL>
-  | token = <STRING>
-  | token = <CHAR>
-  | token = <VOID>
+  (
+      token = <INT>
+    | token = <BOOL>
+    | token = <STRING>
+    | token = <CHAR>
+    | token = <VOID>
+  )
   {
     PrimitiveType primitiveType = new PrimitiveType(); //set type name..
     return primitiveType;
@@ -307,25 +314,28 @@ Type Type() :
 {
   Type type;  
 }
-{
-    
-  type = PrimitiveType() 
-  | type = Struct()
-  [ // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
-      <STAR> 
-      {
-        ReferenceType refType = new ReferenceType();
-        //refType... = type ... 
-        type = refType;
-      }
-      | <LBRACKET> <RBRACKET>
-      {
-        ArrayType arrType = new ArrayType();
-        // arrType ... = type ...
-        type = arrType;
-      }
+{    
+  (
+    (  
+      type = PrimitiveType() 
+      | type = Struct()
+    )
+    [ // Pointers + Arrays optional e.g. struct Test*, struct Test[], int*, string
+        <STAR> 
+        {
+          ReferenceType refType = new ReferenceType();
+          //refType... = type ... 
+          type = refType;
+        }
+        | <LBRACKET> <RBRACKET>
+        {
+          ArrayType arrType = new ArrayType();
+          // arrType ... = type ...
+          type = arrType;
+        }
     ]
-    { return type; } 
+  )
+  { return type; } 
 }
 
 ///////////////////////////////////////
@@ -367,11 +377,13 @@ Token UnaryOp() :
 { 
   Token token;
 }
-{   
-    token = <BANG>
-  | token = <TILDE>
-  | token = <MINUS>
-  | token = <STAR>
+{  
+  ( 
+      token = <BANG>
+    | token = <TILDE>
+    | token = <MINUS>
+    | token = <STAR>
+  )
   {
     return token; // use Token
   }
@@ -382,28 +394,30 @@ Token BinaryOp() :
   Token token;
 }
 {
+  (  
     token = <STAR>
-  | token = <SLASH>
-  | token = <REM>
-  | token = <PLUS>
-  | token = <MINUS>
-  | token = <LSHIFT>
-  | token = <RSHIFT>
-  | token = <LT>
-  | token = <LE>
-  | token = <GE>
-  | token = <GT>
-  | token = <EQ>
-  | token = <NE>
-  | token = <BIT_AND>
-  | token = <XOR>
-  | token = <BIT_OR>
-  | token = <SC_AND>
-  | token = <SC_OR>
-  | token = <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
-  | token = <FIELD_DEREF> // How is this a binary expression?
-  | token = <HOOK>        // How is this a binary expression?
-  | token = <COLON>       // How is this a binary expression?
+    | token = <SLASH>
+    | token = <REM>
+    | token = <PLUS>
+    | token = <MINUS>
+    | token = <LSHIFT>
+    | token = <RSHIFT>
+    | token = <LT>
+    | token = <LE>
+    | token = <GE>
+    | token = <GT>
+    | token = <EQ>
+    | token = <NE>
+    | token = <BIT_AND>
+    | token = <XOR>
+    | token = <BIT_OR>
+    | token = <SC_AND>
+    | token = <SC_OR>
+    | token = <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
+    | token = <FIELD_DEREF> // How is this a binary expression?
+    | token = <HOOK>        // How is this a binary expression?
+    | token = <COLON>       // How is this a binary expression?
+  )
   {
     return token;
   }
@@ -552,9 +566,9 @@ BlockStatement BlockStatement() :
 /////     Global Definition       /////
 ///////////////////////////////////////
 
-ASTNode GDEFN() :
+Definition GDEFN() :
 {
-  ASTNode node;
+  Definition node;
 }
 {
   node = GlobalStructDefinition()
@@ -607,9 +621,9 @@ FunctionDefinition GlobalFunctionDefinition() :
 /////      Global Declaration     /////
 ///////////////////////////////////////
 
-ASTNode GDECL() :
+Declaration GDECL() :
 {
-  ASTNode node;
+  Declaration node;
 }
 {
   node = GlobalStructDeklaration()

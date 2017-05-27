@@ -8,6 +8,8 @@ public abstract class Definition extends ASTNode {
 
     protected Definition(Identifier identifier){
         super();
+        
         this.identifier = identifier;
+        this.addChild(this.identifier);
     }
 }

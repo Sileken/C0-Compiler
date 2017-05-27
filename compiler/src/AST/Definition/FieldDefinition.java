@@ -9,5 +9,6 @@ public class FieldDefinition extends Definition {
     public FieldDefinition(Type fieldType, FieldIdentifier fieldId){
         super(fieldId);
         this.fieldType = fieldType;
+        this.addChild(this.fieldType);
     }
 }

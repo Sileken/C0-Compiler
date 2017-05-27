@@ -34,6 +34,11 @@ public abstract class ASTNode {
 		this.childrenList.add(child);
 	}
 
+	public void addChilds(List<? extends ASTNode> childs) {
+		for (ASTNode child : childs) {
+			this.addChild(child);
+		}
+	}
 
 	@Override
 	public final String toString() {

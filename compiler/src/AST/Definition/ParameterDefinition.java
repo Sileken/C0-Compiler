@@ -8,6 +8,8 @@ public class ParameterDefinition extends Definition {
 
     public ParameterDefinition(Type parameterType, ParameterIdentifier parameterId){
         super(parameterId);
+
         this.parameterType = parameterType;
+        this.addChild(this.parameterType);
     }
 }

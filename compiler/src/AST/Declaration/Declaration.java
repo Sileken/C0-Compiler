@@ -8,6 +8,8 @@ public abstract class Declaration extends ASTNode {
 
     public Declaration(Identifier identifier) {
         super();
+        
         this.identifier = identifier;
+        this.addChild(this.identifier);
     }
 }

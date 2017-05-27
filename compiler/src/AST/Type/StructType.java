@@ -7,5 +7,6 @@ public class StructType extends Type {
 
     public StructType(StructIdentifier structTypeIdentifier){
         this.structTypeIdentifier = structTypeIdentifier;
+        this.addChild(this.structTypeIdentifier);
     }
 }

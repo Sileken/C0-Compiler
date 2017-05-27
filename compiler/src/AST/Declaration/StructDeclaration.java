@@ -8,6 +8,8 @@ public class StructDeclaration extends Declaration {
 
     public StructDeclaration(StructType structType, StructIdentifier structId){
         super(structId);
+        
         this.structType = structType;
+        this.addChild(this.structType);
     }
 }
