@@ -1,3 +1,17 @@
+struct list {
+  int data;
+  struct list* next;
+};
+
+struct list2 {
+  int data;
+  struct list* next;
+};
+
+struct list3 {
+  int data;
+  struct list* next;
+};
 
 int main() {
   exp(0,0) == 1;
@@ -14,7 +28,7 @@ int main() {
   int k = 6;
   while(k >= 1)
   {
-    a[0] = a[1] + k; // ERROR a[1] + k
+    //a[0] = a[1] + k; // ERROR a[1] + k
     k--;
   }
 

@@ -22,7 +22,9 @@ PARSER_BEGIN(C0Parser)
 
 package parser;
 
-import astnodes.*;
+import ast.*;
+import ast.declaration.*;
+import ast.definition.*;
 
 public class C0Parser {
 }
@@ -188,24 +190,32 @@ SKIP :
  * THE C0 GRAMMAR SPECIFICATION STARTS HERE *
  ************************************************/
 
-Node parseTree() :
+AST parseTree() :
 {
-  Node rootNode = new Node();
+  AST ast = new AST();
+  ASTNode rootNode; 
 }
 {
-  //global Sachen parsen <prog> (globale Deklarationen und globale Funktionen)
-  // Danach Statements, die expression usw.
-  
-  prog() <EOF> 
+  rootNode = prog() <EOF> 
   {
-     return rootNode;
+    ast.setRoot(rootNode);
+    return ast;
   }
 }
 
-void prog() :
-{}
+ASTNode prog() :
+{ 
+  FileUnit rootNode = new FileUnit();
+  ASTNode node;
+ }
 {
-  (GDECL() | GDEFN())* 
+   (
+    node = GDECL() 
+    { rootNode.addChild(node); }
+    | node = GDEFN()
+    { rootNode.addChild(node); }
+   )* 
+   {  return (ASTNode) rootNode; }
 }
 
 ///////////////////////////////////////
@@ -416,20 +426,25 @@ void STMT() :
 /////          GDEFN              /////
 ///////////////////////////////////////
 
-void GDEFN() :
+ASTNode GDEFN() :
 {}
 {
   <STRUCT> SID() <LBRACE> (Type() FID() <SEMICOLON>)* <RBRACE> <SEMICOLON>
+  { return new StructDefinition();  }
 | Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <LBRACE> (STMT())* <RBRACE>
+  { return new FunctionDefinition();  }
 }
 
 ///////////////////////////////////////
 /////          GDECL              /////
 ///////////////////////////////////////
 
-void GDECL() :
-{}
+ASTNode GDECL() :
+{ }
 {
   <STRUCT> SID() <SEMICOLON>
-| Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <SEMICOLON> 
+  { return new StructDeclaration();  }
+| Type() VID() <LPAREN> [Type() VID() (<COMMA> Type() VID())*] <RPAREN> <SEMICOLON>
+  { return new FunctionDeclaration();  }
+
 }

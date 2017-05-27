@@ -1,5 +1,5 @@
 import parser.*;
-import astnodes.*;
+import ast.*;
 
 public class C0Compiler {
   public static void main(String args[]) {
@@ -21,8 +21,9 @@ public class C0Compiler {
     }
 
     try {
-      Node rootNode = parser.parseTree();
+      AST ast = parser.parseTree();
       System.out.println("SUCCESS!");
+      System.out.println(ast);
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();
