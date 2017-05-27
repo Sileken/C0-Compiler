@@ -46,7 +46,7 @@ public abstract class ASTNode {
 		str += "<" + this.getClass().getSimpleName() + ">";
 		if(this.identifier.length() > 0) str += " " + this.identifier + " |";
 		for (ASTNode child : this.childrenList) {
-			str += " " + child.getClass().getSimpleName() + " |";
+			str += " " + child.getClass().getSimpleName() + " { " + child.toString() + " } |";
 		}
 		if (this.parent != null)
 			str += " parent: " + this.parent.getClass().getSimpleName();
