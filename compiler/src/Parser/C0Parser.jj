@@ -474,12 +474,12 @@ Expression Expression() :
 }
 
 ///////////////////////////////////////
-/////      Simple Statement       /////
+/////  Simple Expression Statement /////
 ///////////////////////////////////////
 
-SimpleStatement Simple() :
+ExpressionStatement ExpressionStatement() :
 { 
-  SimpleStatement simple;
+  ExpressionStatement expressionStatement;
 }
 {
   (  
@@ -488,7 +488,8 @@ SimpleStatement Simple() :
     | Expression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )
-  { return simple = new SimpleStatement(); }
+  <SEMICOLON>
+  { return expressionStatement = new ExpressionStatement(); }
 }
 
 ///////////////////////////////////////
@@ -501,7 +502,7 @@ Statement STMT() :
 }
 {
   ( 
-      statement = Simple() <SEMICOLON>
+      statement = ExpressionStatement()
     | statement = IfStatement()   
     | statement = WhileStatement()   
     | statement = ForStatement()
@@ -540,16 +541,16 @@ WhileStatement WhileStatement() :
 
 ForStatement ForStatement() :
 {
-  SimpleStatement initialization = null;
+  ExpressionStatement initialization = null;
   Expression condition;
-  SimpleStatement increment = null;
+  ExpressionStatement increment = null;
   Statement statement;
 }
 {
   <FOR> <LPAREN> 
-  [ initialization = Simple()] <SEMICOLON> 
+  [ initialization = ExpressionStatement()] <SEMICOLON> 
   condition = Expression() <SEMICOLON>
-  [ increment = Simple()] <RPAREN> 
+  [ increment = ExpressionStatement()] <RPAREN> 
   statement = STMT()
   { return new ForStatement(initialization, condition, increment, statement); }
 }
