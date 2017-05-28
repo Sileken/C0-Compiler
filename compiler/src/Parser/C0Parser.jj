@@ -440,26 +440,34 @@ void PostOp() :
 ///////////////////////////////////////
 
 // THIS IS NOT OPTIMAL. BEST WOULD BE TO USE LOCAL LOOKAHEADS AND MAKE THE GLOBAL LOOKAHEAD SMALLER
-void Expression() :
-{}
+Expression Expression() :
+{
+  Expression expression;
+}
 {
   (
-  <LPAREN> Expression() <RPAREN>
-| <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
-| <TRUE> | <FALSE> | <NULL>
-| VID() [<LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN>]
-| UnaryOp() Expression()
-| <ALLOC> <LPAREN> Type() <RPAREN>
-| <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
-  )
+    (
+    <LPAREN> Expression() <RPAREN>
+  | <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
+  | <TRUE> | <FALSE> | <NULL>
+  | VID() [<LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN>]
+  | UnaryOp() Expression()
+  | <ALLOC> <LPAREN> Type() <RPAREN>
+  | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+    )
 
-  [
-    BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
-  | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
-  | <DOT> FID()                               // Expression() <DOT> FID()
-  | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
-  | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
-  ]
+    [
+      BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
+    | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
+    | <DOT> FID()                               // Expression() <DOT> FID()
+    | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
+    | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
+    ]
+  )
+  { 
+    expression = new BinaryExpression(); /* Dummy Expression*/
+    return expression; 
+  }
   /*[
     BinaryOp() Expression()                   // Expression() BinaryOp() Expression() -- still need?
   ]*/
@@ -505,47 +513,69 @@ Statement STMT() :
 
 IfStatement IfStatement() :
 {
-  // use expression, statement objects
+  Expression condition;
+  Statement ifStatement;
+  ElseStatement elseStatement = null;
 }
 {
-  <IF> <LPAREN> Expression() <RPAREN> STMT() [<ELSE> STMT()]
-  { return new IfStatement(); }
+  <IF> <LPAREN> condition = Expression() <RPAREN> 
+  ifStatement = STMT() 
+  [
+    <ELSE> 
+    { Statement statement; }
+    statement = STMT()
+    { elseStatement = new ElseStatement(statement); }
+  ]
+  { return new IfStatement(condition, ifStatement, elseStatement); }
 }
 
 WhileStatement WhileStatement() :
 {
-  // use expression and statement object
+  Expression condition;
 }
 {
-  <WHILE> <LPAREN> Expression() <RPAREN> STMT()
-  { return new WhileStatement(); }
+  <WHILE> <LPAREN> condition = Expression() <RPAREN> STMT()
+  { return new WhileStatement(condition); }
 }
 
 ForStatement ForStatement() :
 {
-  //use simple-, expression- and statement-objects
+  SimpleStatement initialization = null;
+  Expression condition;
+  SimpleStatement increment = null;
+  Statement statement;
 }
 {
-  <FOR> <LPAREN> [Simple()] <SEMICOLON> Expression() <SEMICOLON> [Simple()] <RPAREN> STMT()
-  { return new ForStatement(); }
+  <FOR> <LPAREN> 
+  [ initialization = Simple()] <SEMICOLON> 
+  condition = Expression() <SEMICOLON>
+  [ increment = Simple()] <RPAREN> 
+  statement = STMT()
+  { return new ForStatement(initialization, condition, increment, statement); }
 }
 
 ReturnStatement ReturnStatement() :
 {
-  //use expression object
+  Expression expression = null;
 }
 {
-  <RETURN> [Expression()] <SEMICOLON>
-  { return new ReturnStatement(); }
+  <RETURN> [ expression = Expression() ] <SEMICOLON>
+  { return new ReturnStatement(expression); }
 }
 
 BlockStatement BlockStatement() :
 {
-  // use statements-objets
+  List<Statement> statements = new ArrayList<Statement>();
 }
 {
-  <LBRACE> (STMT())* <RBRACE>
-  { return new BlockStatement(); }
+  <LBRACE> 
+    (
+      { Statement statement; }
+      statement = STMT()
+      { statements.add(statement); }
+    )* 
+  <RBRACE>
+  { return new BlockStatement(statements); }
 }
 
 ///////////////////////////////////////
