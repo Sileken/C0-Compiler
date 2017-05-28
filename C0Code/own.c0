@@ -1,6 +1,7 @@
 struct list {
   int data;
   struct list* next;
+  int[] q;
 };
 
 struct list2 {
@@ -36,6 +37,11 @@ int[][][] testArray();
 int[]*[]*[] testArray();
 
 int main() {
+  struct list* as = alloc(struct list);
+  int one = as->q[0];
+
+ // a[0] = a[1] + 3; does not work
+  
   exp(0,0) == 1;
   exp(0,1) == 0;
   exp(1,0) == 1;

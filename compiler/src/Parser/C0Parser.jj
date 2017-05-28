@@ -469,42 +469,38 @@ void Expression() :
 /////      Simple Statement       /////
 ///////////////////////////////////////
 
-ASTNode Simple() :
+SimpleStatement Simple() :
 { 
-  ASTNode node = null;
+  SimpleStatement simple;
 }
 {
+  (  
     Lv() AsnOp() Expression()
-     { return node; }
-  | Lv() PostOp()
-    { return node; }
-  | Expression()
-    { return node; }
-  | Type() VID() [ <ASSIGN> Expression() ]
-    { return node; }
+    | Lv() PostOp()
+    | Expression()
+    | Type() VID() [ <ASSIGN> Expression() ]
+  )
+  { return simple = new SimpleStatement(); }
 }
 
 ///////////////////////////////////////
 /////          Statement          /////
 ///////////////////////////////////////
 
-ASTNode STMT() :
+Statement STMT() :
 {
-  ASTNode node;
+  Statement statement;
 }
 {
-  node = Simple() <SEMICOLON>
-    { return node; }
-  | node = IfStatement()   
-    { return node; }
-  | node = WhileStatement()   
-    { return node; }
-  | node = ForStatement()
-    { return node; }
-  | node = ReturnStatement()
-    { return node; }
-  | node = BlockStatement()
-    { return node; }
+  ( 
+      statement = Simple() <SEMICOLON>
+    | statement = IfStatement()   
+    | statement = WhileStatement()   
+    | statement = ForStatement()
+    | statement = ReturnStatement()
+    | statement = BlockStatement()
+  )
+  { return statement; }
 }
 
 IfStatement IfStatement() :
@@ -561,10 +557,11 @@ Definition GDEFN() :
   Definition node;
 }
 {
-  node = GlobalStructDefinition()
-    { return node; }
-  | node = GlobalFunctionDefinition()
-    { return node; }
+  ( 
+    node = GlobalStructDefinition()
+    | node = GlobalFunctionDefinition()
+  )
+  { return node; }
 }
 
 StructDefinition GlobalStructDefinition() :
@@ -600,10 +597,20 @@ FunctionDefinition GlobalFunctionDefinition() :
   Type returnType;
   VariableFunctionIdentifier funcId;
   List<ParameterDefinition> parameterDefs;
+  List<Statement> statements = new ArrayList<Statement>();
 }
 {
-  returnType = Type() funcId = VID() <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> <LBRACE> (STMT())* <RBRACE>
-  { return new FunctionDefinition(returnType, funcId, parameterDefs);  }
+  returnType = Type()
+  funcId = VID() 
+  <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> 
+  <LBRACE> 
+    ( 
+      { Statement statement; }
+      statement = STMT()
+      { statements.add(statement); } 
+    )* 
+  <RBRACE>
+  { return new FunctionDefinition(returnType, funcId, parameterDefs, statements); }
 }
 
 
@@ -616,10 +623,11 @@ Declaration GDECL() :
   Declaration node;
 }
 {
-  node = GlobalStructDeklaration()
-    { return node; }
-  | node = GlobalFunctionDeclartion()
-    { return node; }
+  (
+    node = GlobalStructDeklaration()
+    | node = GlobalFunctionDeclartion()
+  )
+  { return node; }
 }
 
 StructDeclaration GlobalStructDeklaration() :
