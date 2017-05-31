@@ -406,10 +406,10 @@ Token BinaryOp() :
     | token = <BIT_OR>
     | token = <SC_AND>
     | token = <SC_OR>
-    | token = <DOT>         // How is this a binary expression? LOOKAHEAD of 2 is necessary if these are specified
-    | token = <FIELD_DEREF> // How is this a binary expression?
-    | token = <HOOK>        // How is this a binary expression?
-    | token = <COLON>       // How is this a binary expression?
+    | token = <DOT>         
+    | token = <FIELD_DEREF>
+    | token = <HOOK>       
+    | token = <COLON>      
   )
   {
     return token;
@@ -442,6 +442,7 @@ void PostOp() :
 /////        Expressions          /////
 ///////////////////////////////////////
 
+// TODO refactor whole Expression()
 Expression Expression() :
 {
   Expression expression;
@@ -450,22 +451,23 @@ Expression Expression() :
   (
     (
     <LPAREN> Expression() <RPAREN>
-  | <INTEGER_LITERAL>
+  | <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
   | <TRUE> | <FALSE> | <NULL>
-  | VID() [<LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN>]
+  | VID() [LOOKAHEAD(2) <LPAREN> [Expression() (<COMMA> Expression())* ] <RPAREN>] // Lookahead of 1 necessary for matching e.g. func() and func(())
   | UnaryOp() Expression()
   | <ALLOC> <LPAREN> Type() <RPAREN>
   | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
     )
     [
-            LOOKAHEAD(2) // TODO: what is the best here?
-      BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
-     | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
+      <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
     | <DOT> FID()                               // Expression() <DOT> FID()
     | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
     | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
     ]
-
+    [
+      LOOKAHEAD(2) // TODO: what is the best here?
+      BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
+    ]
   )
   { 
     expression = new BinaryExpression(); /* Dummy Expression*/
@@ -486,6 +488,7 @@ ExpressionStatement ExpressionStatement() :
     // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
     // So we need an infinite lookahead to make the right decision e.g. for (((((((lv)))))))
     // BUT both expression AND lv can be ((((((( VID )))))))
+    // TODO: MAYBE THERE IS A BETTER OPTION HERE??
     LOOKAHEAD(2147483647)
     Lv() (PostOp() | AsnOp() Expression())
     | Expression()
