@@ -1,5 +1,5 @@
 options {
-  LOOKAHEAD = 15;
+  LOOKAHEAD = 1;
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
@@ -15,7 +15,7 @@ options {
   BUILD_PARSER = true;
   BUILD_TOKEN_MANAGER = true;
   SANITY_CHECK = true;
-  FORCE_LA_CHECK = true;
+  FORCE_LA_CHECK = false;
 }
 
 PARSER_BEGIN(C0Parser)
@@ -217,9 +217,12 @@ FileUnit prog() :
 }
 {
   (
+     // Syntactic-Lookahead, JavaCC will try this out and if it not matches it will take the other choice (in this case a definition)
+     // This is necessary because the amount of parameters can be infinite e.g. void func(int a, int b, ..., int n);
+    LOOKAHEAD(GDECL())
     { Declaration decl; }
-    decl = GDECL() 
-    { globalDeclarations.add(decl); }
+    decl = GDECL()
+    { globalDeclarations.add(decl); }    
     | 
     { Definition def; } 
     def = GDEFN()
@@ -448,15 +451,15 @@ Expression Expression() :
   (
     (
     <LPAREN> Expression() <RPAREN>
-  | <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
+  | <INTEGER_LITERAL>
   | <TRUE> | <FALSE> | <NULL>
   | VID() [<LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN>]
   | UnaryOp() Expression()
   | <ALLOC> <LPAREN> Type() <RPAREN>
   | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
     )
-
     [
+      LOOKAHEAD(2147483647)
       BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
     | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
     | <DOT> FID()                               // Expression() <DOT> FID()
@@ -483,8 +486,11 @@ ExpressionStatement ExpressionStatement() :
 }
 {
   (  
-    Lv() AsnOp() Expression()
-    | Lv() PostOp()
+    // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
+    // So we need an infinite lookahead to make the right decision e.g. for (((((((lv)))))))
+    // BUT both expression AND lv can be ((((((( VID )))))))
+    LOOKAHEAD(Lv())
+    Lv() (PostOp() | AsnOp() Expression())
     | Expression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )
@@ -522,6 +528,9 @@ IfStatement IfStatement() :
   <IF> <LPAREN> condition = Expression() <RPAREN> 
   ifStatement = STMT() 
   [
+    // This is needed to prevent the warning. The grammar is correct the parser will throw a warning. 
+    // If you want to know why look at https://javacc.org/tutorials/lookahead (search for dangling-else)
+    LOOKAHEAD(1) 
     <ELSE> 
     { Statement statement; }
     statement = STMT()
@@ -589,6 +598,9 @@ Definition GDEFN() :
 }
 {
   ( 
+    // struct id {...} -> struct definition ; 
+    // struct id func() {...} -> function declaration ---- We need at least 3 TOKENS to make the right choice
+    LOOKAHEAD(3) 
     node = GlobalStructDefinition()
     | node = GlobalFunctionDefinition()
   )
@@ -655,8 +667,10 @@ Declaration GDECL() :
 }
 {
   (
+    LOOKAHEAD(3) // struct id; -> struct declaration ; struct id func(); -> function declaration ---- We need at least 3 TOKENS to make the right choice
     node = GlobalStructDeklaration()
-    | node = GlobalFunctionDeclartion()
+    |
+    node = GlobalFunctionDeclartion()
   )
   { return node; }
 }

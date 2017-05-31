@@ -23,7 +23,7 @@ public class C0Compiler {
     try {
       AST ast = parser.parseTree();
       System.out.println("SUCCESS!");
-      System.out.println(ast);
+      //System.out.println(ast);
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();
