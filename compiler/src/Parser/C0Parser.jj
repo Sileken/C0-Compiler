@@ -442,7 +442,6 @@ void PostOp() :
 /////        Expressions          /////
 ///////////////////////////////////////
 
-// THIS IS NOT OPTIMAL. BEST WOULD BE TO USE LOCAL LOOKAHEADS AND MAKE THE GLOBAL LOOKAHEAD SMALLER
 Expression Expression() :
 {
   Expression expression;
@@ -459,21 +458,19 @@ Expression Expression() :
   | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
     )
     [
-      LOOKAHEAD(2147483647)
+            LOOKAHEAD(2) // TODO: what is the best here?
       BinaryOp() Expression() // Putting this again below allows to parse expressions like k[] = 3 and f().f().f()
-    | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
+     | <HOOK> Expression() <COLON> Expression()  // e.g. 3 > 5 ? true : false
     | <DOT> FID()                               // Expression() <DOT> FID()
     | <FIELD_DEREF> FID()                       // Expression() <FIELD_DEREF> FID()
     | <LBRACKET> Expression() <RBRACKET>        // Expression() [ Expression() ]
     ]
+
   )
   { 
     expression = new BinaryExpression(); /* Dummy Expression*/
     return expression; 
   }
-  /*[
-    BinaryOp() Expression()                   // Expression() BinaryOp() Expression() -- still need?
-  ]*/
 }
 
 ///////////////////////////////////////
@@ -489,12 +486,11 @@ ExpressionStatement ExpressionStatement() :
     // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
     // So we need an infinite lookahead to make the right decision e.g. for (((((((lv)))))))
     // BUT both expression AND lv can be ((((((( VID )))))))
-    LOOKAHEAD(Lv())
+    LOOKAHEAD(2147483647)
     Lv() (PostOp() | AsnOp() Expression())
     | Expression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )
-  <SEMICOLON>
   { return expressionStatement = new ExpressionStatement(); }
 }
 
@@ -508,7 +504,7 @@ Statement STMT() :
 }
 {
   ( 
-      statement = ExpressionStatement()
+      statement = ExpressionStatement() [<SEMICOLON>] // The semicolon was before in expression statement, but that was not optional and not correct..
     | statement = IfStatement()   
     | statement = WhileStatement()   
     | statement = ForStatement()
