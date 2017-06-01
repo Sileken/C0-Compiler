@@ -498,7 +498,7 @@ Statement STMT() :
 }
 {
   ( 
-      statement = ExpressionStatement() [<SEMICOLON>] // The semicolon was before in expression statement, but that was not optional and not correct..
+      statement = ExpressionStatement() <SEMICOLON>
     | statement = IfStatement()   
     | statement = WhileStatement()   
     | statement = ForStatement()
