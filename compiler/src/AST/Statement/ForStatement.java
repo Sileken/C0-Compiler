@@ -3,12 +3,12 @@ package ast.statement;
 import ast.expression.*;
 
 public class ForStatement extends Statement {
-    private ExpressionStatement initialization;
+    private Simple initialization;
     private Expression condition;
-    private ExpressionStatement increment;
+    private Simple increment;
     private Statement statement;
 
-    public ForStatement(ExpressionStatement initialization, Expression condition, ExpressionStatement increment, Statement statement){
+    public ForStatement(Simple initialization, Expression condition, Simple increment, Statement statement){
         super();
 
         if(initialization != null){
