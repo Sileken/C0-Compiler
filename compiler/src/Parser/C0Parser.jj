@@ -485,13 +485,11 @@ Expression Expression() :
 // }
 
 ///////////////////////////////////////
-/////  Simple Expression Statement /////
+/////           Simple            /////
 ///////////////////////////////////////
 
-ExpressionStatement ExpressionStatement() :
-{ 
-  ExpressionStatement expressionStatement;
-}
+Simple Simple() :
+{ }
 {
   (  
     // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
@@ -503,8 +501,10 @@ ExpressionStatement ExpressionStatement() :
     | Expression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )
-  { return expressionStatement = new ExpressionStatement(); }
+  { return new Simple(); }
 }
+
+
 
 ///////////////////////////////////////
 /////          Statement          /////
@@ -516,7 +516,7 @@ Statement STMT() :
 }
 {
   ( 
-      statement = ExpressionStatement() <SEMICOLON>
+      statement = SimpleStatement()
     | statement = IfStatement()   
     | statement = WhileStatement()   
     | statement = ForStatement()
@@ -525,6 +525,16 @@ Statement STMT() :
   )
   { return statement; }
 }
+
+SimpleStatement SimpleStatement() :
+{
+  Simple simple;
+}
+{
+  simple = Simple() <SEMICOLON>
+  { return new SimpleStatement(simple); }
+}
+
 
 IfStatement IfStatement() :
 {
@@ -558,16 +568,16 @@ WhileStatement WhileStatement() :
 
 ForStatement ForStatement() :
 {
-  ExpressionStatement initialization = null;
+  Simple initialization = null;
   Expression condition;
-  ExpressionStatement increment = null;
+  Simple increment = null;
   Statement statement;
 }
 {
   <FOR> <LPAREN> 
-  [ initialization = ExpressionStatement()] <SEMICOLON> 
+  [ initialization = Simple()] <SEMICOLON> 
   condition = Expression() <SEMICOLON>
-  [ increment = ExpressionStatement()] <RPAREN> 
+  [ increment = Simple()] <RPAREN> 
   statement = STMT()
   { return new ForStatement(initialization, condition, increment, statement); }
 }
