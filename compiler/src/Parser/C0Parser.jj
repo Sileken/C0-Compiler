@@ -466,6 +466,24 @@ Expression Expression() :
   }
 }
 
+// void Expression() :
+// {}
+// {
+//   <LPAREN> Expression() <RPAREN>
+// | <INTEGER_LITERAL> | <STRING_LITERAL> | <CHAR_LITERAL>
+// | <TRUE> | <FALSE> | <NULL>
+// | VID()
+// | Expression() BinaryOperator() Expression()
+// | UnaryOperator() Expression()
+// | Expression() <HOOK> Expression() <COLON> Expression()
+// | VID() <LPAREN> Expression() (<COMMA> Expression())* <RPAREN>
+// | Expression() <DOT> FID()
+// | Expression() <FIELD_DEREF> FID()
+// | Expression() [Expression()]
+// | <ALLOC> <LPAREN> Type() <RPAREN>
+// | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+// }
+
 ///////////////////////////////////////
 /////  Simple Expression Statement /////
 ///////////////////////////////////////
