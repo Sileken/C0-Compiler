@@ -473,7 +473,6 @@ Expression Expression() :
 {
   (
     (
-        LOOKAHEAD(1)
         <LPAREN> Expression() <RPAREN>
       | <INTEGER_LITERAL> | <TRUE> | <FALSE> | <NULL>
       | <ALLOC> <LPAREN> Type() <RPAREN>
