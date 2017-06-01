@@ -480,14 +480,14 @@ Expression Expression() :
       | UnaryOp() Expression()
       | VID() [ <LPAREN> Expression() (<COMMA> Expression())* <RPAREN> ]
     )+
-    [
+    (
       BinaryOp() ( 
           FID() [ <LBRACKET> Expression() <RBRACKET> ] 
           | Expression() [ <COLON> Expression() ]           
         )
       | <LBRACKET> Expression() <RBRACKET>
-    ]
-  )
+    )*
+  )+
   { 
     expression = new BinaryExpression(); /* Dummy Expression*/
     return expression; 
