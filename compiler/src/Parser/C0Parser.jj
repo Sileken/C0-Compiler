@@ -100,17 +100,13 @@ TOKEN :
 | < REM: "%" >
 | < PLUS: "+" >
 | < MINUS: "-" >
-| < LSHIFT: "<<" >
-| < RSHIFT: ">>" >
 | < LT: "<" >
 | < LE: "<=" >
 | < GE: ">=" >
 | < GT: ">" >
 | < EQ: "==" >
 | < NE: "!=" >
-| < BIT_AND: "&" >
 | < XOR: "^" >
-| < BIT_OR: "|" >
 | < SC_AND: "&&" >
 | < SC_OR: "||" >
 | < HOOK: "?" >
@@ -124,8 +120,6 @@ TOKEN :
 | < ANDASSIGN: "&=" >
 | < XORASSIGN: "^=" >
 | < ORASSIGN: "|=" >
-| < LSHIFTASSIGN: "<<=" >
-| < RSHIFTASSIGN: ">>=" >
 }
 
 /* LITERALS */
@@ -134,11 +128,14 @@ TOKEN :
   < INTEGER_LITERAL:
         <DECIMAL_LITERAL>
       | <HEX_LITERAL> 
+      | <BIN_LITERAL>
   >
 |
   < #DECIMAL_LITERAL: "0" | ["1"-"9"] (["0"-"9"])* >
 |
   < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #BIN_LITERAL: "0" ["b","B"] (["0"-"1"])+ >
 }
 
 /* Char's + String's */
@@ -393,17 +390,13 @@ Token BinaryOp() :
     | token = <REM>
     | token = <PLUS>
     | token = <MINUS>
-    | token = <LSHIFT>
-    | token = <RSHIFT>
     | token = <LT>
     | token = <LE>
     | token = <GE>
     | token = <GT>
     | token = <EQ>
     | token = <NE>
-    | token = <BIT_AND>
     | token = <XOR>
-    | token = <BIT_OR>
     | token = <SC_AND>
     | token = <SC_OR>
     | token = <DOT>         
@@ -425,8 +418,6 @@ void AsnOp() :
 | <STARASSIGN>
 | <SLASHASSIGN>
 | <REMASSIGN>
-| <LSHIFTASSIGN>
-| <RSHIFTASSIGN>
 | <ANDASSIGN>
 | <XORASSIGN>
 | <ORASSIGN>
