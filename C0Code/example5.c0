@@ -1,0 +1,63 @@
+struct list {
+  int data;
+  struct list* next;
+  int[] q;
+};
+
+struct list2 {
+  int data;
+  struct list* next;
+};
+
+struct list3 {
+  int data;
+  struct list* next;
+};
+
+struct decl1;
+struct decl2;
+int functDecl(int para1, bool para2, char para3, string para4);
+bool functDecl2();
+struct list3 functDecl4();
+void functDecl6();
+char functDecl7();
+string functDecl8();
+
+int* functDecl1();
+bool* functDecl12();
+struct list3* functDecl14();
+void* functDecl16();
+char* functDecl17();
+string * functDecl18();
+int functDecl123(int* para1, bool* para2, char* para3, string* para4, struct x* qwe);
+
+struct p******** testType();
+int[][][] testArray();
+
+int[]*[]*[] testArray();
+
+int main() {
+  struct list* as = alloc(struct list);
+  //int one = as->q[0];
+
+  a[0] = a[1] + 3;
+  
+  exp(0,0) == 1;
+  exp(0,1) == 0;
+  exp(1,0) == 1;
+  exp(1,17) == 1;
+  exp(2,7) == 128;
+  exp(-2,7) == -128;
+  exp(3,4) == 81;
+  exp(-3,4) == 81;
+  string s = "Patrick fährt gerne Fahrrad"; // Jörg fragen
+  
+  int k = 6;
+  while(k >= 1)
+  {
+    //a[0] = a[1] + k; // ERROR a[1] + k
+    k--;
+  }
+
+  return 0;
+}
