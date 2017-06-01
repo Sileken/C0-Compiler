@@ -434,7 +434,7 @@ void PostOp() :
 ///////////////////////////////////////
 
 // TODO refactor whole Expression()
-Expression Expression() :
+/*Expression Expression() :
 {
   Expression expression;
 }
@@ -461,10 +461,40 @@ Expression Expression() :
     ]
   )
   { 
+    expression = new BinaryExpression(); 
+    return expression; 
+  }
+}*/
+
+Expression Expression() :
+{
+  Expression expression;
+}
+{
+  (
+    (
+        LOOKAHEAD(1)
+        <LPAREN> Expression() <RPAREN>
+      | <INTEGER_LITERAL> | <TRUE> | <FALSE> | <NULL>
+      | <ALLOC> <LPAREN> Type() <RPAREN>
+      | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+      | UnaryOp() Expression()
+      | VID() [ <LPAREN> Expression() (<COMMA> Expression())* <RPAREN> ]
+    )+
+    [
+      BinaryOp() ( 
+          FID() [ <LBRACKET> Expression() <RBRACKET> ] 
+          | Expression() [ <COLON> Expression() ]           
+        )
+      | <LBRACKET> Expression() <RBRACKET>
+    ]
+  )
+  { 
     expression = new BinaryExpression(); /* Dummy Expression*/
     return expression; 
   }
 }
+
 
 // void Expression() :
 // {}
