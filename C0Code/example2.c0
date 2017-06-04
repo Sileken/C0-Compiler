@@ -14,7 +14,9 @@ int main(){
     
     int id = getId(p);
     int age = getAge(p);
-    struct person* newp = copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p);
+                                            // this should not work ? not an "object"/struct does not contain "properties""
+                                            // can't call a function on a struct
+    struct person* newp = copyPerson(p);//.copyPerson(p).copyPerson(p).copyPerson(p).copyPerson(p);
     bool isP = is_person(p);
 }
 

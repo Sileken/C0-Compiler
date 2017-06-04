@@ -1,4 +1,9 @@
 
 int main() {
-  int one = as->q[0]; // does not work yet
+  int one = as->q[0]; // does work yet
+  int a = one + 5;
+  a--;
+  bool c = (a > 10 ) ? false : true;
+//  int c = (a > 10) ? -1 : a++;  // problem with postOp within an expression (should this even be possible?)
+                                  // grammar does only say "lv postOp", so everything's fine?
 }

@@ -23,7 +23,7 @@ int main()
 
     int k = 6;
     while(k >= 1){
-        result[k] = result[k] / k; // Does not work yet
+        result[k] = result[k] / k;
         k--;
     }
 

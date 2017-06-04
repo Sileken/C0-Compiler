@@ -332,16 +332,19 @@ Type Type() :
 /////          L-Value            /////
 ///////////////////////////////////////
 
-// Examples are: *test, test.data, test->data, (test)
+// Examples are: (test), test.data, test->data, *test, test[], test->data[0] = 
 void Lv() :
 {}
 { 
 <LPAREN> Lv() <RPAREN>
-| VID() [
-          <DOT> FID() 
-          | <FIELD_DEREF> FID() 
-          | (<LBRACKET> Expression() <RBRACKET>)
-        ]
+| VID() 
+  [
+    (
+      <DOT> FID() 
+      | <FIELD_DEREF> FID() 
+      | (<LBRACKET> Expression() <RBRACKET>)
+    )+
+  ]
 | <STAR> Lv()
 }
 
@@ -399,10 +402,10 @@ Token BinaryOp() :
     | token = <XOR>
     | token = <SC_AND>
     | token = <SC_OR>
-    | token = <DOT>         
-    | token = <FIELD_DEREF>
-    | token = <HOOK>       
-    | token = <COLON>      
+//    | token = <DOT>         
+//    | token = <FIELD_DEREF>
+//    | token = <HOOK>       
+//    | token = <COLON>      
   )
   {
     return token;
@@ -466,33 +469,31 @@ void PostOp() :
   }
 }*/
 
-Expression Expression() :
-{
-  Expression expression;
-}
-{
-  (
-    (
-        <LPAREN> Expression() <RPAREN>
-      | <INTEGER_LITERAL> | <TRUE> | <FALSE> | <NULL>
-      | <ALLOC> <LPAREN> Type() <RPAREN>
-      | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
-      | UnaryOp() Expression()
-      | VID() [ <LPAREN> Expression() (<COMMA> Expression())* <RPAREN> ]
-    )+
-    (
-      BinaryOp() ( 
-          FID() [ <LBRACKET> Expression() <RBRACKET> ] 
-          | Expression() [ <COLON> Expression() ]           
-        )
-      | <LBRACKET> Expression() <RBRACKET>
-    )*
-  )+
-  { 
-    expression = new BinaryExpression(); /* Dummy Expression*/
-    return expression; 
-  }
-}
+// Expression Expression() :
+// { Expression expression; }
+// {
+//   (
+//     (
+//         <LPAREN> expression = Expression() <RPAREN> 
+//       | <INTEGER_LITERAL> | <TRUE> | <FALSE> | <NULL>
+//       | <ALLOC> <LPAREN> Type() <RPAREN>
+//       | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+//       | UnaryOp() Expression()
+//       | VID() [ <LPAREN> Expression() (<COMMA> Expression())* <RPAREN> ]
+//     )+
+//     (
+//       BinaryOp() ( 
+//           FID() [ <LBRACKET> Expression() <RBRACKET> ] 
+//           | Expression() [ <COLON> Expression() ]           
+//         )
+//       | <LBRACKET> Expression() <RBRACKET>
+//     )*
+//   )+
+//   { 
+//     expression = new BinaryExpression(); /* Dummy Expression*/
+//     return expression; 
+//   }
+// }
 
 
 // void Expression() :
@@ -508,17 +509,49 @@ Expression Expression() :
 // | VID() <LPAREN> Expression() (<COMMA> Expression())* <RPAREN>
 // | Expression() <DOT> FID()
 // | Expression() <FIELD_DEREF> FID()
-// | Expression() [Expression()]
+// | Expression() <LBRACKeT> Expression() <RBRACKET>
 // | <ALLOC> <LPAREN> Type() <RPAREN>
 // | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
 // }
+
+// Created new Expressions
+// there is no loop within a single expression (previous definitions wrong ?)
+// only recursive calls are allowed, like it is specified in the grammar of C0
+Expression Expression() :
+{ Expression expression; }
+{
+  (
+    <LPAREN> Expression() <RPAREN>
+    | <INTEGER_LITERAL>
+    | <TRUE> 
+    | <FALSE> 
+    | <NULL>
+    | UnaryOp() Expression()
+    | <ALLOC> <LPAREN> Type() <RPAREN>
+    | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
+    | VID() [ <LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN> ]
+  )
+  [
+    <HOOK> Expression() <COLON> Expression()
+    | <DOT> FID() [ <LBRACKET> Expression() <RBRACKET> ]
+    | <FIELD_DEREF> FID() [ <LBRACKET> Expression() <RBRACKET> ]
+    | <LBRACKET> Expression() <RBRACKET>
+  ]
+  [ BinaryOp() Expression() ]
+  {
+    expression = new BinaryExpression(); 
+    return expression;
+  }
+}
+
+
 
 ///////////////////////////////////////
 /////           Simple            /////
 ///////////////////////////////////////
 
 Simple Simple() :
-{ }
+{ Simple simple; }
 {
   (  
     // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
