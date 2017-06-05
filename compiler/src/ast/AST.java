@@ -11,8 +11,7 @@ public class AST {
     this.root = node;
   }
 
-  @Override
-  public String toString() {
-    return this.root.toString();
+  public void PrintPretty() {
+    this.root.PrintPretty("", true);
   }
 }

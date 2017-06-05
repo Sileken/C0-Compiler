@@ -16,20 +16,20 @@ struct list3 {
 
 struct decl1;
 struct decl2;
-int functDecl(int para1, bool para2, char para3, string para4);
+int functDecl(int para1, bool para2, int para3, bool para4);
 bool functDecl2();
 struct list3 functDecl4();
 void functDecl6();
-char functDecl7();
-string functDecl8();
+int functDecl7();
+bool functDecl8();
 
 int* functDecl1();
 bool* functDecl12();
 struct list3* functDecl14();
 void* functDecl16();
-char* functDecl17();
-string * functDecl18();
-int functDecl123(int* para1, bool* para2, char* para3, string* para4, struct x* qwe);
+int* functDecl17();
+bool * functDecl18();
+int functDecl123(int* para1, bool* para2, int* para3, bool* para4, struct x* qwe);
 
 struct p******** testType();
 int[][][] testArray();

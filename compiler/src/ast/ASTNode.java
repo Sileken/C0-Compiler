@@ -40,16 +40,23 @@ public abstract class ASTNode {
 		}
 	}
 
-	@Override
-	public final String toString() {
-		String str = "";
-		str += "<" + this.getClass().getSimpleName() + ">";
-		if(this.identifier.length() > 0) str += " " + this.identifier + " |";
-		for (ASTNode child : this.childrenList) {
-			str += " " + child.getClass().getSimpleName() + " { " + child.toString() + " } |";
+	public void PrintPretty(String indent, boolean last)
+	{
+		System.out.print(indent);
+		if (last)
+		{
+			System.out.print("\\-");
+			indent += "  ";
 		}
-		if (this.parent != null)
-			str += " parent: " + this.parent.getClass().getSimpleName();
-		return str;
-	}
+		else
+		{
+			System.out.print("|-");
+			indent += "| ";
+		}
+       	System.out.println(this.getClass().getSimpleName());
+
+		for (int i = 0; i < this.childrenList.size(); i++){
+			this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);
+		}
+   }
 }
