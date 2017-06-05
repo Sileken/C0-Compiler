@@ -29,6 +29,8 @@ import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
 import ast.expression.*;
+import ast.expression.name.*;
+import ast.expression.simple.*;
 import ast.identifier.*;
 import ast.statement.*;
 import ast.type.*;
@@ -453,7 +455,7 @@ Expression Expression() :
 ///////////////////////////////////////
 
 Simple Simple() :
-{ Simple simple; }
+{ Simple simple = new Simple(); }
 {
   (  
     // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
@@ -462,10 +464,21 @@ Simple Simple() :
     // TODO: MAYBE THERE IS A BETTER OPTION HERE??
     LOOKAHEAD(2147483647)
     Lv() (PostOp() | AsnOp() Expression())
-    | Expression()
+    | simple = SimpleExpression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )
-  { return new Simple(); }
+  { return simple; }
+}
+
+SimpleExpression SimpleExpression() :
+{
+  Expression expression;
+}
+{
+  expression = Expression()
+  {
+    return new SimpleExpression(expression);
+  }
 }
 
 ///////////////////////////////////////

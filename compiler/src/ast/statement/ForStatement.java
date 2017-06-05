@@ -1,6 +1,7 @@
 package ast.statement;
 
 import ast.expression.*;
+import ast.expression.simple.*;
 
 public class ForStatement extends Statement {
     private Simple initialization;
