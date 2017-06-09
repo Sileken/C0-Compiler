@@ -455,7 +455,7 @@ void AllocExpression() :
 void ConditionalExpression() :
 {}
 {
-  ConditionalOrExpression() [ "?" Expression() ":" ConditionalExpression() ]
+  ConditionalOrExpression() [ "?" Expression() ":" Expression() ]
 }
 
 void ConditionalOrExpression() :
@@ -497,13 +497,7 @@ void EqualityExpression() :
 void RelationalExpression() :
 {}
 {
-  ShiftExpression() ( ( "<" | ">" | "<=" | ">=" ) ShiftExpression() )*
-}
-
-void ShiftExpression() :
-{}
-{
-  AdditiveExpression() ( ( "<<" | ">>" | ">>>" ) AdditiveExpression() )*
+  AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" ) AdditiveExpression() )*
 }
 
 void AdditiveExpression() :
