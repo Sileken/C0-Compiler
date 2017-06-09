@@ -399,7 +399,7 @@ Token BinaryOp() :
   }
 }
 
-void AsnOp() :
+void AssignmentOperator() :
 {}
 {
     <ASSIGN>
@@ -423,31 +423,178 @@ void PostOp() :
 /////        Expressions          /////
 ///////////////////////////////////////
 
+// Most of it copied from javacc-5.0/examples/JavaGrammars/Java 1.0.2.jj
 Expression Expression() :
 { Expression expression; }
 {
   (
-    <LPAREN> Expression() <RPAREN>
-    | <INTEGER_LITERAL>
-    | <TRUE> 
-    | <FALSE> 
-    | <NULL>
-    | UnaryOp() Expression()
-    | <ALLOC> <LPAREN> Type() <RPAREN>
-    | <ALLOC_ARRAY> <LPAREN> Type() <COMMA> Expression() <RPAREN>
-    | VID() [ <LPAREN> [ Expression() (<COMMA> Expression())* ] <RPAREN> ]
+    AllocExpression()
+  |  
+    LOOKAHEAD( PrimaryExpression() AssignmentOperator() )
+    Assignment()
+  | 
+    ConditionalExpression()
   )
-  [
-    <HOOK> Expression() <COLON> Expression()
-    | <DOT> FID() [ <LBRACKET> Expression() <RBRACKET> ]
-    | <FIELD_DEREF> FID() [ <LBRACKET> Expression() <RBRACKET> ]
-    | <LBRACKET> Expression() <RBRACKET>
-  ]
-  [ BinaryOp() Expression() ]
+
   {
     expression = new BinaryExpression(); 
     return expression;
   }
+}
+
+void AllocExpression() :
+{}
+{
+  <ALLOC> "(" Type() ")"
+| 
+  <ALLOC_ARRAY> "(" Type() "," Expression() ")"
+}
+
+// <------------------------- OPERATORS -------------------------->
+
+void ConditionalExpression() :
+{}
+{
+  ConditionalOrExpression() [ "?" Expression() ":" ConditionalExpression() ]
+}
+
+void ConditionalOrExpression() :
+{}
+{
+  ConditionalAndExpression() ( "||" ConditionalAndExpression() )*
+}
+
+void ConditionalAndExpression() :
+{}
+{
+  InclusiveOrExpression() ( "&&" InclusiveOrExpression() )*
+}
+
+void InclusiveOrExpression() :
+{}
+{
+  ExclusiveOrExpression() ( "|" ExclusiveOrExpression() )*
+}
+
+void ExclusiveOrExpression() :
+{}
+{
+  AndExpression() ( "^" AndExpression() )*
+}
+
+void AndExpression() :
+{}
+{
+  EqualityExpression() ( "&" EqualityExpression() )*
+}
+
+void EqualityExpression() :
+{}
+{
+  RelationalExpression() ( ( "==" | "!=" ) RelationalExpression() )*
+}
+
+void RelationalExpression() :
+{}
+{
+  ShiftExpression() ( ( "<" | ">" | "<=" | ">=" ) ShiftExpression() )*
+}
+
+void ShiftExpression() :
+{}
+{
+  AdditiveExpression() ( ( "<<" | ">>" | ">>>" ) AdditiveExpression() )*
+}
+
+void AdditiveExpression() :
+{}
+{
+  MultiplicativeExpression() ( ( "+" | "-" ) MultiplicativeExpression() )*
+}
+
+void MultiplicativeExpression() :
+{}
+{
+  UnaryExpression() ( ( "*" | "/" | "%" ) UnaryExpression() )*
+}
+
+void UnaryExpression() :
+{}
+{
+  ( "+" | "-" | "*" ) UnaryExpression()
+|
+  UnaryExpressionNotPlusMinus()
+}
+
+void UnaryExpressionNotPlusMinus() :
+{}
+{
+  ( "~" | "!" ) UnaryExpression()
+|
+  PostfixExpression()
+}
+
+void PostfixExpression() :
+{}
+{
+  PrimaryExpression() [ "++" | "--" ]
+}
+
+// <------------------------- ASSIGNMENT -------------------------->
+
+void Assignment() :
+{}
+{
+  PrimaryExpression() AssignmentOperator() Expression()
+}
+
+void PrimaryExpression() :
+{}
+{
+  PrimaryPrefix() ( PrimarySuffix() )*
+}
+
+void PrimaryPrefix() :
+{}
+{
+  Literal()
+|
+  VID()
+|
+  "(" Expression() ")"
+}
+
+void PrimarySuffix() :
+{}
+{
+  "[" Expression() "]"
+|
+  "." FID()
+|
+  "->" FID()
+|
+  Arguments()
+}
+
+void Literal() :
+{}
+{
+  <INTEGER_LITERAL>
+| <TRUE>
+| <FALSE>
+| <NULL>  
+}
+
+void Arguments() :
+{}
+{
+  "(" [ ArgumentList() ] ")"
+}
+
+void ArgumentList() :
+{}
+{
+  Expression() ( "," Expression() )*
 }
 
 ///////////////////////////////////////
@@ -463,7 +610,7 @@ Simple Simple() :
     // BUT both expression AND lv can be ((((((( VID )))))))
     // TODO: MAYBE THERE IS A BETTER OPTION HERE??
     LOOKAHEAD(2147483647)
-    Lv() (PostOp() | AsnOp() Expression())
+    Lv() (PostOp() | AssignmentOperator() Expression())
     | simple = SimpleExpression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )
