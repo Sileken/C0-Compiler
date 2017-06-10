@@ -668,7 +668,7 @@ void ArgumentList() :
 StatementExpression StatementExpression() :
 {}
 {
-  PrimaryExpression()
+  ("*")* PrimaryExpression()
   [
     "++"
   |
@@ -698,7 +698,9 @@ Statement Statement() :
     | statement = ReturnStatement()
     | statement = Block()
   )
-  { return statement; }
+  { 
+    return statement; 
+  }
 }
 
 ExpressionStatement ExpressionStatement() :
@@ -707,7 +709,9 @@ ExpressionStatement ExpressionStatement() :
 }
 {
     statementExpression = StatementExpression() ";"
-    { return new ExpressionStatement(statementExpression); }
+    { 
+      return new ExpressionStatement(statementExpression); 
+    }
 }
 
 IfStatement IfStatement() :
@@ -753,7 +757,9 @@ ForStatement ForStatement() :
   condition = Expression() <SEMICOLON>
   [ increment = StatementExpression()] <RPAREN> 
   statement = Statement()
-  { return new ForStatement(initialization, condition, increment, statement); }
+  { 
+    return new ForStatement(initialization, condition, increment, statement);
+  }
 }
 
 Expression ForInit() :
@@ -763,7 +769,7 @@ Expression ForInit() :
 {
   (
     LOOKAHEAD(Type() <IDENTIFIER>)
-    expression = VariableDeclaration()
+    expression = VariableDeclarationExpression()
     |
     expression = StatementExpression()
   )
@@ -804,7 +810,7 @@ Statement BlockStatement() :
   (
     LOOKAHEAD(Type() <IDENTIFIER>)
     { Expression expression; }
-    expression = VariableDeclaration() ";"
+    expression = VariableDeclarationExpression() ";"
     { statement = new ExpressionStatement(expression); }
     |
     statement = Statement()
@@ -814,7 +820,7 @@ Statement BlockStatement() :
   }
 }
 
-Expression VariableDeclaration() :
+Expression VariableDeclarationExpression() :
 {
   Type type;
   VariableFunctionIdentifier variableId;

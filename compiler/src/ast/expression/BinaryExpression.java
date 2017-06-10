@@ -11,6 +11,7 @@ public class BinaryExpression extends Expression {
 
     public BinaryExpression(Expression leftOperand, Operator operator, Expression rightOperand){
         super();
+        
         this.leftOperand = leftOperand;
         this.addChild(this.leftOperand);
 

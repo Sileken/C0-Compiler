@@ -10,6 +10,7 @@ public class UnaryExpression extends Expression {
 
     public UnaryExpression(Expression operand, Operator operator){
         super();
+        
         this.operand = operand;
         this.addChild(this.operand);
 

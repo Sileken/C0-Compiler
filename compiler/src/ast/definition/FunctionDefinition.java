@@ -13,6 +13,7 @@ public class FunctionDefinition extends Definition {
 
   public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs, Block block){
     super(funcId);
+    
     this.returnType = returnType;
     this.addChild(this.returnType);
 

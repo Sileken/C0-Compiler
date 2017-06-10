@@ -7,6 +7,7 @@ public class ConditionalExpression extends Expression {
 
     public ConditionalExpression(Expression condition, Expression trueExpression, Expression falseExpression ){
         super();
+        
         this.condition = condition;
         this.addChild(this.condition);
 
