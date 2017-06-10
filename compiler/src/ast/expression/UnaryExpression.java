@@ -16,4 +16,8 @@ public class UnaryExpression extends Expression {
 
         this.operator = operator;
     }
+
+    public Operator getOperator(){
+        return this.operator;
+    }
 }

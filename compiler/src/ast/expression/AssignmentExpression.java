@@ -1,9 +1,11 @@
 package ast.expression;
 
+import parser.*;
 import ast.declaration.*;
+import ast.expression.simple.Primary;
 
 public class AssignmentExpression extends Expression {
-    //private PrimaryExpression primaryExpression;
+    private Expression leftvalue;
     private VariableDeclaration variableDeclaration;
     private Operator operator;
     private Expression rightExpression;
@@ -12,18 +14,17 @@ public class AssignmentExpression extends Expression {
 		ASSIGN, PLUSASSIGN, MINUSASSIGN, STARASSIGN, SLASHASSIGN, REMASSIGN, ANDASSIGN, XORASSIGN, ORASSIGN
 	}
 
-/*
-    public AssignmentExpression(PrimaryExpression primaryExpression, Operator operator, Expression rightExpression){
+    public AssignmentExpression(Expression leftvalue, Operator operator, Expression rightExpression){
         super();
 
-        this.primaryExpression = primaryExpression;
-        this.addChild(this.primaryExpression);
+        this.leftvalue = leftvalue;
+        this.addChild(this.leftvalue);
 
         this.operator = operator;
 
         this.rightExpression = rightExpression;
         this.addChild(this.rightExpression);
-    }*/
+    }
 
     public AssignmentExpression(VariableDeclaration variableDeclaration, Expression rightExpression){
         super();
@@ -35,5 +36,43 @@ public class AssignmentExpression extends Expression {
 
         this.rightExpression = rightExpression;
         this.addChild(this.rightExpression);
+    }
+
+    public static Operator parseOperator(Token token) throws ParseException{
+        Operator parsedOperator;
+
+        switch(token.image){
+            case "=":
+                parsedOperator = Operator.ASSIGN;
+            break;
+            case "+=":
+                parsedOperator = Operator.PLUSASSIGN;
+            break;
+            case "-=":
+                parsedOperator = Operator.MINUSASSIGN;
+            break;
+            case "*=":
+                parsedOperator = Operator.STARASSIGN;
+            break;
+            case "/=":
+                parsedOperator = Operator.SLASHASSIGN;
+            break;
+            case "%=":
+                parsedOperator = Operator.REMASSIGN;
+            break;
+            case "&=":
+                parsedOperator = Operator.ANDASSIGN;
+            break;
+            case "^=":
+                parsedOperator = Operator.XORASSIGN;
+            break;
+            case "|=":
+             parsedOperator = Operator.ORASSIGN;
+            break;
+            default:
+                throw new ParseException("Can't parse assignment Operator: " + token.kind);
+        }
+
+        return parsedOperator;
     }
 }

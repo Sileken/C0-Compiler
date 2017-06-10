@@ -321,18 +321,25 @@ Type Type() :
 /////        Operators            /////
 ///////////////////////////////////////
 
-void AssignmentOperator() :
-{}
+Token AssignmentOperator() :
 {
-    <ASSIGN>
-  | <PLUSASSIGN>
-  | <MINUSASSIGN>
-  | <STARASSIGN>
-  | <SLASHASSIGN>
-  | <REMASSIGN>
-  | <ANDASSIGN>
-  | <XORASSIGN>
-  | <ORASSIGN>
+   Token token;
+}
+{
+  (
+    token = <ASSIGN>
+    | token = <PLUSASSIGN>
+    | token = <MINUSASSIGN>
+    | token = <STARASSIGN>
+    | token = <SLASHASSIGN>
+    | token = <REMASSIGN>
+    | token = <ANDASSIGN>
+    | token = <XORASSIGN>
+    | token = <ORASSIGN>
+  )
+  {
+    return token;
+  }
 }
 
 ///////////////////////////////////////
@@ -590,16 +597,16 @@ Expression PostfixExpression() :
 {
   boolean isIncr = false;
   boolean isDecr = false;
-  Expression exp = null;
+  Primary primary = null;
 }
 {
-  exp = PrimaryExpression() [ "++" | "--" ]
+  primary = PrimaryExpression() [ "++" | "--" ]
   {
     return isIncr 
-      ? new UnaryExpression(exp, UnaryExpression.Operator.INCR)
+      ? new UnaryExpression(primary, UnaryExpression.Operator.INCR)
       : isDecr 
-        ? new UnaryExpression(exp, UnaryExpression.Operator.DECR)
-        : exp;
+        ? new UnaryExpression(primary, UnaryExpression.Operator.DECR)
+        : primary;
   }
 }
 
@@ -611,11 +618,11 @@ void Assignment() :
   PrimaryExpression() AssignmentOperator() Expression()
 }
 
-Expression PrimaryExpression() :
+Primary PrimaryExpression() :
 {}
 {
   PrimaryPrefix() ( PrimarySuffix() )*
-  { return new MethodInvokeExpression(); /* dummy */ }
+  { return new Primary(); }
 }
 
 void PrimaryPrefix() :
@@ -666,18 +673,53 @@ void ArgumentList() :
 ///////////////////////////////////////
 
 StatementExpression StatementExpression() :
-{}
 {
-  ("*")* PrimaryExpression()
+  StatementExpression statementExpression;
+  Primary primary;
+
+  boolean isDeref = false;
+  double derefCount = 0;
+
+  boolean isIncr = false;
+  boolean isDecr = false;
+
+  boolean isAssignExp = false;
+  Token assignOperatorToken = null;
+  Expression rightAssignExp = null;
+}
+{
+  (
+    "*"
+    {
+      isDeref = true;
+      derefCount += 1;
+    }
+  )* primary = PrimaryExpression()
   [
-    "++"
+    "++" { isIncr = true; }
   |
-    "--"
+    "--" { isDecr = true; }
   |
-    AssignmentOperator() Expression()
+    assignOperatorToken = AssignmentOperator() rightAssignExp = Expression() { isAssignExp = true; }
   ]
   {
-    return new StatementExpression(new MethodInvokeExpression());
+    Expression currentLeftExp = primary;
+
+    if( isDeref ) {
+      for(int i=0; i < derefCount; i++){
+          currentLeftExp = new UnaryExpression(currentLeftExp, UnaryExpression.Operator.STAR);
+        }
+    }
+
+    Expression expression = isIncr
+                              ? new UnaryExpression(currentLeftExp, UnaryExpression.Operator.INCR)
+                              : isDecr 
+                                ? new UnaryExpression(currentLeftExp, UnaryExpression.Operator.DECR)
+                                : isAssignExp
+                                  ? new AssignmentExpression(currentLeftExp, AssignmentExpression.parseOperator(assignOperatorToken), rightAssignExp)
+                                  : currentLeftExp;
+    
+    return new StatementExpression(expression);
   }
 }
 
