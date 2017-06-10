@@ -17,6 +17,7 @@ public class AllocExpression extends Expression {
 
      public AllocExpression(Type type, Expression dimension){
         this(type);
+        
         isArrayAllocation = true;
 
         this.dimension = dimension;

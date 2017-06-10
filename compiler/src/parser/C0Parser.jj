@@ -3,7 +3,7 @@ options {
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
-  DEBUG_PARSER = false;
+  DEBUG_PARSER = true;
   DEBUG_LOOKAHEAD = false;
   DEBUG_TOKEN_MANAGER = false;
   ERROR_REPORTING = true;
@@ -226,36 +226,28 @@ FileUnit prog() :
 ///////////////////////////////////////
 
 VariableFunctionIdentifier VID() :
-{
-  Token token;
-}
+{ Token token; }
 {
   token = <IDENTIFIER>
   { return new VariableFunctionIdentifier(token); } 
 }
 
 ParameterIdentifier PARAID() :
-{
-  Token token;
-}
+{ Token token; }
 {
   token = <IDENTIFIER>
   { return new ParameterIdentifier(token); } 
 }
 
 StructIdentifier SID() :
-{
-  Token token;
-}
+{ Token token; }
 {
   token = <IDENTIFIER>
   { return new StructIdentifier(token); }
 }
 
 FieldIdentifier FID() :
-{
-    Token token;
-}
+{ Token token; }
 {
   token = <IDENTIFIER>
   { return new FieldIdentifier(token); }
@@ -266,52 +258,38 @@ FieldIdentifier FID() :
 ///////////////////////////////////////
 
 StructType Struct() :
-{
-  StructIdentifier structId;
-}
+{ StructIdentifier structId; }
 {
   <STRUCT> structId = SID()
-  {
-    StructType structType = new StructType(structId);
-    return structType;
-  }
+  { return new StructType(structId); }
 }
 
 PrimitiveType PrimitiveType() :
-{
-  Token token;
-}
+{ Token token; }
 {
   (
       token = <INT>
     | token = <BOOL>
     | token = <VOID>
   )
-  {
-    PrimitiveType primitiveType = new PrimitiveType(token.image);
-    return primitiveType;
-  }
+  { return new PrimitiveType(token.image); }
 }
 
 Type Type() :
-{
-  Type type;  
-}
+{ Type type; }
 {    
   (
     (  
       type = PrimitiveType() 
-      | type = Struct()
+      | 
+      type = Struct()
     )
     (
-        <STAR> //Pointer
-        {
-          type = new ReferenceType(type);
-        }
-        | <LBRACKET> <RBRACKET> // Array
-        {
-          type = new ArrayType(type);
-        }      
+      <STAR> //Pointer
+      { type = new ReferenceType(type); }
+      | 
+      <LBRACKET> <RBRACKET> // Array
+      { type = new ArrayType(type); }      
     )*
   )
   { return type; } 
@@ -322,9 +300,7 @@ Type Type() :
 ///////////////////////////////////////
 
 Token AssignmentOperator() :
-{
-   Token token;
-}
+{ Token token; }
 {
   (
     token = <ASSIGN>
@@ -337,20 +313,15 @@ Token AssignmentOperator() :
     | token = <XORASSIGN>
     | token = <ORASSIGN>
   )
-  {
-    return token;
-  }
+  { return token; }
 }
 
 ///////////////////////////////////////
 /////        Expressions          /////
 ///////////////////////////////////////
 
-// Most of it copied from javacc-5.0/examples/JavaGrammars/Java 1.0.2.jj
 Expression Expression() :
-{ 
-  Expression expression = null; 
-}
+{ Expression expression; }
 {
   (
     expression = AllocExpression()
@@ -360,9 +331,7 @@ Expression Expression() :
   | 
     expression = ConditionalExpression()
   )
-  {   
-    return expression;
-  }
+  { return expression; }
 }
 
 AllocExpression AllocExpression() :
@@ -372,16 +341,14 @@ AllocExpression AllocExpression() :
 }
 {
   (
-      <ALLOC> "(" type = Type() ")"
+      <ALLOC> <LPAREN> type = Type() <RPAREN>
       { allocExp = new AllocExpression(type); }
     | 
       { Expression dimension; }
-      <ALLOC_ARRAY> "(" type = Type() "," dimension = Expression() ")"
+      <ALLOC_ARRAY> <LPAREN> type = Type() <COMMA> dimension = Expression() <RPAREN>
       { allocExp = new AllocExpression(type, dimension); }
   )
-  {
-    return allocExp;
-  }
+  { return allocExp; }
 }
 
 // <------------------------- OPERATORS -------------------------->
@@ -395,7 +362,7 @@ Expression ConditionalExpression() :
 }
 {
   condition = ConditionalOrExpression() 
-  [ "?" trueExpression = Expression() ":" falseExpression = Expression() { isConditional = true; } ]
+  [ <HOOK> trueExpression = Expression() <COLON> falseExpression = Expression() { isConditional = true; } ]
   {
     return isConditional 
       ? new ConditionalExpression(condition, trueExpression, falseExpression)
@@ -427,7 +394,7 @@ Expression ConditionalAndExpression() :
 }
 {
   leftExp = InclusiveOrExpression() 
-  ( "&&" { isAnd = true; } rightExp = InclusiveOrExpression() )*
+  ( <AND> { isAnd = true; } rightExp = InclusiveOrExpression() )*
   {
     return isAnd 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.AND, rightExp)
@@ -443,7 +410,7 @@ Expression InclusiveOrExpression() :
 }
 {
   leftExp = ExclusiveOrExpression() 
-  ( "|" { isInOr = true; } rightExp = ExclusiveOrExpression() )*
+  ( <BOR> { isInOr = true; } rightExp = ExclusiveOrExpression() )*
   {
     return isInOr 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.BOR, rightExp)
@@ -459,7 +426,7 @@ Expression ExclusiveOrExpression() :
 }
 {
   leftExp = AndExpression() 
-  ( "^" { isExOr = true; } rightExp = AndExpression() )*
+  ( <BXOR> { isExOr = true; } rightExp = AndExpression() )*
   {
     return isExOr 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.BXOR, rightExp)
@@ -475,7 +442,7 @@ Expression AndExpression() :
 }
 {
   leftExp = EqualityExpression() 
-  ( "&" { isBinAnd = true; } rightExp = EqualityExpression() )*
+  ( <BAND> { isBinAnd = true; } rightExp = EqualityExpression() )*
   {
     return isBinAnd 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.BAND, rightExp)
@@ -492,7 +459,7 @@ Expression EqualityExpression() :
 }
 {
   leftExp = RelationalExpression() 
-  ( ( "==" { isEQ = true; } | "!=" { isNEQ = true; } ) rightExp = RelationalExpression() )*
+  ( ( <EQ> { isEQ = true; } | <NEQ> { isNEQ = true; } ) rightExp = RelationalExpression() )*
   {
     return isEQ 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.EQ, rightExp)
@@ -513,7 +480,7 @@ Expression RelationalExpression() :
 }
 {
   leftExp = AdditiveExpression() 
-  ( ( "<" { isLT = true; } | ">" { isGT = true; } | "<=" { isLEQ = true; } | ">=" { isGEQ = true; } ) rightExp = AdditiveExpression() )*
+  ( ( <LT> { isLT = true; } | <GT> { isGT = true; } | <LEQ> { isLEQ = true; } | <GEQ> { isGEQ = true; } ) rightExp = AdditiveExpression() )*
   {
     return isLT 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.LT, rightExp)
@@ -536,7 +503,7 @@ Expression AdditiveExpression() :
 }
 {
   leftExp = MultiplicativeExpression() 
-  ( ( "+" { isPlus = true; } | "-" { isMinus = true; } ) rightExp = MultiplicativeExpression() )*
+  ( ( <PLUS> { isPlus = true; } | <MINUS> { isMinus = true; } ) rightExp = MultiplicativeExpression() )*
   {
     return isPlus 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.PLUS, rightExp)
@@ -556,7 +523,7 @@ Expression MultiplicativeExpression() :
 }
 {
   leftExp = UnaryExpression() 
-  ( ( "*" { isMul = true; } | "/" { isDiv = true; } | "%" { isRem = true; } ) rightExp = UnaryExpression() )*
+  ( ( <STAR> { isMul = true; } | <SLASH> { isDiv = true; } | <REM> { isRem = true; } ) rightExp = UnaryExpression() )*
   {
     return isMul 
       ? new BinaryExpression(leftExp, BinaryExpression.Operator.STAR, rightExp)
@@ -578,10 +545,10 @@ Expression UnaryExpression() :
 }
 {
   ( 
-    "!" { isLogicalNot = true; } 
-    | "~" { isBinNot = true; } 
-    | "-" { isMinus = true; } 
-    | "*" { isDeref = true; } 
+    <BANG> { isLogicalNot = true; } 
+    | <TILDE> { isBinNot = true; } 
+    | <MINUS> { isMinus = true; } 
+    | <STAR> { isDeref = true; } 
   ) exp = UnaryExpression()
   {
     return isLogicalNot 
@@ -606,7 +573,7 @@ Expression PostfixExpression() :
   Primary primary = null;
 }
 {
-  primary = PrimaryExpression() [ "++" | "--" ]
+  primary = PrimaryExpression() [ <INCR> { isIncr = true; } | <DECR> { isDecr = true; } ]
   {
     return isIncr 
       ? new UnaryExpression(primary, UnaryExpression.Operator.INCR)
@@ -636,17 +603,11 @@ Primary PrimaryExpression() :
 }
 {
   prefix = PrimaryPrefix() ( suffix = PrimarySuffix(prefix) )*
-  { 
-    return suffix == null
-      ? prefix
-      : suffix;
-  }
+  { return suffix == null ? prefix : suffix; }
 }
 
 Primary PrimaryPrefix() :
-{
-  Primary primary;
-}
+{ Primary primary; }
 {
   (
       primary = Literal()
@@ -656,13 +617,10 @@ Primary PrimaryPrefix() :
       { primary = new SimpleName(identifier); }
     |
       { Expression expression; }
-      "(" expression = Expression() ")"
+      <LPAREN> expression = Expression() <RPAREN>
       { primary = new ExpressionPrimary(expression); }
   )
-  {
-    return primary;
-  }
-
+  { return primary; }
 }
 
 Primary PrimarySuffix(Primary prefix) :
@@ -673,22 +631,20 @@ Primary PrimarySuffix(Primary prefix) :
 {
   (
       { Expression expression; }
-      "[" expression = Expression() "]"
+      <LBRACKET> expression = Expression() <RBRACKET>
       { primary = new ArrayAccess(prefix, expression); }
     |
-      "." fieldId = FID()
+      <DOT> fieldId = FID()
       { primary = new FieldAccess(prefix, fieldId); }
     |
-      "->" fieldId = FID()
+      <FIELD_DEREF> fieldId = FID()
       { primary = new FieldDereferenceAccess(prefix, fieldId); }
     |
       { List<Expression> arguments; }
       arguments = Arguments()
       { primary = new ExpressionPrimary(new MethodInvokeExpression(prefix, arguments)); } 
   )
-  {
-    return primary;
-  }
+  { return primary; }
 }
 
 LiteralPrimary Literal() :
@@ -707,23 +663,17 @@ LiteralPrimary Literal() :
 }
 
 List<Expression> Arguments() :
+{ List<Expression> arguments = new ArrayList<Expression>(); }
 {
-  List<Expression> arguments = new ArrayList<Expression>();
-}
-{
-  "(" [ ArgumentList(arguments) ] ")"
-  {
-    return arguments;
-  }
+  <LPAREN> [ ArgumentList(arguments) ] <RPAREN>
+  { return arguments; }
 }
 
 void ArgumentList(List<Expression> arguments) :
-{
-  Expression argument;
-}
+{ Expression argument; }
 {
   argument = Expression() { arguments.add(argument); }
-  ( "," argument = Expression() { arguments.add(argument); } )*
+  ( <COMMA> argument = Expression() { arguments.add(argument); } )*
 }
 
 ///////////////////////////////////////
@@ -747,16 +697,16 @@ StatementExpression StatementExpression() :
 }
 {
   (
-    "*"
+    <STAR>
     {
       isDeref = true;
       derefCount += 1;
     }
   )* primary = PrimaryExpression()
   [
-    "++" { isIncr = true; }
+    <INCR> { isIncr = true; }
   |
-    "--" { isDecr = true; }
+    <DECR> { isDecr = true; }
   |
     assignOperatorToken = AssignmentOperator() rightAssignExp = Expression() { isAssignExp = true; }
   ]
@@ -786,9 +736,7 @@ StatementExpression StatementExpression() :
 ///////////////////////////////////////
 
 Statement Statement() :
-{
-  Statement statement;
-}
+{ Statement statement; }
 {
   ( 
       statement = ExpressionStatement()
@@ -798,20 +746,14 @@ Statement Statement() :
     | statement = ReturnStatement()
     | statement = Block()
   )
-  { 
-    return statement; 
-  }
+  { return statement; }
 }
 
 ExpressionStatement ExpressionStatement() :
+{ StatementExpression statementExpression; }
 {
-  StatementExpression statementExpression; 
-}
-{
-    statementExpression = StatementExpression() ";"
-    { 
-      return new ExpressionStatement(statementExpression); 
-    }
+    statementExpression = StatementExpression() <SEMICOLON>
+    { return new ExpressionStatement(statementExpression); }
 }
 
 IfStatement IfStatement() :
@@ -836,9 +778,7 @@ IfStatement IfStatement() :
 }
 
 WhileStatement WhileStatement() :
-{
-  Expression condition;
-}
+{ Expression condition; }
 {
   <WHILE> <LPAREN> condition = Expression() <RPAREN> Statement()
   { return new WhileStatement(condition); }
@@ -852,20 +792,18 @@ ForStatement ForStatement() :
   Statement statement;
 }
 {
-  <FOR> <LPAREN> 
-  [ initialization = ForInit()] <SEMICOLON>
-  condition = Expression() <SEMICOLON>
-  [ increment = StatementExpression()] <RPAREN> 
-  statement = Statement()
-  { 
-    return new ForStatement(initialization, condition, increment, statement);
-  }
+  (
+    <FOR> <LPAREN> 
+    [ initialization = ForInit()] <SEMICOLON>
+    condition = Expression() <SEMICOLON>
+    [ increment = StatementExpression()] <RPAREN> 
+    statement = Statement()
+  )
+  { return new ForStatement(initialization, condition, increment, statement); }
 }
 
 Expression ForInit() :
-{
-  Expression expression;
-}
+{ Expression expression; }
 {
   (
     LOOKAHEAD(Type() <IDENTIFIER>)
@@ -873,51 +811,43 @@ Expression ForInit() :
     |
     expression = StatementExpression()
   )
-  {
-    return expression;
-  }
+  { return expression; }
 }
 
 ReturnStatement ReturnStatement() :
-{
-  Expression expression = null;
-}
+{ Expression expression = null; }
 {
   <RETURN> [ expression = Expression() ] <SEMICOLON>
   { return new ReturnStatement(expression); }
 }
 
 Block Block() :
+{ List<Statement> statements = new ArrayList<Statement>(); }
 {
-  List<Statement> statements = new ArrayList<Statement>();
-}
-{
-  <LBRACE> 
-    (
-      { Statement statement; }
-      statement = BlockStatement()
-      { statements.add(statement); }
-    )* 
-  <RBRACE>
+  (
+    <LBRACE> 
+      (
+        { Statement statement; }
+        statement = BlockStatement()
+        { statements.add(statement); }
+      )* 
+    <RBRACE>
+  )
   { return new Block(statements); }
 }
 
 Statement BlockStatement() :
-{
-  Statement statement;
-}
+{ Statement statement; }
 {
   (
     LOOKAHEAD(Type() <IDENTIFIER>)
     { Expression expression; }
-    expression = VariableDeclarationExpression() ";"
+    expression = VariableDeclarationExpression() <SEMICOLON>
     { statement = new ExpressionStatement(expression); }
     |
     statement = Statement()
   )
-  {
-    return statement;
-  }
+  { return statement; }
 }
 
 Expression VariableDeclarationExpression() :
@@ -943,9 +873,7 @@ Expression VariableDeclarationExpression() :
 ///////////////////////////////////////
 
 Definition GDEFN() :
-{
-  Definition node;
-}
+{ Definition node; }
 {
   ( 
     // struct id {...} -> struct definition ; 
@@ -963,13 +891,15 @@ StructDefinition GlobalStructDefinition() :
   List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition>();
 }
 {
-  <STRUCT> structId = SID() <LBRACE> 
   (
-    { FieldDefinition fieldDef; }
-    fieldDef = FieldDefinition()
-    { fieldDefs.add(fieldDef); }
-  )* 
-  <RBRACE> <SEMICOLON>
+    <STRUCT> structId = SID() <LBRACE> 
+    (
+      { FieldDefinition fieldDef; }
+      fieldDef = FieldDefinition()
+      { fieldDefs.add(fieldDef); }
+    )* 
+    <RBRACE> <SEMICOLON>
+  )
   { return new StructDefinition(new StructType(structId), structId, fieldDefs); }
 }
 
@@ -980,9 +910,7 @@ FieldDefinition FieldDefinition():
 }
 {
   fieldType = Type() fieldId = FID() <SEMICOLON>
-  {
-    return new FieldDefinition(fieldType, fieldId);
-  }
+  { return new FieldDefinition(fieldType, fieldId); }
 }
 
 FunctionDefinition GlobalFunctionDefinition() :
@@ -993,10 +921,11 @@ FunctionDefinition GlobalFunctionDefinition() :
   Block block;
 }
 {
-  returnType = Type()
-  funcId = VID() 
-  <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> 
-  block = Block()
+  (
+    returnType = Type() funcId = VID() 
+    <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> 
+    block = Block()
+  )
   { return new FunctionDefinition(returnType, funcId, parameterDefs, block); }
 }
 
@@ -1005,9 +934,7 @@ FunctionDefinition GlobalFunctionDefinition() :
 ///////////////////////////////////////
 
 Declaration GDECL() :
-{
-  Declaration node;
-}
+{ Declaration node; }
 {
   (
     LOOKAHEAD(3) // struct id; -> struct declaration ; struct id func(); -> function declaration ---- We need at least 3 TOKENS to make the right choice
@@ -1019,9 +946,7 @@ Declaration GDECL() :
 }
 
 StructDeclaration GlobalStructDeklaration() :
-{
-  StructIdentifier structId;
-}
+{ StructIdentifier structId; }
 {
   <STRUCT> structId = SID() <SEMICOLON>
   { return new StructDeclaration(new StructType(structId), structId); }

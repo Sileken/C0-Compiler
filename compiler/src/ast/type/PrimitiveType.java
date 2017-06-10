@@ -1,16 +1,17 @@
 package ast.type;
 
 import parser.*;
-import ast.identifier.*;
 
 public class PrimitiveType extends Type {
     public static enum Primitive {
-		INT, BOOL, STRING, CHAR, VOID
+		INT, BOOL, VOID
 	}
 
     private Primitive type;
 
     public PrimitiveType(String typeName) throws ParseException{
+		super();
+		
         Primitive type = this.stringToType(typeName.toUpperCase());
     }
 

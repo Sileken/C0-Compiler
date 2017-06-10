@@ -8,6 +8,7 @@ public abstract class Identifier extends ASTNode {
 
     public Identifier(Token idToken) {
         super();
+        
         this.idToken = idToken;
     }
 }
