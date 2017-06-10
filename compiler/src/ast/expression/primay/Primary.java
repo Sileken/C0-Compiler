@@ -1,4 +1,4 @@
-package ast.expression.simple;
+package ast.expression.primay;
 
 import ast.expression.*;
 

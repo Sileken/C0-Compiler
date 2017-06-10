@@ -30,7 +30,7 @@ import ast.declaration.*;
 import ast.definition.*;
 import ast.expression.*;
 import ast.expression.name.*;
-import ast.expression.simple.*;
+import ast.expression.primay.*;
 import ast.identifier.*;
 import ast.statement.*;
 import ast.type.*;
@@ -364,7 +364,7 @@ Expression Expression() :
   {
     if( expression == null ) {
        // dummy
-       expression = new MethodInvokeExpression(); 
+       expression = new Expression(); 
     }   
     return expression;
   }
@@ -619,53 +619,96 @@ void Assignment() :
 }
 
 Primary PrimaryExpression() :
-{}
 {
-  PrimaryPrefix() ( PrimarySuffix() )*
-  { return new Primary(); }
+  Primary prefix;
+  Primary suffix = null;
+}
+{
+  prefix = PrimaryPrefix() ( suffix = PrimarySuffix(prefix) )*
+  { 
+    return suffix == null
+      ? prefix
+      : suffix;
+  }
 }
 
-void PrimaryPrefix() :
-{}
+Primary PrimaryPrefix() :
 {
-  Literal()
-|
-  VID()
-|
-  "(" Expression() ")"
+  Primary primary;
+}
+{
+  (
+      primary = Literal()
+    |
+      VID()
+    |
+      "(" Expression() ")"
+  )
+  {
+    return new Primary();
+  }
+
 }
 
-void PrimarySuffix() :
-{}
+Primary PrimarySuffix(Primary prefix) :
 {
-  "[" Expression() "]"
-|
-  "." FID()
-|
-  "->" FID()
-|
-  Arguments()
+  Primary primary;
+  FieldIdentifier fieldId;
+}
+{
+  (
+      { Expression expression; }
+      "[" expression = Expression() "]"
+      { primary = new ArrayAccess(prefix, expression); }
+    |
+      "." fieldId = FID()
+      { primary = new FieldAccess(prefix, fieldId); }
+    |
+      "->" fieldId = FID()
+      { primary = new FieldDereferenceAccess(prefix, fieldId); }
+    |
+      { List<Expression> arguments; }
+      arguments = Arguments()
+      { primary = new ExpressionPrimary(new MethodInvokeExpression(prefix, arguments)); } 
+  )
+  {
+    return primary;
+  }
 }
 
-void Literal() :
-{}
+LiteralPrimary Literal() :
 {
-  <INTEGER_LITERAL>
-| <TRUE>
-| <FALSE>
-| <NULL>  
+  Token token;
+  LiteralPrimary.LiteralType type;
+}
+{
+  (
+      token = <INTEGER_LITERAL> { type = LiteralPrimary.LiteralType.INTLIT; }
+    | token = <TRUE> { type = LiteralPrimary.LiteralType.BOOLLIT; }
+    | token = <FALSE> { type = LiteralPrimary.LiteralType.BOOLLIT; }
+    | token = <NULL> { type = LiteralPrimary.LiteralType.NULL; }  
+  )
+  { return new LiteralPrimary(type, token); }  
 }
 
-void Arguments() :
-{}
+List<Expression> Arguments() :
 {
-  "(" [ ArgumentList() ] ")"
+  List<Expression> arguments = new ArrayList<Expression>();
+}
+{
+  "(" [ ArgumentList(arguments) ] ")"
+  {
+    return arguments;
+  }
 }
 
-void ArgumentList() :
-{}
+void ArgumentList(List<Expression> arguments) :
 {
-  Expression() ( "," Expression() )*
+  Expression argument;
+}
+{
+  argument = Expression() { arguments.add(argument); }
+  ( "," argument = Expression() { arguments.add(argument); } )*
 }
 
 ///////////////////////////////////////
