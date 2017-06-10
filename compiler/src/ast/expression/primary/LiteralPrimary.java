@@ -1,4 +1,4 @@
-package ast.expression.primay;
+package ast.expression.primary;
 
 import parser.*;
 

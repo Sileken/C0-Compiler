@@ -6,7 +6,7 @@ import ast.type.*;
 public class AllocExpression extends Expression {
     private boolean isArrayAllocation = false;
     private Type type;
-    private Expression expression;
+    private Expression dimension;
 
     public AllocExpression(Type type){
         super();
@@ -15,11 +15,11 @@ public class AllocExpression extends Expression {
         this.addChild(type);        
     }
 
-     public AllocExpression(Type type, Expression expression){
+     public AllocExpression(Type type, Expression dimension){
         this(type);
         isArrayAllocation = true;
 
-        this.expression = expression;
-        this.addChild(expression);
+        this.dimension = dimension;
+        this.addChild(dimension);
     }
 }

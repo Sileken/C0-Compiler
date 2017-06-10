@@ -1,6 +1,6 @@
 package ast.expression;
 
-import ast.expression.primay.*;
+import ast.expression.primary.*;
 import java.util.ArrayList;
 import java.util.List;
 

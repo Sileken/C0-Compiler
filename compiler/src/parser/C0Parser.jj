@@ -29,8 +29,8 @@ import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
 import ast.expression.*;
-import ast.expression.name.*;
-import ast.expression.primay.*;
+import ast.expression.primary.*;
+import ast.expression.primary.name.*;
 import ast.identifier.*;
 import ast.statement.*;
 import ast.type.*;
@@ -375,9 +375,9 @@ AllocExpression AllocExpression() :
       <ALLOC> "(" type = Type() ")"
       { allocExp = new AllocExpression(type); }
     | 
-      { Expression expression; }
-      <ALLOC_ARRAY> "(" type = Type() "," expression = Expression() ")"
-      { allocExp = new AllocExpression(type, expression); }
+      { Expression dimension; }
+      <ALLOC_ARRAY> "(" type = Type() "," dimension = Expression() ")"
+      { allocExp = new AllocExpression(type, dimension); }
   )
   {
     return allocExp;
@@ -651,8 +651,9 @@ Primary PrimaryPrefix() :
   (
       primary = Literal()
     |
-      VID()
-      { primary = new Primary(); }
+      { VariableFunctionIdentifier identifier; }
+      identifier = VID()
+      { primary = new SimpleName(identifier); }
     |
       { Expression expression; }
       "(" expression = Expression() ")"

@@ -1,7 +1,7 @@
 package ast.statement;
 
 import ast.expression.*;
-import ast.expression.primay.*;
+import ast.expression.primary.*;
 
 public class ExpressionStatement extends Statement {
     private Expression expression;

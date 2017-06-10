@@ -2,7 +2,7 @@ package ast.expression;
 
 import parser.*;
 import ast.declaration.*;
-import ast.expression.primay.Primary;
+import ast.expression.primary.Primary;
 
 public class AssignmentExpression extends Expression {
     private Expression leftvalue;
