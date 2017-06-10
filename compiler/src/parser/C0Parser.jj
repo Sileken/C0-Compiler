@@ -353,29 +353,35 @@ Expression Expression() :
 }
 {
   (
-    AllocExpression()
+    expression = AllocExpression()
   |  
     LOOKAHEAD( PrimaryExpression() AssignmentOperator() )
-    Assignment()
+    expression = Assignment()
   | 
     expression = ConditionalExpression()
   )
-
-  {
-    if( expression == null ) {
-       // dummy
-       expression = new Expression(); 
-    }   
+  {   
     return expression;
   }
 }
 
-void AllocExpression() :
-{}
+AllocExpression AllocExpression() :
 {
-  <ALLOC> "(" Type() ")"
-| 
-  <ALLOC_ARRAY> "(" Type() "," Expression() ")"
+  AllocExpression allocExp;
+  Type type;
+}
+{
+  (
+      <ALLOC> "(" type = Type() ")"
+      { allocExp = new AllocExpression(type); }
+    | 
+      { Expression expression; }
+      <ALLOC_ARRAY> "(" type = Type() "," expression = Expression() ")"
+      { allocExp = new AllocExpression(type, expression); }
+  )
+  {
+    return allocExp;
+  }
 }
 
 // <------------------------- OPERATORS -------------------------->
@@ -612,10 +618,15 @@ Expression PostfixExpression() :
 
 // <------------------------- ASSIGNMENT -------------------------->
 
-void Assignment() :
-{}
+AssignmentExpression Assignment() :
 {
-  PrimaryExpression() AssignmentOperator() Expression()
+  Primary leftExp;
+  Token assignOperatorToken;
+  Expression rightAssignExp;
+}
+{
+  leftExp = PrimaryExpression() assignOperatorToken = AssignmentOperator() rightAssignExp = Expression()
+  { return new AssignmentExpression(leftExp, AssignmentExpression.parseOperator(assignOperatorToken), rightAssignExp); }
 }
 
 Primary PrimaryExpression() :
@@ -641,11 +652,14 @@ Primary PrimaryPrefix() :
       primary = Literal()
     |
       VID()
+      { primary = new Primary(); }
     |
-      "(" Expression() ")"
+      { Expression expression; }
+      "(" expression = Expression() ")"
+      { primary = new ExpressionPrimary(expression); }
   )
   {
-    return new Primary();
+    return primary;
   }
 
 }
