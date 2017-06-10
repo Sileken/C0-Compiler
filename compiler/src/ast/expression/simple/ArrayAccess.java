@@ -1,4 +1,4 @@
 package ast.expression.simple;
 
-public class ArrayAccess extends Simple {
+public class ArrayAccess extends Primary {
 }

@@ -318,31 +318,8 @@ Type Type() :
 }
 
 ///////////////////////////////////////
-/////          L-Value            /////
-///////////////////////////////////////
-
-// Examples are: (test), test.data, test->data, *test, test[], test->data[0] =
-// is LV not PrimaryExpression ?? 
-void Lv() :
-{}
-{ 
-<LPAREN> Lv() <RPAREN>
-| VID() 
-  [
-    (
-      <DOT> FID() 
-      | <FIELD_DEREF> FID() 
-      | (<LBRACKET> Expression() <RBRACKET>)
-    )+
-  ]
-| <STAR> Lv()
-}
-
-///////////////////////////////////////
 /////        Operators            /////
 ///////////////////////////////////////
-
-// Page 15 C0-Reference - Can we transfer those to the lexer? Ja
 
 void AssignmentOperator() :
 {}
@@ -356,12 +333,6 @@ void AssignmentOperator() :
   | <ANDASSIGN>
   | <XORASSIGN>
   | <ORASSIGN>
-}
-
-void PostOp() :
-{}
-{
-  <DECR> | <INCR>
 }
 
 ///////////////////////////////////////
@@ -691,33 +662,22 @@ void ArgumentList() :
 }
 
 ///////////////////////////////////////
-/////           Simple            /////
+/////    Statement Expression     /////
 ///////////////////////////////////////
 
-Simple Simple() :
-{ Simple simple = new Simple(); }
+StatementExpression StatementExpression() :
+{}
 {
-  (  
-    // Here we have again an infinite choice conflict, because Lv() can be ( Lv() ) and Expression() can be ( Expression() ) etc.
-    // So we need an infinite lookahead to make the right decision e.g. for (((((((lv)))))))
-    // BUT both expression AND lv can be ((((((( VID )))))))
-    // TODO: MAYBE THERE IS A BETTER OPTION HERE??
-    LOOKAHEAD(2147483647)
-    // is this not in expression / in simplexpression ??
-    Lv() (PostOp() | AssignmentOperator() Expression())  
-    | simple = SimpleExpression()
-  )
-  { return simple; }
-}
-
-SimpleExpression SimpleExpression() :
-{
-  Expression expression;
-}
-{
-  expression = Expression()
+  PrimaryExpression()
+  [
+    "++"
+  |
+    "--"
+  |
+    AssignmentOperator() Expression()
+  ]
   {
-    return new SimpleExpression(expression);
+    return new StatementExpression(new MethodInvokeExpression());
   }
 }
 
@@ -731,7 +691,7 @@ Statement Statement() :
 }
 {
   ( 
-      statement = SimpleStatement()
+      statement = ExpressionStatement()
     | statement = IfStatement()   
     | statement = WhileStatement()   
     | statement = ForStatement()
@@ -741,15 +701,14 @@ Statement Statement() :
   { return statement; }
 }
 
-SimpleStatement SimpleStatement() :
+ExpressionStatement ExpressionStatement() :
 {
-  Simple simple;
+  StatementExpression statementExpression; 
 }
 {
-  simple = Simple() <SEMICOLON>
-  { return new SimpleStatement(simple); }
+    statementExpression = StatementExpression() ";"
+    { return new ExpressionStatement(statementExpression); }
 }
-
 
 IfStatement IfStatement() :
 {
@@ -783,18 +742,34 @@ WhileStatement WhileStatement() :
 
 ForStatement ForStatement() :
 {
-  Simple initialization = null;
+  Expression initialization = null;
   Expression condition;
-  Simple increment = null;
+  StatementExpression increment = null;
   Statement statement;
 }
 {
   <FOR> <LPAREN> 
-  [ initialization = Simple()] <SEMICOLON> 
+  [ initialization = ForInit()] <SEMICOLON>
   condition = Expression() <SEMICOLON>
-  [ increment = Simple()] <RPAREN> 
+  [ increment = StatementExpression()] <RPAREN> 
   statement = Statement()
   { return new ForStatement(initialization, condition, increment, statement); }
+}
+
+Expression ForInit() :
+{
+  Expression expression;
+}
+{
+  (
+    LOOKAHEAD(Type() <IDENTIFIER>)
+    expression = VariableDeclaration()
+    |
+    expression = StatementExpression()
+  )
+  {
+    return expression;
+  }
 }
 
 ReturnStatement ReturnStatement() :
@@ -814,14 +789,14 @@ Block Block() :
   <LBRACE> 
     (
       { Statement statement; }
-      BlockStatements()
+      statement = BlockStatement()
       { statements.add(statement); }
     )* 
   <RBRACE>
-  { return new BlockStatements(statements); }
+  { return new Block(statements); }
 }
 
-Statement BlockStatements() :
+Statement BlockStatement() :
 {
   Statement statement;
 }
@@ -830,7 +805,7 @@ Statement BlockStatements() :
     LOOKAHEAD(Type() <IDENTIFIER>)
     { Expression expression; }
     expression = VariableDeclaration() ";"
-    { new ExpressionStatement(expression); }
+    { statement = new ExpressionStatement(expression); }
     |
     statement = Statement()
   )
@@ -850,10 +825,10 @@ Expression VariableDeclaration() :
 {
 	type = Type() variableId = VID() [ <ASSIGN> rightAssignExp = Expression() { isAssignExp = true; } ] 
   {
-    VariableDeclaration varDecl = VariableDeclaration(type, VID);
+    VariableDeclaration varDecl = new VariableDeclaration(type, variableId);
     return isAssignExp
-      ? new AssignmentExpression(varDecl, rightAssignExp);
-      : new VariableDeclarationExpression(varDecl);
+      ? (Expression) new AssignmentExpression(varDecl, rightAssignExp)
+      : (Expression) new VariableDeclarationExpression(varDecl);
   }
 }
 

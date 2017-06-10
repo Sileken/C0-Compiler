@@ -22,6 +22,6 @@ public class FunctionDefinition extends Definition {
     }
 
     this.block = block;
-    this.addChilds(this.block);
+    this.addChild(this.block);
   }
 }

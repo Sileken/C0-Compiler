@@ -1,4 +1,4 @@
 package ast.expression.simple;
 
-public class FieldAccess extends Simple {
+public class FieldAccess extends Primary {
 }

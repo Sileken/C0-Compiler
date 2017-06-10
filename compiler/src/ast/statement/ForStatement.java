@@ -4,12 +4,12 @@ import ast.expression.*;
 import ast.expression.simple.*;
 
 public class ForStatement extends Statement {
-    private Simple initialization;
+    private Expression initialization;
     private Expression condition;
-    private Simple increment;
+    private StatementExpression increment;
     private Statement statement;
 
-    public ForStatement(Simple initialization, Expression condition, Simple increment, Statement statement){
+    public ForStatement(Expression initialization, Expression condition, StatementExpression increment, Statement statement){
         super();
 
         if(initialization != null){
