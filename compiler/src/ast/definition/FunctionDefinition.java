@@ -9,9 +9,9 @@ import ast.type.*;
 public class FunctionDefinition extends Definition {
   private Type returnType;
   private List<ParameterDefinition> parameterDefs = new ArrayList<ParameterDefinition>();
-  private List<Statement> statements = new ArrayList<Statement>();
+  private Block block;
 
-  public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs, List<Statement> statements){
+  public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs, Block block){
     super(funcId);
     this.returnType = returnType;
     this.addChild(this.returnType);
@@ -21,9 +21,7 @@ public class FunctionDefinition extends Definition {
         this.addChilds(this.parameterDefs);
     }
 
-    if(statements != null && !statements.isEmpty()){
-        this.statements = statements;
-        this.addChilds(this.statements);
-    }
+    this.block = block;
+    this.addChilds(this.block);
   }
 }

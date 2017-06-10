@@ -706,7 +706,6 @@ Simple Simple() :
     // is this not in expression / in simplexpression ??
     Lv() (PostOp() | AssignmentOperator() Expression())  
     | simple = SimpleExpression()
-    | Type() VID() [ <ASSIGN> Expression() ]
   )
   { return simple; }
 }
@@ -726,7 +725,7 @@ SimpleExpression SimpleExpression() :
 /////          Statement          /////
 ///////////////////////////////////////
 
-Statement STMT() :
+Statement Statement() :
 {
   Statement statement;
 }
@@ -737,7 +736,7 @@ Statement STMT() :
     | statement = WhileStatement()   
     | statement = ForStatement()
     | statement = ReturnStatement()
-    | statement = BlockStatement()
+    | statement = Block()
   )
   { return statement; }
 }
@@ -760,14 +759,14 @@ IfStatement IfStatement() :
 }
 {
   <IF> <LPAREN> condition = Expression() <RPAREN> 
-  ifStatement = STMT() 
+  ifStatement = Statement() 
   [
     // This is needed to prevent the warning. The grammar is correct the parser will throw a warning. 
     // If you want to know why look at https://javacc.org/tutorials/lookahead (search for dangling-else)
     LOOKAHEAD(1) 
     <ELSE> 
     { Statement statement; }
-    statement = STMT()
+    statement = Statement()
     { elseStatement = new ElseStatement(statement); }
   ]
   { return new IfStatement(condition, ifStatement, elseStatement); }
@@ -778,7 +777,7 @@ WhileStatement WhileStatement() :
   Expression condition;
 }
 {
-  <WHILE> <LPAREN> condition = Expression() <RPAREN> STMT()
+  <WHILE> <LPAREN> condition = Expression() <RPAREN> Statement()
   { return new WhileStatement(condition); }
 }
 
@@ -794,7 +793,7 @@ ForStatement ForStatement() :
   [ initialization = Simple()] <SEMICOLON> 
   condition = Expression() <SEMICOLON>
   [ increment = Simple()] <RPAREN> 
-  statement = STMT()
+  statement = Statement()
   { return new ForStatement(initialization, condition, increment, statement); }
 }
 
@@ -807,7 +806,7 @@ ReturnStatement ReturnStatement() :
   { return new ReturnStatement(expression); }
 }
 
-BlockStatement BlockStatement() :
+Block Block() :
 {
   List<Statement> statements = new ArrayList<Statement>();
 }
@@ -815,11 +814,47 @@ BlockStatement BlockStatement() :
   <LBRACE> 
     (
       { Statement statement; }
-      statement = STMT()
+      BlockStatements()
       { statements.add(statement); }
     )* 
   <RBRACE>
-  { return new BlockStatement(statements); }
+  { return new BlockStatements(statements); }
+}
+
+Statement BlockStatements() :
+{
+  Statement statement;
+}
+{
+  (
+    LOOKAHEAD(Type() <IDENTIFIER>)
+    { Expression expression; }
+    expression = VariableDeclaration() ";"
+    { new ExpressionStatement(expression); }
+    |
+    statement = Statement()
+  )
+  {
+    return statement;
+  }
+}
+
+Expression VariableDeclaration() :
+{
+  Type type;
+  VariableFunctionIdentifier variableId;
+  boolean isAssignExp = false;
+  AssignmentExpression assignExp = null;
+  Expression rightAssignExp = null;
+}
+{
+	type = Type() variableId = VID() [ <ASSIGN> rightAssignExp = Expression() { isAssignExp = true; } ] 
+  {
+    VariableDeclaration varDecl = VariableDeclaration(type, VID);
+    return isAssignExp
+      ? new AssignmentExpression(varDecl, rightAssignExp);
+      : new VariableDeclarationExpression(varDecl);
+  }
 }
 
 ///////////////////////////////////////
@@ -833,7 +868,7 @@ Definition GDEFN() :
 {
   ( 
     // struct id {...} -> struct definition ; 
-    // struct id func() {...} -> function declaration ---- We need at least 3 TOKENS to make the right choice
+    // struct id func() {...} -> function declaration
     LOOKAHEAD(3) 
     node = GlobalStructDefinition()
     | node = GlobalFunctionDefinition()
@@ -874,20 +909,14 @@ FunctionDefinition GlobalFunctionDefinition() :
   Type returnType;
   VariableFunctionIdentifier funcId;
   List<ParameterDefinition> parameterDefs;
-  List<Statement> statements = new ArrayList<Statement>();
+  Block block;
 }
 {
   returnType = Type()
   funcId = VID() 
   <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> 
-  <LBRACE> 
-    ( 
-      { Statement statement; }
-      statement = STMT()
-      { statements.add(statement); } 
-    )* 
-  <RBRACE>
-  { return new FunctionDefinition(returnType, funcId, parameterDefs, statements); }
+  block = Block()
+  { return new FunctionDefinition(returnType, funcId, parameterDefs, block); }
 }
 
 ///////////////////////////////////////
