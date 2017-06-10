@@ -321,7 +321,8 @@ Type Type() :
 /////          L-Value            /////
 ///////////////////////////////////////
 
-// Examples are: (test), test.data, test->data, *test, test[], test->data[0] = 
+// Examples are: (test), test.data, test->data, *test, test[], test->data[0] =
+// is LV not PrimaryExpression ?? 
 void Lv() :
 {}
 { 
@@ -615,11 +616,19 @@ Expression UnaryExpression() :
 }
 
 Expression PostfixExpression() :
-{}
 {
-  PrimaryExpression() [ "++" | "--" ]
+  boolean isIncr = false;
+  boolean isDecr = false;
+  Expression exp = null;
+}
+{
+  exp = PrimaryExpression() [ "++" | "--" ]
   {
-    return new MethodInvokeExpression(); // Dummy
+    return isIncr 
+      ? new UnaryExpression(exp, UnaryExpression.Operator.INCR)
+      : isDecr 
+        ? new UnaryExpression(exp, UnaryExpression.Operator.DECR)
+        : exp;
   }
 }
 
@@ -631,10 +640,11 @@ void Assignment() :
   PrimaryExpression() AssignmentOperator() Expression()
 }
 
-void PrimaryExpression() :
+Expression PrimaryExpression() :
 {}
 {
   PrimaryPrefix() ( PrimarySuffix() )*
+  { return new MethodInvokeExpression(); /* dummy */ }
 }
 
 void PrimaryPrefix() :
@@ -693,7 +703,8 @@ Simple Simple() :
     // BUT both expression AND lv can be ((((((( VID )))))))
     // TODO: MAYBE THERE IS A BETTER OPTION HERE??
     LOOKAHEAD(2147483647)
-    Lv() (PostOp() | AssignmentOperator() Expression())
+    // is this not in expression / in simplexpression ??
+    Lv() (PostOp() | AssignmentOperator() Expression())  
     | simple = SimpleExpression()
     | Type() VID() [ <ASSIGN> Expression() ]
   )

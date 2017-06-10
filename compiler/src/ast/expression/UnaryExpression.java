@@ -5,7 +5,7 @@ public class UnaryExpression extends Expression {
     private Expression operand;
 
     public static enum Operator {
-		BANG, TILDE, MINUS, STAR, INCR, DECR,
+		BANG, TILDE, MINUS, STAR, INCR, DECR
 	}
 
     public UnaryExpression(Expression operand, Operator operator){
