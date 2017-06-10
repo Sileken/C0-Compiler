@@ -101,14 +101,16 @@ TOKEN :
   | < PLUS: "+" >
   | < MINUS: "-" >
   | < LT: "<" >
-  | < LE: "<=" >
-  | < GE: ">=" >
+  | < LEQ: "<=" >
+  | < GEQ: ">=" >
   | < GT: ">" >
   | < EQ: "==" >
-  | < NE: "!=" >
-  | < XOR: "^" >
-  | < SC_AND: "&&" >
-  | < SC_OR: "||" >
+  | < NEQ: "!=" >
+  | < BXOR: "^" >
+  | < AND: "&&" >
+  | < BAND: "&" >
+  | < OR: "||" >
+  | < BOR: "|" >
   | < HOOK: "?" >
   | < COLON: ":" >
   | < ASSIGN: "=" >
@@ -340,64 +342,6 @@ void Lv() :
 ///////////////////////////////////////
 
 // Page 15 C0-Reference - Can we transfer those to the lexer? Ja
-void Sep() :
-{}
-{
-    <LPAREN>
-  | <RPAREN>
-  | <LBRACKET>
-  | <RBRACKET>
-  | <LBRACE>
-  | <RBRACE>
-  | <COMMA>
-  | <SEMICOLON>
-}
-
-Token UnaryOp() :
-{ 
-  Token token;
-}
-{  
-  ( 
-      token = <BANG>
-    | token = <TILDE>
-    | token = <MINUS>
-    | token = <STAR>
-  )
-  {
-    return token; // use Token
-  }
-}
-
-Token BinaryOp() :
-{
-  Token token;
-}
-{
-  (  
-    token = <STAR>
-    | token = <SLASH>
-    | token = <REM>
-    | token = <PLUS>
-    | token = <MINUS>
-    | token = <LT>
-    | token = <LE>
-    | token = <GE>
-    | token = <GT>
-    | token = <EQ>
-    | token = <NE>
-    | token = <XOR>
-    | token = <SC_AND>
-    | token = <SC_OR>
-//    | token = <DOT>         
-//    | token = <FIELD_DEREF>
-//    | token = <HOOK>       
-//    | token = <COLON>      
-  )
-  {
-    return token;
-  }
-}
 
 void AssignmentOperator() :
 {}
@@ -425,7 +369,9 @@ void PostOp() :
 
 // Most of it copied from javacc-5.0/examples/JavaGrammars/Java 1.0.2.jj
 Expression Expression() :
-{ Expression expression; }
+{ 
+  Expression expression = null; 
+}
 {
   (
     AllocExpression()
@@ -433,11 +379,14 @@ Expression Expression() :
     LOOKAHEAD( PrimaryExpression() AssignmentOperator() )
     Assignment()
   | 
-    ConditionalExpression()
+    expression = ConditionalExpression()
   )
 
   {
-    expression = new BinaryExpression(); 
+    if( expression == null ) {
+       // dummy
+       expression = new MethodInvokeExpression(); 
+    }   
     return expression;
   }
 }
@@ -452,86 +401,226 @@ void AllocExpression() :
 
 // <------------------------- OPERATORS -------------------------->
 
-void ConditionalExpression() :
-{}
+Expression ConditionalExpression() :
 {
-  ConditionalOrExpression() [ "?" Expression() ":" Expression() ]
+  boolean isConditional = false;
+  Expression condition = null;
+  Expression trueExpression = null;
+  Expression falseExpression = null;
+}
+{
+  condition = ConditionalOrExpression() 
+  [ "?" trueExpression = Expression() ":" falseExpression = Expression() { isConditional = true; } ]
+  {
+    return isConditional 
+      ? new ConditionalExpression(condition, trueExpression, falseExpression)
+      : condition;
+  }
 }
 
-void ConditionalOrExpression() :
-{}
+Expression ConditionalOrExpression() :
 {
-  ConditionalAndExpression() ( "||" ConditionalAndExpression() )*
+  boolean isOr = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = ConditionalAndExpression() 
+  ( <OR> { isOr = true; } rightExp = ConditionalAndExpression() )*
+  {
+    return isOr 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.OR, rightExp)
+      : leftExp;
+  }
 }
 
-void ConditionalAndExpression() :
-{}
+Expression ConditionalAndExpression() :
 {
-  InclusiveOrExpression() ( "&&" InclusiveOrExpression() )*
+  boolean isAnd = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = InclusiveOrExpression() 
+  ( "&&" { isAnd = true; } rightExp = InclusiveOrExpression() )*
+  {
+    return isAnd 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.AND, rightExp)
+      : leftExp;
+  }
 }
 
-void InclusiveOrExpression() :
-{}
+Expression InclusiveOrExpression() :
+{  
+  boolean isInOr = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
 {
-  ExclusiveOrExpression() ( "|" ExclusiveOrExpression() )*
+  leftExp = ExclusiveOrExpression() 
+  ( "|" { isInOr = true; } rightExp = ExclusiveOrExpression() )*
+  {
+    return isInOr 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.BOR, rightExp)
+      : leftExp;
+  }
 }
 
-void ExclusiveOrExpression() :
-{}
+Expression ExclusiveOrExpression() :
 {
-  AndExpression() ( "^" AndExpression() )*
+  boolean isExOr = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = AndExpression() 
+  ( "^" { isExOr = true; } rightExp = AndExpression() )*
+  {
+    return isExOr 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.BXOR, rightExp)
+      : leftExp;
+  }
 }
 
-void AndExpression() :
-{}
+Expression AndExpression() :
 {
-  EqualityExpression() ( "&" EqualityExpression() )*
+  boolean isBinAnd = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = EqualityExpression() 
+  ( "&" { isBinAnd = true; } rightExp = EqualityExpression() )*
+  {
+    return isBinAnd 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.BAND, rightExp)
+      : leftExp;
+  }
 }
 
-void EqualityExpression() :
-{}
+Expression EqualityExpression() :
 {
-  RelationalExpression() ( ( "==" | "!=" ) RelationalExpression() )*
+  boolean isEQ = false;
+  boolean isNEQ = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = RelationalExpression() 
+  ( ( "==" { isEQ = true; } | "!=" { isNEQ = true; } ) rightExp = RelationalExpression() )*
+  {
+    return isEQ 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.EQ, rightExp)
+      : isNEQ 
+        ? new BinaryExpression(leftExp, BinaryExpression.Operator.NEQ, rightExp)
+        : leftExp;
+  }
 }
 
-void RelationalExpression() :
-{}
+Expression RelationalExpression() :
 {
-  AdditiveExpression() ( ( "<" | ">" | "<=" | ">=" ) AdditiveExpression() )*
+  boolean isLT = false;
+  boolean isGT = false;
+  boolean isLEQ = false;
+  boolean isGEQ = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = AdditiveExpression() 
+  ( ( "<" { isLT = true; } | ">" { isGT = true; } | "<=" { isLEQ = true; } | ">=" { isGEQ = true; } ) rightExp = AdditiveExpression() )*
+  {
+    return isLT 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.LT, rightExp)
+      : isGT 
+        ? new BinaryExpression(leftExp, BinaryExpression.Operator.GT, rightExp)
+        : isLEQ 
+          ? new BinaryExpression(leftExp, BinaryExpression.Operator.LEQ, rightExp)
+          : isGEQ 
+            ? new BinaryExpression(leftExp, BinaryExpression.Operator.GEQ, rightExp)
+            : leftExp;
+  }
 }
 
-void AdditiveExpression() :
-{}
+Expression AdditiveExpression() :
 {
-  MultiplicativeExpression() ( ( "+" | "-" ) MultiplicativeExpression() )*
+  boolean isPlus = false;
+  boolean isMinus = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = MultiplicativeExpression() 
+  ( ( "+" { isPlus = true; } | "-" { isMinus = true; } ) rightExp = MultiplicativeExpression() )*
+  {
+    return isPlus 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.PLUS, rightExp)
+      : isMinus 
+        ? new BinaryExpression(leftExp, BinaryExpression.Operator.MINUS, rightExp)
+        : leftExp;
+  }
 }
 
-void MultiplicativeExpression() :
-{}
+Expression MultiplicativeExpression() :
 {
-  UnaryExpression() ( ( "*" | "/" | "%" ) UnaryExpression() )*
+  boolean isMul = false;
+  boolean isDiv = false;
+  boolean isRem = false;
+  Expression leftExp = null;
+  Expression rightExp = null;
+}
+{
+  leftExp = UnaryExpression() 
+  ( ( "*" { isMul = true; } | "/" { isDiv = true; } | "%" { isRem = true; } ) rightExp = UnaryExpression() )*
+  {
+    return isMul 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.STAR, rightExp)
+      : isDiv 
+        ? new BinaryExpression(leftExp, BinaryExpression.Operator.SLASH, rightExp)
+        : isRem 
+          ? new BinaryExpression(leftExp, BinaryExpression.Operator.REM, rightExp)
+          : leftExp;
+  }
 }
 
-void UnaryExpression() :
-{}
+Expression UnaryExpression() :
 {
-  ( "+" | "-" | "*" ) UnaryExpression()
-|
-  UnaryExpressionNotPlusMinus()
+  boolean isLogicalNot = false;
+  boolean isBinNot = false;
+  boolean isMinus = false;
+  boolean isDeref = false;
+  Expression exp = null;
+}
+{
+  ( 
+    "!" { isLogicalNot = true; } 
+    | "~" { isBinNot = true; } 
+    | "-" { isMinus = true; } 
+    | "*" { isDeref = true; } 
+  ) exp = UnaryExpression()
+  {
+    return isLogicalNot 
+      ? new UnaryExpression(exp, UnaryExpression.Operator.BANG)
+      : isBinNot 
+        ? new UnaryExpression(exp, UnaryExpression.Operator.TILDE)
+        : isMinus 
+          ? new UnaryExpression(exp, UnaryExpression.Operator.MINUS)
+          : new UnaryExpression(exp, UnaryExpression.Operator.STAR);
+  }
+  |
+  exp = PostfixExpression()
+  {
+    return exp;
+  }
 }
 
-void UnaryExpressionNotPlusMinus() :
-{}
-{
-  ( "~" | "!" ) UnaryExpression()
-|
-  PostfixExpression()
-}
-
-void PostfixExpression() :
+Expression PostfixExpression() :
 {}
 {
   PrimaryExpression() [ "++" | "--" ]
+  {
+    return new MethodInvokeExpression(); // Dummy
+  }
 }
 
 // <------------------------- ASSIGNMENT -------------------------->
