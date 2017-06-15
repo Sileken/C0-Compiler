@@ -1,5 +1,8 @@
 import parser.*;
 import ast.*;
+import ast.identifier.*;
+import ast.statement.*;
+import symboltable.*;
 
 public class C0Compiler {
   public static void main(String args[]) {
@@ -23,13 +26,52 @@ public class C0Compiler {
     try {
       AST ast = parser.parseTree();
       System.out.println("SUCCESS!");
-      //ast.PrintPretty();
+      ast.PrintPretty();
+
+      initializeASTNodes(ast);
+
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();
     } catch (Exception e1) {
       System.out.println("C0 Compiler: Encountered errors during interpretation/tree building.");
       e1.printStackTrace();
+    }
+  }
+
+  /**
+   * Set additional information into the nodes of the nearly created AST.
+   * <anmerkung> da AST als Referenz uebergeben wird ist return ueberfluessig (?) </anmerkung> 
+   */
+  private static void initializeASTNodes(AST ast) {
+    final SymbolTable symbolTable = new SymbolTable();
+    symbolTable.enterScope();
+    createSymbolTable(symbolTable, ast.getRoot());
+
+  }
+
+  /**
+   * Creates the symbol-table and checks for errors during the <symbol-table (hier richtigen Begriff)> phase.
+   */
+  private static void createSymbolTable(SymbolTable symbolTable, ASTNode astNode) {
+    
+    if (astNode instanceof Identifier) {
+      symbolTable.addSymbol((Identifier) astNode);
+      System.out.println("New identifier: " + ((Identifier) astNode).getName());
+
+      // doMore stuff
+
+    } else if (astNode instanceof Block) {
+      symbolTable.enterScope();
+      System.out.println("New Scope");
+
+      // doMore stuff
+
+    }
+
+    // recursive traverse children
+    for (ASTNode node : astNode.getChildren()) {
+      createSymbolTable(symbolTable, node);
     }
   }
 }

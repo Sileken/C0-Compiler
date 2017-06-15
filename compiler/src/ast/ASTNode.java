@@ -59,4 +59,8 @@ public abstract class ASTNode {
 			this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);
 		}
    }
+
+   public List<ASTNode> getChildren() {
+	   return this.childrenList;
+   }
 }

@@ -8,17 +8,21 @@
  * (Java max. size of ArrayList is a bit less than a signed integer (2^32 bit) depending on
  * JDK-version and virtual machine)
  *
- * @version 0.1
- * @date 10.06.2016
+ * History:
+ * V.0.2a - identifier is now ast.identifier.Identifier instead of String (currently not full replaced)
+ *
+ * @version 0.2a
+ * @date 15.06.2016
  */
 package symboltable;
 
 import java.util.Stack;
+import ast.identifier.*;
 
 public class SymbolTable {
 
-    private FinalUniqueList<String> variables;      // List of every defined identifier
-    private Stack<Scope> stack;                     // Stack of Scopes
+    private final FinalUniqueList<String> variables;      // List of every defined identifier
+    private final Stack<Scope> stack;                     // Stack of Scopes
 
     public SymbolTable() {
         variables = new FinalUniqueList<String>();
@@ -42,16 +46,16 @@ public class SymbolTable {
 
     /**
      * Add a new Symbol to the current scope.
-     * @param identifier String name of the variable
+     * @param identifier Identifier-Node
      */
-    public void addSymbol(String identifier) {
-        int index = variables.indexOf(identifier);
+    public void addSymbol(Identifier identifier) {
+        int index = variables.indexOf(identifier.getName());
 
         // new identifier
         if (index == -1) {
             // no additional index needed because list is final and unique
             index = variables.size();
-            variables.add(identifier);
+            variables.add(identifier.getName());
         }
 
         Symbol s = new Symbol(identifier, index);

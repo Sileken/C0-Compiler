@@ -2,22 +2,28 @@
  * Symbol class for "easy" extension of the symbol-table
  *
  * Possible extension could be for the TypeChecker an enum type
+ * 
+ * History:
+ * V.1.1  - identifier is now ast.identifier.Identifier instead of String
  *
- * @version 1.0
- * @date 10.06.2017
+ * @version 1.1
+ * @date 15.06.2017
  */
 package symboltable;
 
-public class Symbol {
-    private final String identifier;
-    private final int index;
+import ast.identifier.*;
 
-    public Symbol(String identifier, int index) {
+public class Symbol {
+
+    private final int index;
+    private final Identifier identifier;    
+
+    public Symbol(Identifier identifier, int index) {
         this.identifier = identifier;
         this.index = index;
     }
 
-    public String getIdentifier() {
+    public Identifier getIdentifier() {
         return this.identifier;
     }
 
