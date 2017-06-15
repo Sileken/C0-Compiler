@@ -7,4 +7,5 @@ int main() {
   bool c = (a > 10 ) ? false : true;
   int c = (a > 10) ? -1 : a++;  
   int[] A = alloc_array(int, 5);
+  a == *wtf.lol;
 }

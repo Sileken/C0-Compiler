@@ -3,7 +3,7 @@ options {
   CHOICE_AMBIGUITY_CHECK = 2;
   OTHER_AMBIGUITY_CHECK = 1;
   STATIC = true;
-  DEBUG_PARSER = true;
+  DEBUG_PARSER = false;
   DEBUG_LOOKAHEAD = false;
   DEBUG_TOKEN_MANAGER = false;
   ERROR_REPORTING = true;
@@ -540,7 +540,6 @@ Expression UnaryExpression() :
   boolean isLogicalNot = false;
   boolean isBinNot = false;
   boolean isMinus = false;
-  boolean isDeref = false;
   Expression exp = null;
 }
 {
@@ -548,7 +547,6 @@ Expression UnaryExpression() :
     <BANG> { isLogicalNot = true; } 
     | <TILDE> { isBinNot = true; } 
     | <MINUS> { isMinus = true; } 
-    | <STAR> { isDeref = true; } 
   ) exp = UnaryExpression()
   {
     return isLogicalNot 
@@ -612,13 +610,18 @@ Primary PrimaryPrefix() :
   (
       primary = Literal()
     |
-      { VariableFunctionIdentifier identifier; }
-      identifier = VID()
-      { primary = new SimpleName(identifier); }
-    |
-      { Expression expression; }
-      <LPAREN> expression = Expression() <RPAREN>
-      { primary = new ExpressionPrimary(expression); }
+    (
+      (<STAR>)*
+      (
+        { VariableFunctionIdentifier identifier; }
+        identifier = VID()
+        { primary = new SimpleName(identifier); }
+      |
+        { Expression expression; }
+        <LPAREN> expression = Expression() <RPAREN>
+        { primary = new ExpressionPrimary(expression); }
+      )
+    )
   )
   { return primary; }
 }
@@ -680,55 +683,16 @@ void ArgumentList(List<Expression> arguments) :
 /////    Statement Expression     /////
 ///////////////////////////////////////
 
+// All the stuff below in the uncommented StatementExpression is already in Expression()
+// We could even eliminate this here and replace every occurence of StatementExpression()
+// with Expression (you want to do that patrick?)
 StatementExpression StatementExpression() :
 {
-  StatementExpression statementExpression;
-  Primary primary;
-
-  boolean isDeref = false;
-  double derefCount = 0;
-
-  boolean isIncr = false;
-  boolean isDecr = false;
-
-  boolean isAssignExp = false;
-  Token assignOperatorToken = null;
-  Expression rightAssignExp = null;
+  Expression expression;
 }
 {
-  (
-    <STAR>
-    {
-      isDeref = true;
-      derefCount += 1;
-    }
-  )* primary = PrimaryExpression()
-  [
-    <INCR> { isIncr = true; }
-  |
-    <DECR> { isDecr = true; }
-  |
-    assignOperatorToken = AssignmentOperator() rightAssignExp = Expression() { isAssignExp = true; }
-  ]
-  {
-    Expression currentLeftExp = primary;
-
-    if( isDeref ) {
-      for(int i=0; i < derefCount; i++){
-          currentLeftExp = new UnaryExpression(currentLeftExp, UnaryExpression.Operator.STAR);
-        }
-    }
-
-    Expression expression = isIncr
-                              ? new UnaryExpression(currentLeftExp, UnaryExpression.Operator.INCR)
-                              : isDecr 
-                                ? new UnaryExpression(currentLeftExp, UnaryExpression.Operator.DECR)
-                                : isAssignExp
-                                  ? new AssignmentExpression(currentLeftExp, AssignmentExpression.parseOperator(assignOperatorToken), rightAssignExp)
-                                  : currentLeftExp;
-    
-    return new StatementExpression(expression);
-  }
+  expression = Expression()
+  { return new StatementExpression(expression); }
 }
 
 ///////////////////////////////////////
@@ -766,7 +730,7 @@ IfStatement IfStatement() :
   <IF> <LPAREN> condition = Expression() <RPAREN> 
   ifStatement = Statement() 
   [
-    // This is needed to prevent the warning. The grammar is correct the parser will throw a warning. 
+    // This is needed to prevent the warning. The grammar is correct but the parser will throw a warning. 
     // If you want to know why look at https://javacc.org/tutorials/lookahead (search for dangling-else)
     LOOKAHEAD(1) 
     <ELSE> 
@@ -937,22 +901,24 @@ Declaration GDECL() :
 { Declaration node; }
 {
   (
-    LOOKAHEAD(3) // struct id; -> struct declaration ; struct id func(); -> function declaration ---- We need at least 3 TOKENS to make the right choice
-    node = GlobalStructDeklaration()
+     // struct id; -> struct declaration
+     // struct id func(); -> function declaration ---- We need at least 3 TOKENS to make the right choice
+    LOOKAHEAD(3)
+    node = GlobalStructDeclaration()
     |
-    node = GlobalFunctionDeclartion()
+    node = GlobalFunctionDeclaration()
   )
   { return node; }
 }
 
-StructDeclaration GlobalStructDeklaration() :
+StructDeclaration GlobalStructDeclaration() :
 { StructIdentifier structId; }
 {
   <STRUCT> structId = SID() <SEMICOLON>
   { return new StructDeclaration(new StructType(structId), structId); }
 }
 
-FunctionDeclaration GlobalFunctionDeclartion() :
+FunctionDeclaration GlobalFunctionDeclaration() :
 {
   Type returnType;
   VariableFunctionIdentifier funcId;
