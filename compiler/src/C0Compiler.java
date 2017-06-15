@@ -29,7 +29,7 @@ public class C0Compiler {
       ast.PrintPretty();
 
       initializeASTNodes(ast);
-
+      
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();
