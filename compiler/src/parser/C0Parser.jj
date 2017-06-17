@@ -187,12 +187,12 @@ SKIP :
 
 AST parseTree() :
 {
-  AST ast = new AST();
   FileUnit rootNode; 
 }
 {
   rootNode = prog() <EOF> 
   {
+    AST ast = new AST();
     ast.setRoot(rootNode);
     return ast;
   }
@@ -539,23 +539,20 @@ Expression UnaryExpression() :
 {
   boolean isLogicalNot = false;
   boolean isBinNot = false;
-  boolean isMinus = false;
   Expression exp = null;
 }
 {
   ( 
     <BANG> { isLogicalNot = true; } 
     | <TILDE> { isBinNot = true; } 
-    | <MINUS> { isMinus = true; } 
+    | <MINUS>
   ) exp = UnaryExpression()
   {
     return isLogicalNot 
       ? new UnaryExpression(exp, UnaryExpression.Operator.BANG)
       : isBinNot 
         ? new UnaryExpression(exp, UnaryExpression.Operator.TILDE)
-        : isMinus 
-          ? new UnaryExpression(exp, UnaryExpression.Operator.MINUS)
-          : new UnaryExpression(exp, UnaryExpression.Operator.STAR);
+        : new UnaryExpression(exp, UnaryExpression.Operator.MINUS);
   }
   |
   exp = PostfixExpression()
@@ -605,13 +602,23 @@ Primary PrimaryExpression() :
 }
 
 Primary PrimaryPrefix() :
-{ Primary primary; }
+{ 
+  Primary primary;
+  boolean isDeref = false;
+  double derefCount = 0;
+}
 {
   (
       primary = Literal()
     |
     (
-      (<STAR>)*
+      (
+        <STAR>
+        {
+          isDeref = true;		
+          derefCount += 1;
+        }
+      )*
       (
         { VariableFunctionIdentifier identifier; }
         identifier = VID()
@@ -623,7 +630,19 @@ Primary PrimaryPrefix() :
       )
     )
   )
-  { return primary; }
+  { 
+    if( isDeref && derefCount > 0 ) {
+      Expression currentPrimary = primary;
+
+      for(int i=0; i < derefCount; i++){		
+        currentPrimary = new UnaryExpression(currentPrimary, UnaryExpression.Operator.STAR);		
+      }
+
+      primary = new ExpressionPrimary(currentPrimary);
+    }
+    
+    return primary; 
+  }
 }
 
 Primary PrimarySuffix(Primary prefix) :
@@ -680,22 +699,6 @@ void ArgumentList(List<Expression> arguments) :
 }
 
 ///////////////////////////////////////
-/////    Statement Expression     /////
-///////////////////////////////////////
-
-// All the stuff below in the uncommented StatementExpression is already in Expression()
-// We could even eliminate this here and replace every occurence of StatementExpression()
-// with Expression (you want to do that patrick?)
-StatementExpression StatementExpression() :
-{
-  Expression expression;
-}
-{
-  expression = Expression()
-  { return new StatementExpression(expression); }
-}
-
-///////////////////////////////////////
 /////          Statement          /////
 ///////////////////////////////////////
 
@@ -714,10 +717,10 @@ Statement Statement() :
 }
 
 ExpressionStatement ExpressionStatement() :
-{ StatementExpression statementExpression; }
+{ Expression expression; }
 {
-    statementExpression = StatementExpression() <SEMICOLON>
-    { return new ExpressionStatement(statementExpression); }
+    expression = Expression() <SEMICOLON>
+    { return new ExpressionStatement(expression); }
 }
 
 IfStatement IfStatement() :
@@ -752,7 +755,7 @@ ForStatement ForStatement() :
 {
   Expression initialization = null;
   Expression condition;
-  StatementExpression increment = null;
+  Expression increment = null;
   Statement statement;
 }
 {
@@ -760,7 +763,7 @@ ForStatement ForStatement() :
     <FOR> <LPAREN> 
     [ initialization = ForInit()] <SEMICOLON>
     condition = Expression() <SEMICOLON>
-    [ increment = StatementExpression()] <RPAREN> 
+    [ increment = Expression()] <RPAREN> 
     statement = Statement()
   )
   { return new ForStatement(initialization, condition, increment, statement); }
@@ -773,7 +776,7 @@ Expression ForInit() :
     LOOKAHEAD(Type() <IDENTIFIER>)
     expression = VariableDeclarationExpression()
     |
-    expression = StatementExpression()
+    expression = Expression()
   )
   { return expression; }
 }

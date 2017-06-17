@@ -5,10 +5,10 @@ import ast.expression.*;
 public class ForStatement extends Statement {
     private Expression initialization;
     private Expression condition;
-    private StatementExpression increment;
+    private Expression increment;
     private Statement statement;
 
-    public ForStatement(Expression initialization, Expression condition, StatementExpression increment, Statement statement){
+    public ForStatement(Expression initialization, Expression condition, Expression increment, Statement statement){
         super();
 
         if(initialization != null){
