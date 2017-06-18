@@ -31,9 +31,8 @@ public class C0Compiler {
       typeChecking(ast, table);
       generateCode(ast, table);
 
-    
-      initializeASTNodes(ast);
-      
+      table.listScopes();
+
       // ast.PrintPretty();
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
@@ -49,10 +48,6 @@ public class C0Compiler {
       		
 		ast.getRoot().accept(new GlobalDeclarationVisitor(symbolTable));
 		System.out.println("C0 Compiler: Global Declarations constructed");
-
-	  TypeLinker linker = new TypeLinker(symbolTable);
-    ast.getRoot().accept(linker);
-		System.out.println("C0 Compiler: Type Linking finished");
 		
 		ast.getRoot().accept(new DeepDeclarationVisitor(symbolTable));
 		System.out.println("C0 Compiler: Deep Declaration constructed");
@@ -74,40 +69,4 @@ public class C0Compiler {
 
   private static void generateCode(AST ast, SymbolTable symbolTable) throws Exception{
   }  
-
-  /**
-   * Set additional information into the nodes of the nearly created AST.
-   * <anmerkung> da AST als Referenz uebergeben wird ist return ueberfluessig (?) </anmerkung> 
-   */
-  private static void initializeASTNodes(AST ast) {
-    final SymbolTable symbolTable = new SymbolTable();
-    symbolTable.enterScope();
-    createSymbolTable(symbolTable, ast.getRoot());
-
-  }
-
-  /**
-   * Creates the symbol-table and checks for errors during the <symbol-table (hier richtigen Begriff)> phase.
-   */
-  private static void createSymbolTable(SymbolTable symbolTable, ASTNode astNode) {
-    
-    if (astNode instanceof Identifier) {
-      symbolTable.addSymbol((Identifier) astNode);
-      System.out.println("New identifier: " + ((Identifier) astNode).getName());
-
-      // doMore stuff
-
-    } else if (astNode instanceof Block) {
-      symbolTable.enterScope();
-      System.out.println("New Scope");
-
-      // doMore stuff
-
-    }
-
-    // recursive traverse children
-    for (ASTNode node : astNode.getChildren()) {
-      createSymbolTable(symbolTable, node);
-    }
-  }
 }

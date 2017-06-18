@@ -1,27 +1,37 @@
-/**
- * Every Scope contains a Hashtable of it's Symbols.
- *
- * @version 1.0
- * @date 10.06.2017
- * @see Hashtable, Symbol
- */
 package symboltable;
 
-import java.util.Hashtable;
+import ast.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.LinkedHashMap;
 
 public class Scope {
+	protected String name;
+	protected LinkedHashMap<String, Symbol> symbols;
+	protected ASTNode referenceNode;
 
-    private Hashtable<Integer, Symbol> symbols;
+	public Scope(String name, ASTNode referenceNode) {
+		this.name = name;
+		this.symbols = new LinkedHashMap<String, Symbol>();
+		this.referenceNode = referenceNode;
+	}
 
-    public Scope() {
-        this.symbols = new Hashtable<Integer, Symbol>();
-    }
+	public void listSymbols() {
+		System.out.println("\tReferences to: " + this.referenceNode);
+		System.out.println("\tSymbols:");
+		List<String> keys = new ArrayList<String>(this.symbols.keySet());
+		Collections.sort(keys);
+		for (String key : keys) {
+			System.out.println("\t\t" + this.symbols.get(key));
+		}
+		System.out.println();
+	}
 
-    public void addSymbol(Symbol symbol) {
-        this.symbols.put(symbol.getIndex(), symbol);
-    }
-
-    public Symbol getSymbol(int index) {
-        return this.symbols.get(new Integer(index));
-    }
+	public String getName() {
+		return name;
+	}
 }

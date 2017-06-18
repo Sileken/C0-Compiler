@@ -21,4 +21,13 @@ public class FunctionDeclaration extends Declaration {
             this.addChilds(this.parameterDefs);
         }
     }
+
+    public List<Type> getParameterTypes(){
+        List<Type> types = new ArrayList<Type>();
+        for(ParameterDefinition param : parameterDefs){
+            types.add(param.getType());
+        }
+        
+        return types;
+    }    
 }

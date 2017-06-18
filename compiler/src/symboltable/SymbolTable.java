@@ -1,111 +1,70 @@
-/**
- * SymbolTable class.
- *
- * Contains a final and unique List of all string-identifiers and a Stack of Scopes.
- *
- * Design of the class brings one limitation:
- * Maximal count of unique string identifiers is restricted to almost MAX_INT
- * (Java max. size of ArrayList is a bit less than a signed integer (2^32 bit) depending on
- * JDK-version and virtual machine)
- *
- * History:
- * V.0.2a - identifier is now ast.identifier.Identifier instead of String (currently not full replaced)
- *
- * @version 0.2a
- * @date 15.06.2016
- */
 package symboltable;
 
-import java.util.Stack;
-import ast.identifier.*;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import ast.*;
 
 public class SymbolTable {
 
-    private final FinalUniqueList<String> variables;      // List of every defined identifier
-    private final Stack<Scope> stack;                     // Stack of Scopes
+    private Map<String, Scope> scopes = new HashMap<String, Scope>();
 
     public SymbolTable() {
-        variables = new FinalUniqueList<String>();
-        stack = new Stack<Scope>();
+        this.scopes = new HashMap<String, Scope>();
     }
 
-    /**
-     * Enter a new scope for variables
-     */
-    public void enterScope() {
-        stack.push(new Scope());
+    private String getFileUnitScopeName(FileUnit fileUnit) {
+        return fileUnit.getIdentifier() + ".FileUnit";
     }
 
-    /**
-     * Exit the current scope.
-     * All information will be lost.
-     */
-    public void exitScope() {
-        stack.pop();
-    }
-
-    /**
-     * Add a new Symbol to the current scope.
-     * @param identifier Identifier-Node
-     */
-    public void addSymbol(Identifier identifier) {
-        int index = variables.indexOf(identifier.getName());
-
-        // new identifier
-        if (index == -1) {
-            // no additional index needed because list is final and unique
-            index = variables.size();
-            variables.add(identifier.getName());
+    public FileUnitScope addFileUnitScope(FileUnit fileUnit) throws SymbolTableException {
+        String fileUnitName = getFileUnitScopeName(fileUnit);
+        if (this.scopes.containsKey(fileUnitName)) {
+            throw new SymbolTableException("Duplicate File Unit: " + fileUnitName);
         }
 
-        Symbol s = new Symbol(identifier, index);
-        stack.peek().addSymbol(s);
+        FileUnitScope scope = new FileUnitScope(fileUnitName, fileUnit);
+        this.scopes.put(fileUnitName, scope);
+        return scope;
     }
 
-    /**
-     * Check if the identifier is in the current scope.
-     *
-     * @param identifier String name of the variable
-     * @return Symbol if the identifier exists or null
-     * @throws IdentifierNotFoundException if the identifier was never added before
-     */
-    public Symbol getSymbol(String identifier) throws IdentifierNotFoundException {
-        int index = identifier2Index(identifier);
-        return stack.peek().getSymbol(index);
-    }
-
-    /**
-     * Check if the identifier is used ever before.
-     *
-     * @param identifier String name of the variable
-     * @return Symbol if the identifier exists or null
-     * @throws IdentifierNotFoundException if the identifier was never added before
-     */
-    public Symbol lookup(String identifier) throws IdentifierNotFoundException {
-        int index = identifier2Index(identifier);
-
-        // Stack is internally implemented by a vector
-        for (int i = stack.size() - 1; i >= 0; i--) {
-            Symbol symbol = stack.elementAt(i).getSymbol(index);
-            if (symbol != null) {
-                return symbol;
-            }
+    public FileUnitScope getFileUnitScope(FileUnit fileUnit) throws SymbolTableException {
+        String fileUnitName = getFileUnitScopeName(fileUnit);
+        Scope scope = this.scopes.get(fileUnitName);
+        if (scope != null && !(scope instanceof FileUnitScope)) {
+            throw new SymbolTableException("Expecting BlockScope but get " + scope);
         }
-        return null; // or throw Exception e. g. "not available in current block"
+        return (FileUnitScope) scope;
     }
 
-    /**
-     *
-     * @param identifier String name of the variable
-     * @return Integer index of the symbol with the identifier
-     * @throws IdentifierNotFoundException if the identifier was never added before
-     */
-    private int identifier2Index(String identifier) throws IdentifierNotFoundException {
-        int index = this.variables.indexOf(identifier);
-
-        if (index < 0) {
-            throw new IdentifierNotFoundException("Identifier '" + identifier + "' never used before.");
+    public BlockScope addBlockScope(String blockName, Scope parent, ASTNode referenceNode) throws SymbolTableException {
+        if (this.scopes.containsKey(blockName)) {
+            throw new SymbolTableException("Duplicate Block Declaration: " + blockName);
         }
-        return index;
+
+        BlockScope scope = new BlockScope(blockName, parent, referenceNode);
+        this.scopes.put(blockName, scope);
+        return scope;
+    }
+
+    public BlockScope getBlockScope(String blockName) throws SymbolTableException {
+        Scope scope = this.scopes.get(blockName);
+        if (scope != null && !(scope instanceof BlockScope)) {
+            throw new SymbolTableException("Expecting BlockScope but get " + scope);
+        }
+        return (BlockScope) scope;
+    }
+
+    public void listScopes() {
+        System.out.println("Listing Scopes:");
+        List<String> keys = new ArrayList<String>(this.scopes.keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
+            System.out.println(this.scopes.get(key).getName());
+            this.scopes.get(key).listSymbols();
+        }
     }
 }

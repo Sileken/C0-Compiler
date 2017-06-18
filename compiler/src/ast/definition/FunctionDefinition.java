@@ -11,18 +11,28 @@ public class FunctionDefinition extends Definition {
   private List<ParameterDefinition> parameterDefs = new ArrayList<ParameterDefinition>();
   private Block block;
 
-  public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs, Block block){
+  public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs,
+      Block block) {
     super(funcId);
-    
+
     this.returnType = returnType;
     this.addChild(this.returnType);
 
-    if(parameterDefs != null && !parameterDefs.isEmpty()){
-        this.parameterDefs = parameterDefs;
-        this.addChilds(this.parameterDefs);
+    if (parameterDefs != null && !parameterDefs.isEmpty()) {
+      this.parameterDefs = parameterDefs;
+      this.addChilds(this.parameterDefs);
     }
 
     this.block = block;
     this.addChild(this.block);
+  }
+
+  public List<Type> getParameterTypes() {
+    List<Type> types = new ArrayList<Type>();
+    for (ParameterDefinition param : parameterDefs) {
+      types.add(param.getType());
+    }
+
+    return types;
   }
 }

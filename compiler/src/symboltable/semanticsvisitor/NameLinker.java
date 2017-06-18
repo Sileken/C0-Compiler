@@ -9,14 +9,14 @@ public class NameLinker extends SemanticsVisitor {
 	}
 
 	@Override
-	public void willVisit(ASTNode node) throws Exception {
+	public void willVisit(ASTNode node) throws SymbolTableException {
 	}
 
-	public boolean visit(ASTNode node) throws Exception {
+	public boolean visit(ASTNode node) throws SymbolTableException {
 		return true;
 	}
 
 	@Override
-	public void didVisit(ASTNode node) throws Exception {
+	public void didVisit(ASTNode node) throws SymbolTableException {
 	}
 }

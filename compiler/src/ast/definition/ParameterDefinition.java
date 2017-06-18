@@ -12,4 +12,8 @@ public class ParameterDefinition extends Definition {
         this.parameterType = parameterType;
         this.addChild(this.parameterType);
     }
+
+    public Type getType(){
+        return this.parameterType;
+    }
 }

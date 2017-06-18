@@ -2,41 +2,34 @@ package symboltable.semanticsvisitor;
 
 import ast.*;
 import ast.declaration.*;
+import ast.definition.*;
 import ast.statement.*;
 import symboltable.*;
 
+/** This Visitor creates a global FileUnit Scope and add Struct- and Function-Declarations to this Scope */
 public class GlobalDeclarationVisitor extends SemanticsVisitor {
 	public GlobalDeclarationVisitor(SymbolTable table) {
 		super(table);
 	}
 
 	@Override
-	public void willVisit(ASTNode node) throws Exception {
-	/*	if (node instanceof TypeDeclaration) {
-			PackageScope currentScope = (PackageScope) this.getCurrentScope();
-			String name = ((TypeDeclaration) node).getIdentifier();
-			name = currentScope.getName() + "." + name;
-			((TypeDeclaration) node).fullyQualifiedName = name;
-
-			TypeScope scope = this.table.addType(name, currentScope, node);
-
-			// Add type declaration as package member
-			currentScope.addType((TypeDeclaration) node);
-
-			// Push current scope into the view stack
+	public void willVisit(ASTNode node) throws SymbolTableException {
+		if (node instanceof FileUnit) {
+			FileUnitScope scope = this.table.addFileUnitScope((FileUnit)node);
 			this.pushScope(scope);
-		}*/
+		}
 	}
 
-	public boolean visit(ASTNode node) throws Exception {
-		if (node instanceof StructDeclaration) {
-			/*		TypeScope currentScope = (TypeScope) this.getCurrentScope();
-					currentScope.addFieldDecl((FieldDeclaration) node);*/
-		} else if (node instanceof FunctionDeclaration) {
-			/*			TypeScope currentScope = (TypeScope) this.getCurrentScope();
-						currentScope.addMethod((MethodDeclaration) node);*/
+	public boolean visit(ASTNode node) throws SymbolTableException {
+		/* Add Function Declarations to the global Scope */
+		if (node instanceof StructDefinition) {
+			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
+			currentScope.addStructDefinition((StructDefinition) node);
+		} else if (node instanceof FunctionDefinition) {
+			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
+			currentScope.addFunctionDefinition((FunctionDefinition) node);
 		}
 
-		return !(node instanceof Block);
+		return !(node instanceof StructDefinition || node instanceof FunctionDefinition);
 	}
 }

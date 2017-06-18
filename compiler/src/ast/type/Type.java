@@ -6,4 +6,6 @@ public abstract class Type extends ASTNode {
     public Type() {
         super();
     }
+
+    public abstract String getFullyQualifiedName();
 }

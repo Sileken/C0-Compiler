@@ -13,4 +13,8 @@ public class VariableDeclaration extends Declaration {
         this.type = type;
         this.addChild(this.type);
     }
+
+    public Type getType() {
+		return type;
+	}
 }
