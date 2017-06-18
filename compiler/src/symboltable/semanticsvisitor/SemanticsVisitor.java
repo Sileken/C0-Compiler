@@ -47,11 +47,17 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 
 			this.blockCount = 0;
 			this.pushScope(scope);
+		} else if (node instanceof StructDefinition) {
+			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
+			String structTypeScopeName = this.table.getStructTypeScopeName((StructDefinition) node);
+
+			Scope scope = this.table.getStructTypeScope(structTypeScopeName);
+			this.pushScope(scope);
 		} else if (node instanceof Block && !(((Block) node).getParent() instanceof FunctionDefinition)) {
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
-			String blockName = currentScope.getName() + ".block" + this.blockCount;
+			String blockName = this.table.getBlockScopeName(currentScope, this.blockCount);
 			Scope scope = this.table.getBlockScope(blockName);
-			
+
 			this.blockCount++;
 			this.pushScope(scope);
 		}
@@ -61,11 +67,15 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 	public void didVisit(ASTNode node) throws SymbolTableException {
 		if (node instanceof FileUnit) {
 			this.viewStack.clear();
-		} if (node instanceof FunctionDefinition) { // leaving Function Definition
+		} else if (node instanceof FunctionDefinition) { // leaving Function Definition
 			while (this.getCurrentScope() instanceof BlockScope) { // leaving Blocks in Functions
 				this.popScope();
 			}
-		} else if (node instanceof Block) { // leaving Block
+		} else if (node instanceof StructDefinition) {
+			if (this.getCurrentScope() instanceof StructTypeScope) {
+				this.popScope();
+			}
+		} else if (node instanceof Block) { // leaving Block or Struct Type Scope
 			this.popScope();
 		}
 	}

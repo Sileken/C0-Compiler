@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import ast.*;
+import ast.definition.*;
 
 public class SymbolTable {
 
@@ -40,6 +41,10 @@ public class SymbolTable {
         return (FileUnitScope) scope;
     }
 
+    public String getBlockScopeName(Scope currentScope, int blockCount){
+        return currentScope.getName() + ".block" + blockCount;
+    }
+
     public BlockScope addBlockScope(String blockName, Scope parent, ASTNode referenceNode) throws SymbolTableException {
         if (this.scopes.containsKey(blockName)) {
             throw new SymbolTableException("Duplicate Block Declaration: " + blockName);
@@ -56,6 +61,29 @@ public class SymbolTable {
             throw new SymbolTableException("Expecting BlockScope but get " + scope);
         }
         return (BlockScope) scope;
+    }
+
+    public String getStructTypeScopeName(StructDefinition structDefinition) {
+        return "struct." + structDefinition.getName().getName();
+    }
+
+    public StructTypeScope addStructTypeScope(String structTypeName, Scope parent, ASTNode referenceNode)
+            throws SymbolTableException {
+        if (this.scopes.containsKey(structTypeName)) {
+            throw new SymbolTableException("Duplicate Struct Defintion: " + structTypeName);
+        }
+
+        StructTypeScope scope = new StructTypeScope(structTypeName, parent, referenceNode);
+        this.scopes.put(structTypeName, scope);
+        return scope;
+    }
+
+    public StructTypeScope getStructTypeScope(String structTypeName) throws SymbolTableException {
+        Scope scope = this.scopes.get(structTypeName);
+        if (scope != null && !(scope instanceof BlockScope)) {
+            throw new SymbolTableException("Expecting StructTypeScope but get " + scope);
+        }
+        return (StructTypeScope) scope;
     }
 
     public void listScopes() {

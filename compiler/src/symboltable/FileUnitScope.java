@@ -29,9 +29,9 @@ public class FileUnitScope extends Scope {
     public String signatureOfFunction(String methodName, List<Type> parameterTypes) {
         String signature = methodName + "(";
         for (Type parameterType : parameterTypes) {
-            signature += parameterType.getFullyQualifiedName() + ",";
+            signature += parameterType.getFullyQualifiedName() + ", ";
         }
-        signature = signature.substring(0, signature.length()-1);
+        signature = signature.substring(0, signature.length()-2);
         signature += ")";
         return signature;
     }
