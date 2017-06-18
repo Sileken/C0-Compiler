@@ -66,7 +66,6 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 				this.popScope();
 			}
 		} else if (node instanceof Block) { // leaving Block
-			System.out.println("Popping scope on block ");
 			this.popScope();
 		}
 	}

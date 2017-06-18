@@ -12,13 +12,14 @@ public class FileUnitScope extends Scope {
     }
 
     public void addStructDefinition(StructDefinition structDeclr) throws SymbolTableException {
-        Symbol symbol = new Symbol(structDeclr.getName().getName(), structDeclr, this);
+        String symbolName = structDeclr.getName().getName();
+        Symbol symbol = new Symbol(symbolName, structDeclr, this);
 
-        if (this.symbols.containsKey(name)) {
-            throw new SymbolTableException("Duplicate Struct Definitions: " + name);
+        if (this.symbols.containsKey(symbolName)) {
+            throw new SymbolTableException("Duplicate Struct Definitions: " + symbolName);
         }
 
-        this.symbols.put(name, symbol);
+        this.symbols.put(symbolName, symbol);
     }
 
     public String signatureOfFunction(FunctionDefinition functionDecl) {
@@ -26,20 +27,20 @@ public class FileUnitScope extends Scope {
     }
 
     public String signatureOfFunction(String methodName, List<Type> parameterTypes) {
-        String name = methodName + "(";
+        String signature = methodName + "(";
         for (Type parameterType : parameterTypes) {
-            name += parameterType.getFullyQualifiedName() + ",";
+            signature += parameterType.getFullyQualifiedName() + ",";
         }
-        name += ")";
-        return name;
+        signature += ")";
+        return signature;
     }
 
     public void addFunctionDefinition(FunctionDefinition functionDecl) throws SymbolTableException {
-        String name = signatureOfFunction(functionDecl.getName().getName(), functionDecl.getParameterTypes());
-        if (this.symbols.containsKey(name)) {
-            throw new SymbolTableException("Duplicate Method Declaraion " + name);
+        String symbolName = signatureOfFunction(functionDecl.getName().getName(), functionDecl.getParameterTypes());
+        if (this.symbols.containsKey(symbolName)) {
+            throw new SymbolTableException("Duplicate Method Declaraion " + symbolName);
         }
-        Symbol symbol = new Symbol(name, functionDecl, this);
-        this.symbols.put(name, symbol);
+        Symbol symbol = new Symbol(symbolName, functionDecl, this);
+        this.symbols.put(symbolName, symbol);
     }
 }

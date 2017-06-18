@@ -14,38 +14,36 @@ public class BlockScope extends Scope {
     }
 
     public String nameForDecl(VariableDeclaration variableDecl) {
-        String name = this.getName() + "." + variableDecl.getName().getName();
-        return name;
+        return this.getName() + "." + variableDecl.getName().getName();
     }
 
     public void addVariableDeclaration(VariableDeclaration variableDecl) throws SymbolTableException {
-        String name = this.nameForDecl(variableDecl);
+        String symbolName = this.nameForDecl(variableDecl);
 
         Symbol duplicatedSymbol = this.getLocalVariable(variableDecl.getName().getName());
         if (duplicatedSymbol != null && !(duplicatedSymbol.getNode().getParent() instanceof ForStatement)) {
-            throw new SymbolTableException("Duplicate Variable Declaration of " + name);
+            throw new SymbolTableException("Duplicate Variable Declaration of " + symbolName);
         }
 
-        Symbol symbol = new Symbol(name, variableDecl, this);
-
-        this.symbols.put(name, symbol);
+        Symbol symbol = new Symbol(symbolName, variableDecl, this);
+        this.symbols.put(symbolName, symbol);
     }
 
     public Symbol getVariableDeclaration(VariableDeclaration variableDecl) {
         return this.symbols.get(this.nameForDecl(variableDecl));
     }
 
-    public Symbol getLocalVariable(String name) {
+    public Symbol getLocalVariable(String symbolName) {
         Symbol localVariable = null;
-        for (Symbol entry : this.symbols.values()) {
-            if(entry.getName().endsWith("." + name) ){
+        for (Symbol entry : this.symbols.values()) {           
+            if(entry.getName().endsWith("." + symbolName) ){
                 localVariable = entry;
                 break;
             }
         }
 
-        if ( localVariable != null && this.parent instanceof BlockScope) {
-            return ((BlockScope) this.parent).getLocalVariable(name);
+        if (localVariable == null && this.parent instanceof BlockScope) {
+            return ((BlockScope) this.parent).getLocalVariable(symbolName);
         }
 
         return localVariable;
