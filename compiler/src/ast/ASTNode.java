@@ -3,15 +3,17 @@ package ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import ast.visitor.ASTVisitor;
+
 public abstract class ASTNode {
-    private ASTNode parent = null;
-    private String identifier = new String();
-    private List<ASTNode> childrenList = new ArrayList<ASTNode>();
+	private ASTNode parent = null;
+	private String identifier = new String();
+	private List<ASTNode> childrenList = new ArrayList<ASTNode>();
 
 	public ASTNode() {
 	}
 
-    /**
+	/**
 	 * @return the parent
 	 */
 	public ASTNode getParent() {
@@ -25,11 +27,11 @@ public abstract class ASTNode {
 		return identifier;
 	}
 
-    public void setIdentifier(String identifier) {
+	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
 
-    public void addChild(ASTNode child) {
+	public void addChild(ASTNode child) {
 		child.parent = this;
 		this.childrenList.add(child);
 	}
@@ -40,27 +42,36 @@ public abstract class ASTNode {
 		}
 	}
 
-	public void PrintPretty(String indent, boolean last)
-	{
+	public final void accept(ASTVisitor visitor) throws Exception {
+		visitor.willVisit(this);
+		System.out.println("Visiting <" + this.getClass().getSimpleName() + ">");
+
+		if (visitor.visit(this)) {
+			for (ASTNode childNode : this.childrenList) {
+				childNode.accept(visitor);
+			}
+		}
+
+		visitor.didVisit(this);
+	}
+
+	public void PrintPretty(String indent, boolean last) {
 		System.out.print(indent);
-		if (last)
-		{
+		if (last) {
 			System.out.print("\\-");
 			indent += "  ";
-		}
-		else
-		{
+		} else {
 			System.out.print("|-");
 			indent += "| ";
 		}
-       	System.out.println(this.getClass().getSimpleName());
+		System.out.println(this.getClass().getSimpleName());
 
-		for (int i = 0; i < this.childrenList.size(); i++){
+		for (int i = 0; i < this.childrenList.size(); i++) {
 			this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);
 		}
-   }
+	}
 
-   public List<ASTNode> getChildren() {
-	   return this.childrenList;
-   }
+	public List<ASTNode> getChildren() {
+		return this.childrenList;
+	}
 }
