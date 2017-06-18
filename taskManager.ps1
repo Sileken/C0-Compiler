@@ -12,7 +12,7 @@ Write-Host "Start running task $($task)" -foreground "green";
 if($task -eq "build"){
     clear;
     &.\build.ps1;
-    &.\run.ps1 -mainFileName $mainFileName;
+    #&.\run.ps1 -mainFileName $mainFileName;
 } elseif($task -eq "test"){
     clear;
     &.\build.ps1;
