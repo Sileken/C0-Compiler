@@ -21,7 +21,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			Scope scope = this.table.addBlockScope(name, currentScope, node);
 			this.blockCount = 0;
 			this.pushScope(scope);
-		} else if (node instanceof Block) {
+		} else if (node instanceof Block && !(((Block) node).getParent() instanceof FunctionDefinition)) {
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			String name = currentScope.getName() + ".block" + this.blockCount;
 			Scope scope = this.table.addBlockScope(name, currentScope, node);

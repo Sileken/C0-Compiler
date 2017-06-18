@@ -47,7 +47,7 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 
 			this.blockCount = 0;
 			this.pushScope(scope);
-		} else if (node instanceof Block) {
+		} else if (node instanceof Block && !(((Block) node).getParent() instanceof FunctionDefinition)) {
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			String blockName = currentScope.getName() + ".block" + this.blockCount;
 			Scope scope = this.table.getBlockScope(blockName);

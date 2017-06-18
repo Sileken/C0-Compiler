@@ -31,6 +31,7 @@ public class FileUnitScope extends Scope {
         for (Type parameterType : parameterTypes) {
             signature += parameterType.getFullyQualifiedName() + ",";
         }
+        signature = signature.substring(0, signature.length()-1);
         signature += ")";
         return signature;
     }

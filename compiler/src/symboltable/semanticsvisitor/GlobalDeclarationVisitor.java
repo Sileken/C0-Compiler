@@ -6,7 +6,8 @@ import ast.definition.*;
 import ast.statement.*;
 import symboltable.*;
 
-/** This Visitor creates a global FileUnit Scope and add Struct- and Function-Declarations to this Scope */
+/** This Visitor creates a global FileUnit Scope and add Struct- and Function-Defintion to this Scope */
+//todo: Struct and Function Declarations
 public class GlobalDeclarationVisitor extends SemanticsVisitor {
 	public GlobalDeclarationVisitor(SymbolTable table) {
 		super(table);
