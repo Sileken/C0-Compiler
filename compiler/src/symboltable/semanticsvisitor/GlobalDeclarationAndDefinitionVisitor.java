@@ -8,21 +8,27 @@ import symboltable.*;
 
 /** This Visitor creates a global FileUnit Scope 
  * and adds Struct- and Function-Defintion to this Scope */
-public class GlobalDeclarationVisitor extends SemanticsVisitor {
-	public GlobalDeclarationVisitor(SymbolTable table) {
+public class GlobalDeclarationAndDefinitionVisitor extends SemanticsVisitor {
+	public GlobalDeclarationAndDefinitionVisitor(SymbolTable table) {
 		super(table);
 	}
 
 	@Override
 	public void willVisit(ASTNode node) throws SymbolTableException {
 		if (node instanceof FileUnit) {
-			FileUnitScope scope = this.table.addFileUnitScope((FileUnit)node);
+			FileUnitScope scope = this.table.addFileUnitScope((FileUnit) node);
 			this.pushScope(scope);
 		}
 	}
 
 	public boolean visit(ASTNode node) throws SymbolTableException {
-		if (node instanceof StructDefinition) {
+		if (node instanceof StructDeclaration) {
+			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
+			currentScope.addStructDeclaration((StructDeclaration) node);
+		} else if (node instanceof FunctionDeclaration) {
+			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
+			currentScope.addFunctionDeclaration((FunctionDeclaration) node);
+		} else if (node instanceof StructDefinition) {
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			currentScope.addStructDefinition((StructDefinition) node);
 		} else if (node instanceof FunctionDefinition) {
