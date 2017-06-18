@@ -4,17 +4,17 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import ast.*;
 import ast.definition.*;
 
 public class SymbolTable {
 
-    private Map<String, Scope> scopes = new HashMap<String, Scope>();
+    private Map<String, Scope> scopes = new LinkedHashMap<String, Scope>();
 
     public SymbolTable() {
-        this.scopes = new HashMap<String, Scope>();
+        this.scopes = new LinkedHashMap<String, Scope>();
     }
 
     private String getFileUnitScopeName(FileUnit fileUnit) {
