@@ -44,7 +44,7 @@ public abstract class ASTNode {
 
 	public final void accept(ASTVisitor visitor) throws Exception {
 		visitor.willVisit(this);
-		System.out.println("Visiting <" + this.getClass().getSimpleName() + ">");
+		//System.out.println("Visiting <" + this.getClass().getSimpleName() + ">");
 
 		if (visitor.visit(this)) {
 			for (ASTNode childNode : this.childrenList) {

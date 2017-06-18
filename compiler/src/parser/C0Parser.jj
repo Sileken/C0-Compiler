@@ -194,6 +194,8 @@ AST parseTree() :
   {
     AST ast = new AST();
     ast.setRoot(rootNode);
+    System.out.println("C0 Compiler: Parsing finished");
+    System.out.println("C0 Compiler: Abstract syntax tree constructed");  
     return ast;
   }
 }
