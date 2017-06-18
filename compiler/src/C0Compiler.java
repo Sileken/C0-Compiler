@@ -47,8 +47,8 @@ public class C0Compiler {
   private static SymbolTable typeLinking(AST ast) throws Exception {
     final SymbolTable symbolTable = new SymbolTable();
       		
-		ast.getRoot().accept(new TopDeclarationVisitor(symbolTable));
-		System.out.println("C0 Compiler: Top Declarations constructed");
+		ast.getRoot().accept(new GlobalDeclarationVisitor(symbolTable));
+		System.out.println("C0 Compiler: Global Declarations constructed");
 
 	  TypeLinker linker = new TypeLinker(symbolTable);
     ast.getRoot().accept(linker);

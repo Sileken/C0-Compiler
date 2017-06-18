@@ -12,7 +12,6 @@ public class TypeChecker extends SemanticsVisitor {
 	public void willVisit(ASTNode node) throws Exception {
 	}
 
-	@Override
 	public boolean visit(ASTNode node) throws Exception {
 		return true;
 	}
