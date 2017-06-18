@@ -21,6 +21,11 @@ public class Scope {
 	}
 
 	public void listSymbols() {
+		if (this instanceof BlockScope) {
+			System.out.println("\tParent Scope: " + ((BlockScope) this).parent.getName());
+		} else if (this instanceof StructTypeScope) {
+			System.out.println("\tParent Scope: " + ((StructTypeScope) this).parent.getName());
+		}
 		System.out.println("\tReferences to: " + this.referenceNode);
 		System.out.println("\tSymbols:");
 		List<String> keys = new ArrayList<String>(this.symbols.keySet());
@@ -34,7 +39,7 @@ public class Scope {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "<" + this.getClass().getSimpleName() + "> " + this.name;
