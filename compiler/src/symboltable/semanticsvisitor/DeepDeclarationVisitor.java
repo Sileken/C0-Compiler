@@ -7,7 +7,9 @@ import ast.statement.*;
 import ast.type.*;
 import symboltable.*;
 
-/** This Visitor creates Block-Scopes and add Varaible Declarations to this Scope */
+/** This Visitor creates 
+ * Function-Block-Scopes, Block-Scopes in Functions, StructType-Scopes 
+ * and adds Varaible Declarations or Field Definitions to this Scope */
 public class DeepDeclarationVisitor extends SemanticsVisitor {
 	public DeepDeclarationVisitor(SymbolTable table) {
 		super(table);
@@ -18,14 +20,15 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 		if (node instanceof FunctionDefinition) {
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			String blockName = currentScope.signatureOfFunction((FunctionDefinition) node);
-
 			Scope scope = this.table.addBlockScope(blockName, currentScope, node);
+			
 			this.blockCount = 0;
 			this.pushScope(scope);
 		} else if (node instanceof StructDefinition) {
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			String structTypeScopeName = this.table.getStructTypeScopeName((StructDefinition) node);
 			Scope scope = this.table.addStructTypeScope(structTypeScopeName, currentScope, node);
+
 			this.blockCount = 0;
 			this.pushScope(scope);
 		} else if (node instanceof Block && !(((Block) node).getParent() instanceof FunctionDefinition)) {

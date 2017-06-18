@@ -6,8 +6,8 @@ import ast.definition.*;
 import ast.statement.*;
 import symboltable.*;
 
-/** This Visitor creates a global FileUnit Scope and add Struct- and Function-Defintion to this Scope */
-//todo: Struct and Function Declarations
+/** This Visitor creates a global FileUnit Scope 
+ * and adds Struct- and Function-Defintion to this Scope */
 public class GlobalDeclarationVisitor extends SemanticsVisitor {
 	public GlobalDeclarationVisitor(SymbolTable table) {
 		super(table);
@@ -22,7 +22,6 @@ public class GlobalDeclarationVisitor extends SemanticsVisitor {
 	}
 
 	public boolean visit(ASTNode node) throws SymbolTableException {
-		/* Add Function Declarations to the global Scope */
 		if (node instanceof StructDefinition) {
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			currentScope.addStructDefinition((StructDefinition) node);
