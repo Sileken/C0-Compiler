@@ -1,11 +1,42 @@
+/*
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * This sourcecode does nothing useful, execpt the         *
+ * demonstration of successfully parsing C0--              *
+ * Run at your own risk!                                   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+struct s1rukture;
 
-int main() {
-  int a = 2;
-  int one = as->q[0];
-  int a = one + 5;
-  a--;
-  bool c = (a > 10 ) ? false : true;
-  int c = (a > 10) ? -1 : a++;  
-  int[] A = alloc_array(int, 5);
-  a == *wtf.lol;
+struct s1rukture {
+    int number;
+    int[] numbers;
+    bool isUseful;
+    void* point2someMemory;
+};
+
+struct unsignedInteger {
+    int mostSignificant;
+    int leastSignificant;
+};
+
+
+int eat(bool exitPoint, int* boolean);
+int eat(bool exitPoint, int* boolean) {
+    *boolean = 4711;
+    int* source = alloc(int);
+    *source = 0;
+    
+    if (!exitPoint && true) {
+        while (boolean <= 4747) {
+            (*boolean)++;
+            sleep(*boolean);
+            code(source, exitPoint);
+            // repeat!
+        }
+
+        return *source;
+    }
+    else {
+        return -1;
+    }
 }
