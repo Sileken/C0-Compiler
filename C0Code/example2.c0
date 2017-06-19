@@ -10,7 +10,8 @@ bool is_person(struct person* p);
 
 int main(){
     struct person* p = alloc(struct person);
-    p->friendsIds = alloc_array(int, 5);
+    
+    throwError = true;                      // throw SymbolTable Error
     
     int id = getId(p);
     int age = getAge(p);

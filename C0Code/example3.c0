@@ -7,6 +7,8 @@ int main(){
     int i = 100;
     struct list* lastList;
 
+    int boolean = false;            // throw TypeChecker Error
+
     while(i >= 0){
          struct list* l = alloc(struct list);
          l->data = i;
