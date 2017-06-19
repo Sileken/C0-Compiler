@@ -8,4 +8,9 @@ int main() {
   int c = (a > 10) ? -1 : a++;  
   int[] A = alloc_array(int, 5);
   a == *wtf.lol;
+  as->t;
+  a[3];
+  as->q[0]->a;
+  one[5]->t[5]->a->s;
+  a[3] = a[3]->test.qwe->test.q;
 }
