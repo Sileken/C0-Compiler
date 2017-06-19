@@ -2,24 +2,19 @@ package ast;
 
 import java.util.ArrayList;
 import java.util.List;
+import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
 
 public class FileUnit extends ASTNode {
-    private List<Declaration> globalDeclarations = new ArrayList<Declaration>();
-    private List<Definition> globalDefinitions = new ArrayList<Definition>();
+    private List<ASTNode> globalDeclAndDef = new ArrayList<ASTNode>();
 
-    public FileUnit(List<Declaration> globalDeclarations, List<Definition> globalDefinitions) {
+    public FileUnit(List<ASTNode> globalDeclAndDef) {
         super();
 
-        if(globalDeclarations != null && !globalDeclarations.isEmpty()){
-            this.globalDeclarations = globalDeclarations;
-            this.addChilds(this.globalDeclarations);
-        }
-
-        if(globalDefinitions != null && !globalDefinitions.isEmpty()){
-            this.globalDefinitions = globalDefinitions;
-            this.addChilds(this.globalDefinitions);
+        if(globalDeclAndDef != null && !globalDeclAndDef.isEmpty()){
+            this.globalDeclAndDef = globalDeclAndDef;
+            this.addChilds(this.globalDeclAndDef);
         }
     }
 }

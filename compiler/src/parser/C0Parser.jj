@@ -202,8 +202,7 @@ AST parseTree() :
 
 FileUnit prog() :
 {
-  List<Declaration> globalDeclarations = new ArrayList<Declaration>();
-  List<Definition> globalDefinitions = new ArrayList<Definition>();
+  List<ASTNode> globalDeclAndDef = new ArrayList<ASTNode>();
 }
 {
   (
@@ -212,14 +211,14 @@ FileUnit prog() :
     LOOKAHEAD(GDECL())
     { Declaration decl; }
     decl = GDECL()
-    { globalDeclarations.add(decl); }    
+    { globalDeclAndDef.add(decl); }    
     | 
     { Definition def; } 
     def = GDEFN()
-    { globalDefinitions.add(def); }
+    { globalDeclAndDef.add(def); }
   )* 
   { 
-     return new FileUnit(globalDeclarations, globalDefinitions); 
+     return new FileUnit(globalDeclAndDef); 
   }
 }
 
