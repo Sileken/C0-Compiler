@@ -28,7 +28,7 @@ public class Scope {
 		System.out.println("\tReferences to: " + this.referenceNode);
 		System.out.println("\tSymbols:");
 		List<String> keys = new ArrayList<String>(this.symbols.keySet());
-		Collections.sort(keys);
+		//Collections.sort(keys);
 		for (String key : keys) {
 			System.out.println("\t\t" + this.symbols.get(key));
 		}

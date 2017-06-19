@@ -36,6 +36,7 @@ public class GlobalDeclarationAndDefinitionVisitor extends SemanticsVisitor {
 			currentScope.addFunctionDefinition((FunctionDefinition) node);
 		}
 
-		return !(node instanceof StructDefinition || node instanceof FunctionDefinition);
+		return !(node instanceof StructDeclaration || node instanceof FunctionDeclaration
+				|| node instanceof StructDefinition || node instanceof FunctionDefinition);
 	}
 }

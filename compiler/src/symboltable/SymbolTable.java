@@ -89,7 +89,7 @@ public class SymbolTable {
     public void listScopes() {
         System.out.println("Listing Scopes:");
         List<String> keys = new ArrayList<String>(this.scopes.keySet());
-        Collections.sort(keys);
+        //Collections.sort(keys);
         for (String key : keys) {
             System.out.println(this.scopes.get(key).getName());
             this.scopes.get(key).listSymbols();
