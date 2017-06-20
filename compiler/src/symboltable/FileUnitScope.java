@@ -4,6 +4,7 @@ import ast.*;
 import ast.definition.*;
 import ast.declaration.*;
 import ast.type.*;
+import ast.expression.primary.name.*;
 
 import java.util.List;
 
@@ -73,5 +74,16 @@ public class FileUnitScope extends Scope {
         }
         Symbol symbol = new Symbol(symbolName, functionDef, this);
         this.symbols.put(symbolName, symbol);
+    }
+
+    @Override
+    public Symbol resolveFunctionDeclaration(String signatureOfFunction) throws SymbolTableException {
+        Symbol symbol = null;
+        List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), signatureOfFunction);
+        if (matchedSymbols.size() > 0) {
+            symbol = matchedSymbols.get(0);
+        }
+
+        return symbol;
     }
 }

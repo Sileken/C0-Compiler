@@ -1,6 +1,7 @@
 package symboltable;
 
 import ast.*;
+import ast.expression.primary.name.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,24 @@ public class Scope {
 
 	public String getName() {
 		return name;
+	}
+
+	protected List<Symbol> findEntriesWithSuffix(Collection<Symbol> symbols, String suffix) {
+		List<Symbol> matchedSymbols = new ArrayList<Symbol>();
+		for (Symbol entry : symbols) {
+			if (entry.getName().endsWith(suffix)) {
+				matchedSymbols.add(entry);
+			}
+		}
+		return matchedSymbols;
+	}
+	
+	public Symbol resolveFunctionDeclaration(String signatureOfFunction) throws SymbolTableException {
+		return null;
+	}
+
+	public Symbol resolveVariableDeclaration(Name name) throws SymbolTableException {
+		return null;
 	}
 
 	@Override

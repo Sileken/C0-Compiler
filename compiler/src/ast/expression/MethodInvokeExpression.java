@@ -15,6 +15,13 @@ public class MethodInvokeExpression extends Expression {
             this.addChilds(arguments);
         }
     }
+
+    public Primary getPrefix() {
+        if(this.getParent() instanceof ExpressionPrimary){
+            return ((ExpressionPrimary) this.getParent()).getPrefix();
+        }
+        return null;
+	}
     
     public List<Expression> getArguments(){
         return this.arguments;

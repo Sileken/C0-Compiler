@@ -1,8 +1,11 @@
 package symboltable;
 
+import java.util.List;
+
 import ast.*;
 import ast.declaration.*;
 import ast.statement.*;
+import ast.expression.primary.name.*;
 import symboltable.*;
 
 public class BlockScope extends Scope {
@@ -35,8 +38,8 @@ public class BlockScope extends Scope {
 
     public Symbol getLocalVariable(String symbolName) {
         Symbol localVariable = null;
-        for (Symbol entry : this.symbols.values()) {           
-            if(entry.getName().endsWith("." + symbolName) ){
+        for (Symbol entry : this.symbols.values()) {
+            if (entry.getName().endsWith("." + symbolName)) {
                 localVariable = entry;
                 break;
             }
@@ -47,5 +50,27 @@ public class BlockScope extends Scope {
         }
 
         return localVariable;
+    }
+
+    @Override
+    public Symbol resolveVariableDeclaration(Name name) throws SymbolTableException {
+        Symbol result = this.resolveVariableDeclarationLocal(name);
+        if (result == null) {
+            result = this.parent.resolveVariableDeclaration(name);
+        }
+        return result;
+    }
+
+    private Symbol resolveVariableDeclarationLocal(Name name) throws SymbolTableException {
+        if (name instanceof SimpleName) {
+            List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), "." + name.getName());
+            if (matchedSymbols.size() > 1) {
+                throw new SymbolTableException(
+                        "Resolved variable " + name.getName() + " to multiple definition " + matchedSymbols);
+            } else if (matchedSymbols.size() == 1) {
+                return matchedSymbols.get(0);
+            }
+        }
+        return null;
     }
 }
