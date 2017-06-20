@@ -6,9 +6,9 @@ import java.util.List;
 import ast.visitor.ASTVisitor;
 
 public abstract class ASTNode {
-	private ASTNode parent = null;
-	private String identifier = new String();
-	private List<ASTNode> childrenList = new ArrayList<ASTNode>();
+	protected ASTNode parent = null;
+	protected String identifier = new String();
+	protected List<ASTNode> childrenList = new ArrayList<ASTNode>();
 
 	public ASTNode() {
 	}

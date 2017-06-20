@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Primary extends Expression {
-    Primary prefix = null;
+    protected Primary prefix = null;
 
     public Primary() {
         super();
@@ -13,7 +13,7 @@ public abstract class Primary extends Expression {
 
     private void setPrefix(Primary prefix) {
         this.prefix = prefix;
-        this.addChild(prefix);
+        this.childrenList.add(0, prefix);
     }
 
     public Primary getPrefix() {
