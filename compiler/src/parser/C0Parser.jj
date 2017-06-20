@@ -583,7 +583,7 @@ Expression PostfixExpression() :
 
 AssignmentExpression Assignment() :
 {
-  Primary leftExp;
+  Expression leftExp;
   Token assignOperatorToken;
   Expression rightAssignExp;
 }
@@ -595,11 +595,30 @@ AssignmentExpression Assignment() :
 Primary PrimaryExpression() :
 {
   Primary prefix;
-  Primary suffix = null;
+  Primary suffix;
+  List<Primary> suffixes = new ArrayList<Primary>();
 }
 {
-  prefix = PrimaryPrefix() ( suffix = PrimarySuffix(prefix) )*
-  { return suffix == null ? prefix : suffix; }
+  prefix = PrimaryPrefix() 
+  (
+    suffix = PrimarySuffix() 
+    { suffixes.add(suffix); } 
+  )*
+  { 
+    // If we have several suffixes we have to recursively build up the tree in java-code
+    if(!suffixes.isEmpty())
+    {
+      // Add the prefix to the beginning of the suffix-list
+      suffixes.add(0, prefix);
+
+      // Start on the last suffix so it is on top of the tree.
+      // --> (last - 1) suffix will be the prefix of the last suffix
+      suffix = suffixes.get(suffixes.size() - 1);
+      suffix.addPrefixes(suffixes);
+    }
+
+    return suffix ? prefix : suffix; 
+  }
 }
 
 Primary PrimaryPrefix() :
@@ -646,7 +665,7 @@ Primary PrimaryPrefix() :
   }
 }
 
-Primary PrimarySuffix(Primary prefix) :
+Primary PrimarySuffix() :
 {
   Primary primary;
   FieldIdentifier fieldId;
@@ -655,17 +674,17 @@ Primary PrimarySuffix(Primary prefix) :
   (
       { Expression expression; }
       <LBRACKET> expression = Expression() <RBRACKET>
-      { primary = new ArrayAccess(prefix, expression); }
+      { primary = new ArrayAccess(expression); }
     |
       <DOT> fieldId = FID()
-      { primary = new FieldAccess(prefix, fieldId); }
+      { primary = new FieldAccess(fieldId); }
     |
       <FIELD_DEREF> fieldId = FID()
-      { primary = new FieldDereferenceAccess(prefix, fieldId); }
+      { primary = new FieldDereferenceAccess(fieldId); }
     |
       { List<Expression> arguments; }
       arguments = Arguments()
-      { primary = new ExpressionPrimary(new MethodInvokeExpression(prefix, arguments)); } 
+      { primary = new ExpressionPrimary(new MethodInvokeExpression(arguments)); } 
   )
   { return primary; }
 }

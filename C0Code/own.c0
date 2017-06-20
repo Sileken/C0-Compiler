@@ -40,3 +40,19 @@ int eat(bool exitPoint, int* boolean) {
         return -1;
     }
 }
+
+int main() {
+  int a = 2;
+  int one = as->q[0];
+  int a = one + 5;
+  a--;
+  bool c = (a > 10 ) ? false : true;
+  int c = (a > 10) ? -1 : a++;  
+  int[] A = alloc_array(int, 5);
+  a == *wtf.lol;
+  a[3];
+  as->q[0]->a;
+  one[5]->t[5]->a->s;
+  a[3] = a[3]->test.qwe->test.q;
+  as->t[3];
+}
