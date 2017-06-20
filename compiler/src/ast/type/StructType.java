@@ -3,7 +3,7 @@ package ast.type;
 import ast.identifier.*;
 
 public class StructType extends Type {
-    StructIdentifier structTypeIdentifier;
+    private StructIdentifier structTypeIdentifier;
 
     public StructType(StructIdentifier structTypeIdentifier) {
         super();
@@ -15,5 +15,10 @@ public class StructType extends Type {
     @Override
     public String getFullyQualifiedName() {
         return "struct " + structTypeIdentifier.getName();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return "struct " + this.structTypeIdentifier.getName();
     }
 }

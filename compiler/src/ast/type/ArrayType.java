@@ -18,4 +18,9 @@ public class ArrayType extends Type {
     public String getFullyQualifiedName() {
         return this.getType().getFullyQualifiedName() + "[]";
     }
+    
+    @Override
+    public String getIdentifier() {
+        return this.getType().getIdentifier() + "[]";
+    }
 }

@@ -11,6 +11,8 @@ public abstract class Declaration extends ASTNode {
         
         this.identifier = identifier;
         this.addChild(this.identifier);
+
+        this.setIdentifier(this.identifier.getName());
     }
 
     public Identifier getName(){

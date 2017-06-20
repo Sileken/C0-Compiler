@@ -27,16 +27,16 @@ public abstract class ASTNode {
 		return identifier;
 	}
 
-	public void setIdentifier(String identifier) {
+	protected void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
 
-	public void addChild(ASTNode child) {
+	protected void addChild(ASTNode child) {
 		child.parent = this;
 		this.childrenList.add(child);
 	}
 
-	public void addChilds(List<? extends ASTNode> childs) {
+	protected void addChilds(List<? extends ASTNode> childs) {
 		for (ASTNode child : childs) {
 			this.addChild(child);
 		}
@@ -64,7 +64,13 @@ public abstract class ASTNode {
 			System.out.print("|-");
 			indent += "| ";
 		}
-		System.out.println(this.getClass().getSimpleName());
+
+		String name = this.getClass().getSimpleName();
+		if(this.getIdentifier() != null && !this.getIdentifier().trim().isEmpty()){
+			name += ": " + this.getIdentifier();
+		}
+
+		System.out.println(name);
 
 		for (int i = 0; i < this.childrenList.size(); i++) {
 			this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);

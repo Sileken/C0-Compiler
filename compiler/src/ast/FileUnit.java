@@ -9,8 +9,10 @@ import ast.definition.*;
 public class FileUnit extends ASTNode {
     private List<ASTNode> globalDeclAndDef = new ArrayList<ASTNode>();
 
-    public FileUnit(List<ASTNode> globalDeclAndDef) {
+    public FileUnit(String fileName, List<ASTNode> globalDeclAndDef) {
         super();
+
+        this.setIdentifier(fileName);
 
         if(globalDeclAndDef != null && !globalDeclAndDef.isEmpty()){
             this.globalDeclAndDef = globalDeclAndDef;

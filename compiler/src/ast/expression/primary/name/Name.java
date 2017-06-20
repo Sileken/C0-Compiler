@@ -9,6 +9,8 @@ public abstract class Name extends Primary {
     public Name() {
         super();
     }
+
+    public abstract String getName();
     
     public Symbol getOriginalDeclaration() {
 		return originalDeclaration;

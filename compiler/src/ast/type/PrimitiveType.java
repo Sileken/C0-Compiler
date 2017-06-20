@@ -31,4 +31,9 @@ public class PrimitiveType extends Type {
 	public String getFullyQualifiedName() {
 		return this.getPrimitive().name();
 	}
+
+	@Override
+	public String getIdentifier() {
+		return this.getPrimitive().name();
+	}
 }

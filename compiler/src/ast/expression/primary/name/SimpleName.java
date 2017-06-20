@@ -10,8 +10,10 @@ public class SimpleName extends Name {
 
         this.variableFunctionIdentifier = variableFunctionIdentifier;
         this.addChild(this.variableFunctionIdentifier);
+        this.setIdentifier(this.variableFunctionIdentifier.getName());
     }
-
+    
+    @Override
     public String getName() {
 		return variableFunctionIdentifier.getName();
 	}

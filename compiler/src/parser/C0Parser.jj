@@ -24,6 +24,7 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.*;
 
 import ast.*;
 import ast.declaration.*;
@@ -36,6 +37,13 @@ import ast.statement.*;
 import ast.type.*;
 
 public class C0Parser {
+  private static String parsingFileName = "System.in";
+
+  public C0Parser(String filePath) throws java.io.FileNotFoundException {
+    this(new java.io.FileInputStream(filePath), null);
+    File file = new File(filePath);
+    C0Parser.parsingFileName = file.getName();
+  }
 }
 
 PARSER_END(C0Parser)
@@ -187,7 +195,7 @@ SKIP :
 
 AST parseTree() :
 {
-  FileUnit rootNode; 
+  FileUnit rootNode;
 }
 {
   rootNode = prog() <EOF> 
@@ -218,7 +226,7 @@ FileUnit prog() :
     { globalDeclAndDef.add(def); }
   )* 
   { 
-     return new FileUnit(globalDeclAndDef); 
+     return new FileUnit(C0Parser.parsingFileName, globalDeclAndDef); 
   }
 }
 

@@ -12,7 +12,7 @@ public class C0Compiler {
     if (args.length == 1) {
       System.out.println("C0 Compiler: Reading from file " + args[0] + " . . .");
       try {
-        parser = new C0Parser(new java.io.FileInputStream(args[0]));
+        parser = new C0Parser(args[0]);
       } catch (java.io.FileNotFoundException e) {
         System.out.println("C0 Compiler: File " + args[0] + " not found.");
         return;
