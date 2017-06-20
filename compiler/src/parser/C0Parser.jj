@@ -596,8 +596,8 @@ AssignmentExpression Assignment() :
 Primary PrimaryExpression() :
 {
   Primary prefix;
+  Primary suffix;
   List<Primary> suffixes = new ArrayList<Primary>();
-  Primary suffix = null;
 }
 {
   prefix = PrimaryPrefix() 
@@ -612,12 +612,13 @@ Primary PrimaryExpression() :
       // Add the prefix to the beginning of the suffix-list
       suffixes.add(0, prefix);
 
-      // Start on the last suffix so it is on top of the tree
+      // Start on the last suffix so it is on top of the tree.
+      // --> (last - 1) suffix will be the prefix of the last suffix
       suffix = suffixes.get(suffixes.size() - 1);
-      suffix.addSuffixes(suffixes);
+      suffix.addPrefixes(suffixes);
     }
 
-    return suffix == null ? prefix : suffix; 
+    return suffix ? prefix : suffix; 
   }
 }
 
