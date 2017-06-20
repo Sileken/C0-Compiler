@@ -609,9 +609,12 @@ Primary PrimaryExpression() :
     // If we have several suffixes we have to recursively build up the tree in java-code
     if(!suffixes.isEmpty())
     {
-      // Start on the last suffix so it is on the top of the tree
+      // Add the prefix to the beginning of the suffix-list
+      suffixes.add(0, prefix);
+
+      // Start on the last suffix so it is on top of the tree
       suffix = suffixes.get(suffixes.size() - 1);
-      suffix.addSuffixes(prefix, suffixes);
+      suffix.addSuffixes(suffixes);
     }
 
     return suffix == null ? prefix : suffix; 
