@@ -595,7 +595,7 @@ AssignmentExpression Assignment() :
 Primary PrimaryExpression() :
 {
   Primary prefix;
-  Primary suffix;
+  Primary suffix = null;
   List<Primary> suffixes = new ArrayList<Primary>();
 }
 {
@@ -617,7 +617,7 @@ Primary PrimaryExpression() :
       suffix.addPrefixes(suffixes);
     }
 
-    return suffix ? prefix : suffix; 
+    return suffix == null ? prefix : suffix; 
   }
 }
 
