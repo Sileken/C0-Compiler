@@ -5,8 +5,8 @@
  * Run at your own risk!                                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
-struct s1rukture;
 
+struct s1rukture;
 struct s1rukture {
     int number;
     int[] numbers;
@@ -19,38 +19,23 @@ struct unsignedInteger {
     int leastSignificant;
 };
 
-
-int eat(bool exitPoint, int* boolean);
-int eat(bool exitPoint, int* boolean) {
-    *boolean = 4711;
-    int* source = alloc(int);
-    *source = 0;
-    
-    if (!exitPoint && true) {
-        while (boolean <= 4747) {
-            (*boolean)++;
-            sleep(*boolean);
-            code(source, exitPoint);
-            // repeat!
-        }
-
-        return *source;
-    }
-    else {
-        return -1;
-    }
-}
-
 int main() {
-  int a = 2;
-  int one = as->q[0];
-  a--;
-  bool c = (a > 10 ) ? false : true;
-  int[] A = alloc_array(int, 5);
-  a == *wtf.lol;
-  a[3];
-  as->q[0]->a;
-  one[5]->t[5]->a->s;
-  a[3] = a[3]->test.qwe->test.q;
-  as->t[3];
+    
+    bool tired = false;
+    int* exitPoint; 
+    int NSA = 0;
+
+    tired = true;
+    NSA++;
+
+    struct unsignedInteger uInt1 = alloc(struct unsignedInteger);
+    struct unsignedInteger uInt2 = alloc(struct unsignedInteger);
+    struct unsignedInteger uInt3 = alloc(struct unsignedInteger);
+
+    uInt1->mostSignificant = 0;
+    uInt1->leastSignificant = 2000000000;
+    uInt2->mostSignificant = 0;
+    uInt2->leastSignificant = 1000000000;
+
+    return 1;
 }

@@ -50,15 +50,15 @@ public class NameLinker extends SemanticsVisitor {
 				expr.accept(this); // Check arguments -> check arguments name
 			}
 			return false; // other childs can be ignored
-		} else if (node instanceof FieldAccess) {
-			((FieldAccess) node).getPrefix().accept(this); // Check check prefix childs -> check name
+		} else if (node instanceof FieldAccess || node instanceof FieldDereferenceAccess || node instanceof ArrayAccess) {
+			((Primary) node).getPrefix().accept(this); // Check check prefix childs -> check name
 			return false;
 		} else if ( /*this.linkName > 0 && */ node instanceof Name) {
 			String name = ((Name) node).getName();
 			Scope currentScope = this.getCurrentScope();
 
 			// Try to resolve as local/field variable access
-			Symbol resolvedSymbol = null /* = currentScope.resolveVariableToDecl((Name) node) */;
+			Symbol resolvedSymbol = currentScope.resolveVariableDeclaration((Name) node);
 
 
 /*			// Check Forward Referencing
@@ -77,9 +77,10 @@ public class NameLinker extends SemanticsVisitor {
 
 			if (resolvedSymbol != null) {
 				((Name) node).setOriginalDeclaration(resolvedSymbol);
-				System.out.println(name + " => " + resolvedSymbol.getName() + "\tParent: " + node.getParent());
+				System.out.println("Resolved " + name + " => " + resolvedSymbol.getName() + "\tParent: " + node.getParent());
 			} else {
-				throw new SymbolTableException("Fail to resolve " + name + " in scope " + currentScope);
+				//throw new SymbolTableException("Fail to resolve " + name + " in scope " + currentScope);
+				System.out.println("Fail to resolve " + name + " in scope " + currentScope);
 			}
 		}
 		
