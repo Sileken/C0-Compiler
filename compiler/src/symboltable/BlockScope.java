@@ -23,7 +23,7 @@ public class BlockScope extends Scope {
     public void addVariableDeclaration(VariableDeclaration variableDecl) throws SymbolTableException {
         String symbolName = this.nameForDecl(variableDecl);
 
-        Symbol duplicatedSymbol = this.getLocalVariable(variableDecl.getName().getName());
+        Symbol duplicatedSymbol = this.getVariableDeclaration(variableDecl);
         if (duplicatedSymbol != null && !(duplicatedSymbol.getNode().getParent() instanceof ForStatement)) {
             throw new SymbolTableException("Duplicate Variable Declaration of " + symbolName);
         }
@@ -32,30 +32,17 @@ public class BlockScope extends Scope {
         this.symbols.put(symbolName, symbol);
     }
 
+    /** Get varaible declaration in current Scope */
     public Symbol getVariableDeclaration(VariableDeclaration variableDecl) {
         return this.symbols.get(this.nameForDecl(variableDecl));
     }
 
-    public Symbol getLocalVariable(String symbolName) {
-        Symbol localVariable = null;
-        for (Symbol entry : this.symbols.values()) {
-            if (entry.getName().endsWith("." + symbolName)) {
-                localVariable = entry;
-                break;
-            }
-        }
-
-        if (localVariable == null && this.parent instanceof BlockScope) {
-            return ((BlockScope) this.parent).getLocalVariable(symbolName);
-        }
-
-        return localVariable;
-    }
-
+    /** Get varaible declaration in current Scope or in scope up to last block scope 
+    * last block scope == function block scope */
     @Override
     public Symbol resolveVariableDeclaration(Name name) throws SymbolTableException {
         Symbol result = this.resolveVariableDeclarationLocal(name);
-        if (result == null) {
+        if (result == null && this.parent instanceof BlockScope) {
             result = this.parent.resolveVariableDeclaration(name);
         }
         return result;

@@ -60,14 +60,6 @@ public class NameLinker extends SemanticsVisitor {
 			// Try to resolve as local/field variable access
 			Symbol resolvedSymbol = null /* = currentScope.resolveVariableToDecl((Name) node) */;
 
-			// Check whether is accessing a non-static field within a static
-			// scope
-/*			if (this.inStatic && result != null && result.getNode() instanceof FieldDeclaration) {
-				FieldDeclaration field = (FieldDeclaration) result.getNode();
-				if (!field.getModifiers().containModifier(Modifiers.Modifier.STATIC)) {
-					throw new Exception("Non static scope " + currentScope + " accessing static field " + name);
-				}
-			}*/
 
 /*			// Check Forward Referencing
 			if (this.checkForwardRef == 1 && result != null

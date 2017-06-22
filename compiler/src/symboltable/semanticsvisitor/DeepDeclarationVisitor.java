@@ -57,7 +57,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			currentScope.addFieldDefinition(fieldDefinition);
 		}
 
-		return !(node instanceof VariableDeclaration || node instanceof FieldDefinition); // Prevent child node processing
+		return !(node instanceof VariableDeclaration || node instanceof FieldDefinition || node instanceof FunctionDeclaration); // Prevent child node processing
 	}
 
 	@Override

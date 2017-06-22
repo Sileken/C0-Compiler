@@ -5,7 +5,6 @@ import ast.type.*;
 
 public class VariableDeclaration extends Declaration {
     private Type type;
-    private VariableFunctionIdentifier variableId;
 
     public VariableDeclaration(Type type, VariableFunctionIdentifier variableId){
         super(variableId);

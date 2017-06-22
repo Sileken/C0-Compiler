@@ -2,29 +2,30 @@ package ast.declaration;
 
 import java.util.ArrayList;
 import java.util.List;
+import ast.declaration.*;
 import ast.definition.*;
 import ast.identifier.*;
 import ast.type.*;
 
 public class FunctionDeclaration extends Declaration {
     private Type returnType;
-    private List<ParameterDefinition> parameterDefs = new ArrayList<ParameterDefinition>();
+    private List<VariableDeclaration> parameters = new ArrayList<VariableDeclaration>();
 
-    public FunctionDeclaration(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs){
+    public FunctionDeclaration(Type returnType, VariableFunctionIdentifier funcId, List<VariableDeclaration> parameters){
         super(funcId);
         
         this.returnType = returnType;
         this.addChild(this.returnType);
 
-        if(parameterDefs != null && !parameterDefs.isEmpty()){
-            this.parameterDefs = parameterDefs;
-            this.addChilds(this.parameterDefs);
+        if(parameters != null && !parameters.isEmpty()){
+            this.parameters = parameters;
+            this.addChilds(this.parameters);
         }
     }
 
     public List<Type> getParameterTypes(){
         List<Type> types = new ArrayList<Type>();
-        for(ParameterDefinition param : parameterDefs){
+        for(VariableDeclaration param : parameters){
             types.add(param.getType());
         }
         

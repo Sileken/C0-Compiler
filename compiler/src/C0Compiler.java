@@ -28,11 +28,12 @@ public class C0Compiler {
       AST ast = parser.parseTree();
       //ast.PrintPretty();
       SymbolTable table = typeLinking(ast);
+      table.listScopes(); 
       nameLinking(ast, table);
       typeChecking(ast, table);
       generateCode(ast, table);
 
-      table.listScopes();     
+        
     } catch (ParseException e) {
       System.out.println("C0 Compiler: Encountered errors during parse.");
       e.printStackTrace();

@@ -241,13 +241,6 @@ VariableFunctionIdentifier VID() :
   { return new VariableFunctionIdentifier(token); } 
 }
 
-ParameterIdentifier PARAID() :
-{ Token token; }
-{
-  token = <IDENTIFIER>
-  { return new ParameterIdentifier(token); } 
-}
-
 StructIdentifier SID() :
 { Token token; }
 {
@@ -912,16 +905,16 @@ FunctionDefinition GlobalFunctionDefinition() :
 {
   Type returnType;
   VariableFunctionIdentifier funcId;
-  List<ParameterDefinition> parameterDefs;
+  List<VariableDeclaration> parameters;
   Block block;
 }
 {
   (
     returnType = Type() funcId = VID() 
-    <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> 
+    <LPAREN> parameters = Parameters() <RPAREN> 
     block = Block()
   )
-  { return new FunctionDefinition(returnType, funcId, parameterDefs, block); }
+  { return new FunctionDefinition(returnType, funcId, parameters, block); }
 }
 
 ///////////////////////////////////////
@@ -953,31 +946,31 @@ FunctionDeclaration GlobalFunctionDeclaration() :
 {
   Type returnType;
   VariableFunctionIdentifier funcId;
-  List<ParameterDefinition> parameterDefs;
+  List<VariableDeclaration> parameters;
 }
 {
-  returnType = Type() funcId = VID() <LPAREN> parameterDefs = ParameterDefinitions() <RPAREN> <SEMICOLON>
-  { return new FunctionDeclaration(returnType, funcId, parameterDefs); }
+  returnType = Type() funcId = VID() <LPAREN> parameters = Parameters() <RPAREN> <SEMICOLON>
+  { return new FunctionDeclaration(returnType, funcId, parameters); }
 }
 
-List<ParameterDefinition> ParameterDefinitions() :
+List<VariableDeclaration> Parameters() :
 {
-  List<ParameterDefinition> parameterDefs = new ArrayList<ParameterDefinition>();
+  List<VariableDeclaration> parameters = new ArrayList<VariableDeclaration>();
   Type firstParaType;
-  ParameterIdentifier firstParaId;
+  VariableFunctionIdentifier firstParaId;
 }
 {
   [ 
-    firstParaType = Type() firstParaId = PARAID() 
-    { parameterDefs.add(new ParameterDefinition(firstParaType, firstParaId)); } 
+    firstParaType = Type() firstParaId = VID() 
+    { parameters.add(new VariableDeclaration(firstParaType, firstParaId)); } 
     (
       {   
         Type additionalParaType;
-        ParameterIdentifier additionalParaId;         
+        VariableFunctionIdentifier additionalParaId;         
       }
-      <COMMA> additionalParaType = Type() additionalParaId = PARAID()
-      { parameterDefs.add(new ParameterDefinition(additionalParaType, additionalParaId)); }
+      <COMMA> additionalParaType = Type() additionalParaId = VID()
+      { parameters.add(new VariableDeclaration(additionalParaType, additionalParaId)); }
     )* 
   ]
-  { return parameterDefs; }
+  { return parameters; }
 }
