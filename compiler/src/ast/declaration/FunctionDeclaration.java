@@ -11,7 +11,7 @@ public class FunctionDeclaration extends Declaration {
     private List<ParameterDefinition> parameterDefs = new ArrayList<ParameterDefinition>();
 
     public FunctionDeclaration(Type returnType, VariableFunctionIdentifier funcId, List<ParameterDefinition> parameterDefs){
-        super(funcId);
+        super(funcId, returnType);
         
         this.returnType = returnType;
         this.addChild(this.returnType);
@@ -20,5 +20,9 @@ public class FunctionDeclaration extends Declaration {
             this.parameterDefs = parameterDefs;
             this.addChilds(this.parameterDefs);
         }
+    }
+
+    public Type getReturnType() {
+        return this.returnType;
     }
 }

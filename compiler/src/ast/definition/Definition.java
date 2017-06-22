@@ -12,4 +12,8 @@ public abstract class Definition extends ASTNode {
         this.identifier = identifier;
         this.addChild(this.identifier);
     }
+
+    public Identifier getIdentifierNode() {
+        return this.identifier;
+    }
 }

@@ -7,7 +7,7 @@ public class StructDeclaration extends Declaration {
     private StructType structType;
 
     public StructDeclaration(StructType structType, StructIdentifier structId){
-        super(structId);
+        super(structId, structType);
         
         this.structType = structType;
         this.addChild(this.structType);

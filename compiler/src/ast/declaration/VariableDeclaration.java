@@ -4,13 +4,10 @@ import ast.identifier.*;
 import ast.type.*;
 
 public class VariableDeclaration extends Declaration {
-    private Type type;
-    private VariableFunctionIdentifier variableId;
 
     public VariableDeclaration(Type type, VariableFunctionIdentifier variableId){
-        super(variableId);
+        super(variableId, type);
         
-        this.type = type;
-        this.addChild(this.type);
+        this.addChild(type);
     }
 }

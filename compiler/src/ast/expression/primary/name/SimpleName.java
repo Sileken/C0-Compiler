@@ -11,4 +11,8 @@ public class SimpleName extends Name {
         this.variableFunctionIdentifier = variableFunctionIdentifier;
         this.addChild(this.variableFunctionIdentifier);
     }
+
+    public VariableFunctionIdentifier getVariableFunctionIdentifier() {
+        return this.variableFunctionIdentifier;
+    }
 }
