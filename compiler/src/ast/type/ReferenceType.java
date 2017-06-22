@@ -23,7 +23,7 @@ public class ReferenceType extends Type {
             currentInnerType = ((ReferenceType) currentInnerType).getInnerType();
         }
 
-        return fullyQualifedName + currentInnerType.getFullyQualifiedName();
+        return currentInnerType.getFullyQualifiedName() + fullyQualifedName;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ReferenceType extends Type {
             name += "*";
             currentInnerType = ((ReferenceType) currentInnerType).getInnerType();
         }
-        name += currentInnerType.getIdentifier();
-        return name;
+
+        return currentInnerType.getIdentifier() + name;
     }
 }

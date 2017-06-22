@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import ast.*;
 import ast.definition.*;
 
+/** Symbol Table holds all possible scopes and provides functions to create a scope */
 public class SymbolTable {
 
     private Map<String, Scope> scopes = new LinkedHashMap<String, Scope>();

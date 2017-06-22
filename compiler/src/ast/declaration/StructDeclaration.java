@@ -12,4 +12,8 @@ public class StructDeclaration extends Declaration {
         this.structType = structType;
         this.addChild(this.structType);
     }
+
+    public Type getType() {
+		return structType;
+	}
 }

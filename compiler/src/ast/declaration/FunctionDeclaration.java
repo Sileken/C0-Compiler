@@ -30,4 +30,8 @@ public class FunctionDeclaration extends Declaration {
         
         return types;
     }    
+
+    public Type getType() {
+		return returnType;
+	}
 }

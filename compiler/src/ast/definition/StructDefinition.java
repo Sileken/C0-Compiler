@@ -20,4 +20,8 @@ public class StructDefinition extends Definition {
         this.addChilds(this.fieldDefs);
     }
   }
+
+  public Type getType() {
+		return structType;
+	}
 }

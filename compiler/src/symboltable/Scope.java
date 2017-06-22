@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/** A Scope contains a list of symbol and provides functions to create and find specific symbols */
 public class Scope {
 	protected String name;
 	protected LinkedHashMap<String, Symbol> symbols;

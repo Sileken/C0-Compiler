@@ -12,4 +12,8 @@ public class FieldDefinition extends Definition {
         this.fieldType = fieldType;
         this.addChild(this.fieldType);
     }
+    
+    public Type getType() {
+		return fieldType;
+	}
 }

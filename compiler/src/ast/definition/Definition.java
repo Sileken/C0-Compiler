@@ -2,6 +2,7 @@ package ast.definition;
 
 import ast.ASTNode;
 import ast.identifier.*;
+import ast.type.*;
 
 public abstract class Definition extends ASTNode {
     private Identifier identifier;
@@ -18,4 +19,6 @@ public abstract class Definition extends ASTNode {
     public Identifier getName() {
         return this.identifier;
     }
+
+    public abstract Type getType();
 }

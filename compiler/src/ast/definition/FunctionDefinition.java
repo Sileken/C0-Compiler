@@ -35,4 +35,8 @@ public class FunctionDefinition extends Definition {
 
     return types;
   }
+
+  public Type getType() {
+		return returnType;
+	}
 }

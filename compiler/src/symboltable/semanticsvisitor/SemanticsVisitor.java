@@ -42,7 +42,7 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 			this.pushScope(scope);
 		} else if (node instanceof FunctionDefinition) {
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
-			String blockName = currentScope.signatureOfFunction((FunctionDefinition) node);
+			String blockName = currentScope.getSignatureOfFunction((FunctionDefinition) node);
 			Scope scope = this.table.getBlockScope(blockName);
 
 			this.blockCount = 0;
