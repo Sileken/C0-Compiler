@@ -81,7 +81,7 @@ public class SymbolTable {
 
     public StructTypeScope getStructTypeScope(String structTypeName) throws SymbolTableException {
         Scope scope = this.scopes.get(structTypeName);
-        if (scope != null && !(scope instanceof BlockScope)) {
+        if (scope != null && !(scope instanceof StructTypeScope)) {
             throw new SymbolTableException("Expecting StructTypeScope but get " + scope);
         }
         return (StructTypeScope) scope;
