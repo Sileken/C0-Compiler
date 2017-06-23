@@ -37,5 +37,13 @@ int main() {
     uInt2->mostSignificant = 0;
     uInt2->leastSignificant = 1000000000;
 
+    NSA = foo(NSA);
+
+    *exitPoint; // Test ExpressionPrimary with UnaryExpression->Name Child
+
     return 1;
+}
+
+int foo(int t){
+    return t;
 }

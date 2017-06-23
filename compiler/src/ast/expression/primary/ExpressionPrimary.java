@@ -11,4 +11,8 @@ public class ExpressionPrimary extends Primary {
         this.expression = expression;
         this.addChild(expression);
     }
+
+    public Expression getExpression(){
+        return this.expression;
+    }
 }

@@ -50,14 +50,6 @@ public class Scope {
 		}
 		return matchedSymbols;
 	}
-	
-	public Symbol resolveFunctionDeclaration(String signatureOfFunction) throws SymbolTableException {
-		return null;
-	}
-
-	public Symbol resolveVariableDeclaration(Name name) throws SymbolTableException {
-		return null;
-	}
 
 	@Override
 	public String toString() {

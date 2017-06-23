@@ -39,11 +39,10 @@ public class BlockScope extends Scope {
 
     /** Get varaible declaration in current Scope or in scope up to last block scope 
     * last block scope == function block scope */
-    @Override
     public Symbol resolveVariableDeclaration(Name name) throws SymbolTableException {
         Symbol result = this.resolveVariableDeclarationLocal(name);
         if (result == null && this.parent instanceof BlockScope) {
-            result = this.parent.resolveVariableDeclaration(name);
+            result = ((BlockScope) this.parent).resolveVariableDeclaration(name);
         }
         return result;
     }

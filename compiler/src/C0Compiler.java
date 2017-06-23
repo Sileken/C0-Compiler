@@ -26,7 +26,7 @@ public class C0Compiler {
 
     try {
       AST ast = parser.parseTree();
-      //ast.PrintPretty();
+      ast.PrintPretty();
       SymbolTable table = typeLinking(ast);
       table.listScopes(); 
       nameLinking(ast, table);
