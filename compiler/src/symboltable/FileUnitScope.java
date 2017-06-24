@@ -9,7 +9,7 @@ import ast.expression.primary.name.*;
 import java.util.List;
 
 public class FileUnitScope extends Scope {
-    private String declartionPrefix = "decl.";
+    private String declarationPrefix = "decl.";
     private String definitionPrefix = "def.";
 
     public FileUnitScope(String name, ASTNode referenceNode) {
@@ -17,7 +17,7 @@ public class FileUnitScope extends Scope {
     }
 
     public String getDeclarationPrefix() {
-        return this.declartionPrefix;
+        return this.declarationPrefix;
     }
     
     public String getDefinitionPrefix() {
@@ -110,7 +110,7 @@ public class FileUnitScope extends Scope {
     }
 
     public Symbol resolveStructSymbol(String structName)  throws SymbolTableException {
-       Symbol symbol = null;
+        Symbol symbol = null;
         // suffix to find definition or declaration
         List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), structName);
         if (matchedSymbols.size() > 0) {

@@ -24,9 +24,9 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 		return this.viewStack.peek();
 	}
 
-	protected void pushScope(Scope table) {
-		System.out.println("Pushing scope " + table.toString());
-		this.viewStack.push(table);
+	protected void pushScope(Scope scope) {
+		System.out.println("Pushing scope " + scope.toString());
+		this.viewStack.push(scope);
 	}
 
 	protected Scope popScope() {

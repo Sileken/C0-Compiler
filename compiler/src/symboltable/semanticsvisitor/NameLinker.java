@@ -38,7 +38,7 @@ public class NameLinker extends SemanticsVisitor {
 			// ExpressionPrimary childs like Pointer (UnaryExp.* -> Name ) can be processed 
 		} else if (node instanceof FieldAccess || node instanceof FieldDereferenceAccess
 				|| node instanceof ArrayAccess) {
-			((Primary) node).getPrefix().accept(this); // Check check prefix childs -> check name
+			((Primary) node).getPrefix().accept(this); // Check prefix childs -> check name
 			return false;
 		} else if (node instanceof Name) {
 			String name = ((Name) node).getName();

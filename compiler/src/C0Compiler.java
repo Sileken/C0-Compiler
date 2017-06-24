@@ -53,14 +53,12 @@ public class C0Compiler {
   }
 
   private static void nameLinking(AST ast, SymbolTable symbolTable) throws Exception{
-    NameLinker linker = new NameLinker(symbolTable);
-		ast.getRoot().accept(linker);
+		ast.getRoot().accept(new NameLinker(symbolTable));
 		System.out.println("C0 Compiler: Name Linking finished");
   }
 
   private static void typeChecking(AST ast, SymbolTable symbolTable) throws Exception{
-    TypeChecker checker = new TypeChecker(symbolTable);
-		ast.getRoot().accept(checker);
+		ast.getRoot().accept(new TypeChecker(symbolTable));
 		System.out.println("C0 Compiler: Type Checking finished");
   }
 
