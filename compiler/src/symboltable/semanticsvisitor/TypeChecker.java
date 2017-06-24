@@ -96,7 +96,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			AssignmentExpression.Operator op = ((AssignmentExpression)node).getOperator();
 
-			if(!isAssignable(varType, assignType, op))
+			if(!checkAssignmentExpression(varType, assignType, op))
 			{
 				// This is a bit hacky because the class AssignmentExpression contains either a 
 				// VariableDeclaration OR an Expression (which is ugly by the way :D)
@@ -110,7 +110,8 @@ public class TypeChecker extends SemanticsVisitor {
 				}
 				
 				String assignString = assignType.getFullyQualifiedName();
-				throw new SymbolTableException("Can not assign type '" + assignString + "' to variable '" + lValueString + "'");
+				throw new SymbolTableException("Type error in Assignment: Can not [" + op + "] type ["
+				                               + assignString + "] to variable '" + lValueString + "'");
 			}
 
 			// add var-type to the stack because assignments can be further processed e.g. (a = 5) * 10;
@@ -151,6 +152,9 @@ public class TypeChecker extends SemanticsVisitor {
 			}
 
 			pushType(resultType);
+
+			// Add type information to AST
+			((UnaryExpression)node).setType(resultType);
 		}
 		else if(node instanceof IfStatement)
 		{
@@ -260,17 +264,35 @@ public class TypeChecker extends SemanticsVisitor {
 		return null;
 	}
 
-	// TODO: check which operator is allowed for which type (e.g. "+=" is not allowed for BOOLEANS)
-	private boolean isAssignable(Type varType, Type assignType, AssignmentExpression.Operator op) {
-		//System.out.println("VarType: " + varType + " " + op +  " assignType: " + assignType);
-		
-		// same types are assignable
-		if(varType.getFullyQualifiedName() == assignType.getFullyQualifiedName())
+	// TODO: Are the types correct?
+	private boolean checkAssignmentExpression(Type varType, Type assignType, AssignmentExpression.Operator op) {
+		String varTypeName = varType.getFullyQualifiedName();
+		String assignTypeName = assignType.getFullyQualifiedName();
+
+		// Both types HAS TO BE EQUAL in all cases
+		if(varTypeName != assignTypeName)
+			return false;
+
+		switch(op)
+		{
+			// "="  => every type is allowed
+			case ASSIGN:
 			return true;
 
-		// Joos Compiler has this but it does not work here but why??
-		//if(varType.equals(assignType)) 
-		//	return true;
+			// "+=", "-=", "*=", "/=", "%=" => types must be [INT]
+			case PLUSASSIGN:
+			case MINUSASSIGN:
+			case STARASSIGN:
+			case SLASHASSIGN:
+			case REMASSIGN:
+			return varTypeName == "INT" ? true : false;
+
+			// "&=", "^=", "|=" => types must be [INT]
+			case ANDASSIGN:
+			case XORASSIGN:
+			case ORASSIGN:
+			return varTypeName == "INT" ? true : false;
+		}
 
 		return false;
 	}
