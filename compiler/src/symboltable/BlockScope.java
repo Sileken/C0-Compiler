@@ -29,7 +29,7 @@ public class BlockScope extends Scope {
         }
 
         Symbol symbol = new Symbol(symbolName, variableDecl, this);
-        this.symbols.put(symbolName, symbol);
+        this.putSymbol(symbolName, symbol);
     }
 
     /** Get varaible declaration in current Scope */

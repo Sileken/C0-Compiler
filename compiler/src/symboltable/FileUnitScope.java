@@ -36,7 +36,7 @@ public class FileUnitScope extends Scope {
         }
 
         Symbol symbol = new Symbol(symbolNameWithDeclPrefix, structDecl, this);
-        this.symbols.put(symbolNameWithDeclPrefix, symbol);
+        this.putSymbol(symbolNameWithDeclPrefix, symbol);
     }
 
     public void addFunctionDeclaration(FunctionDeclaration functionDecl) throws SymbolTableException {
@@ -51,7 +51,7 @@ public class FileUnitScope extends Scope {
         }
         
         Symbol symbol = new Symbol(symbolNameWithDeclPrefix, functionDecl, this);
-        this.symbols.put(symbolNameWithDeclPrefix, symbol);
+        this.putSymbol(symbolNameWithDeclPrefix, symbol);
     }
 
     public void addStructDefinition(StructDefinition structDef) throws SymbolTableException {
@@ -63,7 +63,7 @@ public class FileUnitScope extends Scope {
         }
 
         Symbol symbol = new Symbol(symbolNameWithDefPrefix, structDef, this);
-        this.symbols.put(symbolNameWithDefPrefix, symbol);
+        this.putSymbol(symbolNameWithDefPrefix, symbol);
     }
     
     public void addFunctionDefinition(FunctionDefinition functionDef) throws SymbolTableException {
@@ -75,7 +75,7 @@ public class FileUnitScope extends Scope {
         }
 
         Symbol symbol = new Symbol(symbolNameWithDefPrefix, functionDef, this);
-        this.symbols.put(symbolNameWithDefPrefix, symbol);
+        this.putSymbol(symbolNameWithDefPrefix, symbol);
     }
 
     public String getSignatureOfFunction(FunctionDefinition functionDef) {

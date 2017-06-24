@@ -27,7 +27,7 @@ public class StructTypeScope extends Scope {
             throw new SymbolTableException("Duplicate Field Definition: " + symbolName);
         }
 
-        this.symbols.put(symbolName, symbol);
+        this.putSymbol(symbolName, symbol);
     }
 
     public Symbol getFieldDefinition(FieldDefinition fieldDef) throws SymbolTableException {

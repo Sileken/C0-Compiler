@@ -21,6 +21,11 @@ public class Scope {
 		this.referenceNode = referenceNode;
 	}
 
+	public void putSymbol(String key, Symbol symbol) {
+		System.out.println("Put symbol \"" + symbol.getName() + "\" to scope: " + this.getName());
+		this.symbols.put(key, symbol);
+	}
+
 	public void listSymbols() {
 		if (this instanceof BlockScope) {
 			System.out.println("\tParent Scope: " + ((BlockScope) this).parent.getName());
