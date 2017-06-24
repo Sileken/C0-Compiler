@@ -117,12 +117,13 @@ public class TypeChecker extends SemanticsVisitor {
 
 			BinaryExpression.Operator op = ((BinaryExpression)node).getOperator();
 
-			Type resultType = checkBinaryExpression(leftType, rightType, op);
+			Type resultType = checkBinaryExpression(leftType, op, rightType);
 			if(resultType == null)
 			{
 				String leftString = leftType.getFullyQualifiedName();
 				String rightString = rightType.getFullyQualifiedName();
-				throw new SymbolTableException("Type error: '" + leftString + "' and '" + rightString + "' does not match");
+				throw new SymbolTableException("Type error: '" + leftString + "' and '" + rightString + 
+				                               "' does not match with operator '" + op + "'");
 			}
 
 			pushType(resultType);
@@ -154,18 +155,42 @@ public class TypeChecker extends SemanticsVisitor {
 		super.didVisit(node);
 	}
 
-
-	// TODO: return correct type for different operators (e.g. 3 < 5 => BOOL)
-	private Type checkBinaryExpression(Type lType, Type rType, BinaryExpression.Operator op)
+	// Return the result type for a binary expression for two given types and an operator
+	private Type checkBinaryExpression(Type lType, BinaryExpression.Operator op, Type rType)
 	{
-		// For now assume that the types has to be equal, so just return the first type if thats the case
-		if(lType.getFullyQualifiedName() == rType.getFullyQualifiedName())
-			return lType;
+		String typeName1 = lType.getFullyQualifiedName();
+		String typeName2 = rType.getFullyQualifiedName();
 
+		// Both types HAS TO BE EQUAL in all cases
+		if(typeName1 != typeName2)
+			return null;
+
+		switch(op)
+		{
+			// "||", "&&" => types MUST be [BOOL], result is [BOOL]
+			case OR: case AND: 
+			return typeName1 == "BOOL" ? lType : null;
+
+			// "|", "^", "&" => types MUST be [INT], result is [INT]
+			case BOR: case BXOR: case BAND: 
+			return typeName1 == "INT" ? lType : null;
+
+			// "==", "!=" => type is wayne, result is [BOOL]
+			case EQ: case NEQ:		
+			return new PrimitiveType(PrimitiveType.Primitive.BOOL);
+
+			// "<", ">", "<=", ">=" => types must be [INT], result is [BOOL] (TODO: check if types MUST BE INT???)
+			case LT: case GT: case LEQ: case GEQ:
+			return typeName1 == "INT" ? new PrimitiveType(PrimitiveType.Primitive.BOOL) : null;
+
+			// "+", "-", "*", "/", "%" => types must be [INT], result is [INT]
+			case PLUS: case MINUS: case STAR: case SLASH: case REM: 
+			return typeName1 == "INT" ? lType : null;
+		}
 		return null;
 	}
 
-	// TODO: check which operator is allowed for which type
+	// TODO: check which operator is allowed for which type (e.g. "+" is not allowed for BOOLEANS)
 	private boolean isAssignable(Type varType, Type assignType, AssignmentExpression.Operator op) {
 		//System.out.println("VarType: " + varType + " " + op +  " assignType: " + assignType);
 		

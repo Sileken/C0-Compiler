@@ -15,7 +15,7 @@ public class PrimitiveType extends Type {
 		this.type = this.stringToType(typeName.toUpperCase());
 	}
 
-	public PrimitiveType(Primitive type) throws ParseException {
+	public PrimitiveType(Primitive type) {
 		super();
 		
 		this.type = type;

@@ -1,6 +1,7 @@
 
 void main()
 {
+    //bool b = 5 && 3; // ERROR!
     //int a;
     //bool d = true;
     //int k = 5 + 3;
@@ -11,5 +12,5 @@ void main()
     //{
 //
     //}
-    bool b = 3 < 5;
+    
 }
