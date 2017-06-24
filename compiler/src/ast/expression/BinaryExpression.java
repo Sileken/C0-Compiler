@@ -9,6 +9,8 @@ public class BinaryExpression extends Expression {
 		OR, AND, BOR, BXOR, BAND, EQ, NEQ, LT, GT, LEQ, GEQ, PLUS, MINUS, STAR, SLASH, REM  
 	}
 
+    public Operator getOperator(){ return operator; }
+
     public BinaryExpression(Expression leftOperand, Operator operator, Expression rightOperand){
         super();
         

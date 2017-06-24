@@ -115,7 +115,9 @@ public class TypeChecker extends SemanticsVisitor {
 			Type rightType = popType();
 			Type leftType = popType();
 
-			Type resultType = binaryExpression(leftType, rightType);
+			BinaryExpression.Operator op = ((BinaryExpression)node).getOperator();
+
+			Type resultType = checkBinaryExpression(leftType, rightType, op);
 			if(resultType == null)
 			{
 				String leftString = leftType.getFullyQualifiedName();
@@ -131,7 +133,6 @@ public class TypeChecker extends SemanticsVisitor {
 		else if(node instanceof IfStatement)
 		{
 			Type exprType = popType();
-			System.out.println("TEST: " +exprType.getFullyQualifiedName());
 			String typeName = exprType.getFullyQualifiedName();
 
 			// This is another way of getting the type, without the stack
@@ -145,12 +146,17 @@ public class TypeChecker extends SemanticsVisitor {
 				throw new SymbolTableException("Type error in if-statement: Expected [BOOL] but type was: " + typeName);
 			}
 		}
+		else if(node instanceof ForStatement)
+		{
+
+		}
 
 		super.didVisit(node);
 	}
 
 
-	private Type binaryExpression(Type lType, Type rType)
+	// TODO: return correct type for different operators (e.g. 3 < 5 => BOOL)
+	private Type checkBinaryExpression(Type lType, Type rType, BinaryExpression.Operator op)
 	{
 		// For now assume that the types has to be equal, so just return the first type if thats the case
 		if(lType.getFullyQualifiedName() == rType.getFullyQualifiedName())
@@ -161,7 +167,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 	// TODO: check which operator is allowed for which type
 	private boolean isAssignable(Type varType, Type assignType, AssignmentExpression.Operator op) {
-		System.out.println("VarType: " + varType + " " + op +  " assignType: " + assignType);
+		//System.out.println("VarType: " + varType + " " + op +  " assignType: " + assignType);
 		
 		// same types are assignable
 		if(varType.getFullyQualifiedName() == assignType.getFullyQualifiedName())

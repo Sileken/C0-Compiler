@@ -3,11 +3,13 @@ void main()
 {
     //int a;
     //bool d = true;
-    //int b = 5 + 3;
+    //int k = 5 + 3;
     //int c = 0;
-    bool b = true;
-    if(false)
-    {
+    //bool b = true;
 
-    } 
+    //for(int i = 0; i < 5; i++)
+    //{
+//
+    //}
+    bool b = 3 < 5;
 }
