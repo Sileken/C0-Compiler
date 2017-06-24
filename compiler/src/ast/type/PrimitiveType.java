@@ -15,6 +15,12 @@ public class PrimitiveType extends Type {
 		this.type = this.stringToType(typeName.toUpperCase());
 	}
 
+	public PrimitiveType(Primitive type) throws ParseException {
+		super();
+		
+		this.type = type;
+	}
+
 	private Primitive stringToType(String name) throws ParseException {
 		for (Primitive type : Primitive.values()) {
 			if (type.name().equals(name))

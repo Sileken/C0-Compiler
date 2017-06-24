@@ -29,7 +29,7 @@ public class C0Compiler {
       ast.PrintPretty();
       final SymbolTable table = new SymbolTable();
       typeLinking(ast, table);
-      table.listScopes(); 
+      //table.listScopes(); 
       nameLinking(ast, table);
       typeChecking(ast, table);
       generateCode(ast, table);

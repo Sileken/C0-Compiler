@@ -14,6 +14,10 @@ public class AssignmentExpression extends Expression {
 		ASSIGN, PLUSASSIGN, MINUSASSIGN, STARASSIGN, SLASHASSIGN, REMASSIGN, ANDASSIGN, XORASSIGN, ORASSIGN
 	}
 
+    public VariableDeclaration getVariableDeclaration(){ return variableDeclaration; }
+    public Expression getLeftValue(){ return leftvalue; }
+    public Operator getOperator() { return operator; }
+
     public AssignmentExpression(Expression leftvalue, Operator operator, Expression rightExpression){
         super();
 

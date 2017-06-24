@@ -69,6 +69,13 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			if (type == null) {
 				return;
 			}
+			// Checks if the data-type is VOID and throws an error if so (the grammar allows this)
+			else if(type instanceof PrimitiveType)
+			{
+				PrimitiveType prim = (PrimitiveType) type;
+				if(prim.getPrimitive() == PrimitiveType.Primitive.VOID)
+					throw new SymbolTableException("Invalid type [VOID] for variable '" + node.getIdentifier() + "'");
+			}
 
 			BlockScope enclosingScope = (BlockScope) this.getCurrentScope();
 			Symbol symbol = enclosingScope.getVariableDeclaration((VariableDeclaration) node);

@@ -1,6 +1,7 @@
 package ast.expression.primary;
 
 import parser.*;
+import ast.type.*;
 
 public class LiteralPrimary extends Primary {
     String value;
@@ -16,4 +17,23 @@ public class LiteralPrimary extends Primary {
         this.literalType = literalType;
         this.value = token.image;
     }
+
+    public LiteralType getLiteralType()
+    {
+        return literalType;
+    }
+
+	@Override
+    public Type getType() throws Exception {
+        PrimitiveType.Primitive primitive = null;
+        switch(this.getLiteralType()) {
+            case BOOLLIT: primitive = PrimitiveType.Primitive.BOOL; break;
+            case INTLIT:  primitive = PrimitiveType.Primitive.INT;  break;
+            case NULL:    return new NullType(); 
+            default:      
+                break;
+        }
+        return new PrimitiveType(primitive);
+	}
+
 }
