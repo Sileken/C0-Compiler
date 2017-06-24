@@ -14,9 +14,10 @@ import java.util.Stack;
 // Some Notes:
 // - it can parse "void b;" => NEED A CHECK THAT A VARIABLE IS NOT VOID 
 //      => I've put that into DeepDeclarationVisitor.java when the type is set
+//      => VOID ARRAY STILL POSSIBLE
 // - divison by zero check?
 // - infinite function recursion check?
-// - which operators are defined for which types? e.g. bool b = true; b %= false;
+// - added Type exprType in Expression-Class => MIGHT NOT BE SET HERE ALWAYS
 // -------------------------------------------------------------------
 // Examples:
 // x + y  		| "x" and "y" must have numeric types
@@ -31,6 +32,8 @@ import java.util.Stack;
 //  => convert "p->a" to (*p).a, then check type? 
 
 public class TypeChecker extends SemanticsVisitor {
+
+	final boolean DEBUG_PRINT = true;
          
 	// This is from the Joos-Compiler, but i never figured it out why he needs several type-stacks
 	// At the moment there is only one type-stack used (pushed in the constructor)
@@ -63,12 +66,21 @@ public class TypeChecker extends SemanticsVisitor {
 
 		if(node instanceof PrimitiveType)
 		{
+			if(DEBUG_PRINT) System.out.print("@PrimitiveType ");
 			pushType((PrimitiveType)node);
 		}	
+		else if(node instanceof ArrayType)
+		{
+			// Pop the primitive-type and push the corresponding array-type
+			Type arrType = popType();
+			if(DEBUG_PRINT) System.out.print("@ArrayType ");
+			pushType((ArrayType)node);
+		}
 		else if(node instanceof VariableDeclarationExpression)
 		{
 			// consume type -> e.g. bool a; (PrimitiveType pushes "bool" and VariableDeclarationExpression pops it)
-			popType();
+			// NOT ANYMORE -> ExpressionStatement pops this
+			//popType();
 		}
 		else if(node instanceof ExpressionStatement)
 		{
@@ -78,6 +90,7 @@ public class TypeChecker extends SemanticsVisitor {
 		else if (node instanceof Name) {
 			// If the node is just a variable, get the type of it and push it onto the stack
 			Symbol symbol = ((Name) node).getOriginalDeclaration();
+			if(DEBUG_PRINT) System.out.print("@Name: " + symbol.getName() + " ");
 			pushType(symbol.getType());
 		}
 		else if(node instanceof LiteralPrimary)
@@ -86,8 +99,19 @@ public class TypeChecker extends SemanticsVisitor {
 			try
 			{
 				Type type = ((LiteralPrimary)node).getType();
+				if(DEBUG_PRINT) System.out.print("@LiteralPrimary ");
 				pushType(type);
 			} catch(Exception e){ e.printStackTrace(); }
+		}
+		else if(node instanceof ArrayAccess)
+		{
+			Type indexType = popType();
+			if(indexType.getFullyQualifiedName() != "INT")
+				throw new TypeException("Type error: Array index type must be 'INT' but is '" + indexType + "'");
+
+			ArrayType arrayType = (ArrayType)popType();
+			if(DEBUG_PRINT) System.out.print("@ArrayAccess ");
+			pushType(arrayType.getType());
 		}
 		else if(node instanceof AssignmentExpression)
 		{
@@ -110,11 +134,12 @@ public class TypeChecker extends SemanticsVisitor {
 				}
 				
 				String assignString = assignType.getFullyQualifiedName();
-				throw new SymbolTableException("Type error in Assignment: Can not [" + op + "] type ["
-				                               + assignString + "] to variable '" + lValueString + "'");
+				throw new TypeException("Type error in Assignment: Can not " + op + " type '"
+				                         + assignString + "' to variable '" + lValueString + "'");
 			}
 
 			// add var-type to the stack because assignments can be further processed e.g. (a = 5) * 10;
+			if(DEBUG_PRINT) System.out.print("@AssignmentExpression ");
 			pushType(varType);
 
 			// Add type information to AST
@@ -130,10 +155,11 @@ public class TypeChecker extends SemanticsVisitor {
 			Type resultType = checkBinaryExpression(leftType, op, rightType);
 			if(resultType == null)
 			{
-				throw new SymbolTableException("Type error: '" + leftType + "' and '" + rightType + 
-				                               "' does not match with operator '" + op + "'");
+				throw new TypeException("Type error: '" + leftType + "' and '" + rightType + 
+				                        "' does not match with operator '" + op + "'");
 			}
 
+			if(DEBUG_PRINT) System.out.print("@BinaryExpression ");
 			pushType(resultType);
 
 			// Add type information to AST
@@ -148,9 +174,10 @@ public class TypeChecker extends SemanticsVisitor {
 			Type resultType = checkUnaryExpression(exprType, op);
 			if(resultType == null)
 			{
-				throw new SymbolTableException("Unary operator '" + op + "' is not compatible with type '" + exprType + "'");
+				throw new TypeException("Unary operator '" + op + "' is not compatible with type '" + exprType + "'");
 			}
 
+			if(DEBUG_PRINT) System.out.print("@UnaryExpression ");
 			pushType(resultType);
 
 			// Add type information to AST
@@ -162,7 +189,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			if(exprType.getFullyQualifiedName() != "BOOL")
 			{
-				throw new SymbolTableException("Type error in if-statement: Expected [BOOL] but type was: " + exprType);
+				throw new TypeException("Type error in if-statement: Expected 'BOOL' but type was: " + exprType);
 			}
 		}		
 		else if(node instanceof WhileStatement)
@@ -171,7 +198,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			if(exprType.getFullyQualifiedName() != "BOOL")
 			{
-				throw new SymbolTableException("Type error in while-statement: Expected [BOOL] but type was: " + exprType);
+				throw new TypeException("Type error in while-statement: Expected 'BOOL' but type was: " + exprType);
 			}
 		}
 		else if(node instanceof ForStatement)
@@ -185,13 +212,24 @@ public class TypeChecker extends SemanticsVisitor {
 			Type conditionType = popType();
 			if(conditionType.getFullyQualifiedName() != "BOOL")
 			{
-				throw new SymbolTableException("Type error in for-statement: "
-				                             + "Expected [BOOL] from condition but type was [" + conditionType + "]");
+				throw new TypeException("Type error in for-statement: "
+				                      + "Expected 'BOOL' from condition but type was '" + conditionType + "'");
 			}
 
 			Expression init = forStmt.getInitialization();
 			if(init != null)
 				popType();
+		}
+		else if(node instanceof AllocExpression)
+		{
+			Type amtType = popType();
+			Type allocType = popType();
+
+			if(amtType.getFullyQualifiedName() != "INT")
+				throw new TypeException("2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
+
+			if(DEBUG_PRINT) System.out.print("@AllocExpression ");
+			pushType(new ArrayType(allocType));
 		}
 
 		super.didVisit(node);
@@ -236,8 +274,9 @@ public class TypeChecker extends SemanticsVisitor {
 		String typeName2 = rType.getFullyQualifiedName();
 
 		// Both types HAS TO BE EQUAL in all cases
-		if(typeName1 != typeName2)
+		if(!typeName1.equals(typeName2))
 			return null;
+
 
 		switch(op)
 		{
@@ -270,8 +309,8 @@ public class TypeChecker extends SemanticsVisitor {
 		String assignTypeName = assignType.getFullyQualifiedName();
 
 		// Both types HAS TO BE EQUAL in all cases
-		if(varTypeName != assignTypeName)
-			return false;
+		if(!varTypeName.equals(assignTypeName))
+			return false;		
 
 		switch(op)
 		{
@@ -293,7 +332,6 @@ public class TypeChecker extends SemanticsVisitor {
 			case ORASSIGN:
 			return varTypeName == "INT" ? true : false;
 		}
-
 		return false;
 	}
 

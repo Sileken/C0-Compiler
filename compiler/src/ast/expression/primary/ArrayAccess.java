@@ -11,4 +11,12 @@ public class ArrayAccess extends Primary {
         this.indexExpression = indexExpression;
         this.addChild(indexExpression);
     }
+
+    // Override method to return the prefix name (which is the array-name)
+    @Override public String getIdentifier()
+    {
+        Primary prefix = getPrefix();
+        return prefix.getIdentifier();
+    }
+
 }

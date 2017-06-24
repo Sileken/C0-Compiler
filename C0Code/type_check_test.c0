@@ -1,4 +1,10 @@
 
+//struct MyStruct {
+//    int mostSignificant;
+//};
+
+// TODO: Arrays, Pointers, Structs, Functions
+
 void main()
 {
     //bool b = 5 && 3; // ERROR!
@@ -8,5 +14,6 @@ void main()
     //bool d = true;
     //int k = 5 + 3;
     //int c = 0;
-    bool b = true;
+    int[] a = alloc_array(int, 10);
+    a[0] = 35;
 }
