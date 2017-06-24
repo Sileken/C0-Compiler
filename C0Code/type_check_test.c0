@@ -9,7 +9,4 @@ void main()
     //int c = 0;
     //bool b = true;
 
-    ///for(int i = 0; false; i++)
-    ///{}
-    //int a = 35;
 }

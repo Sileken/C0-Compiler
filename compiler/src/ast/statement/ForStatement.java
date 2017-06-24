@@ -8,6 +8,12 @@ public class ForStatement extends Statement {
     private Expression increment;
     private Statement statement;
 
+    public boolean hasInitializer(){ return initialization != null; }
+
+    public Expression getInitialization(){ return initialization; }
+    public Expression getCondition(){ return condition; }
+    public Expression getIncrement(){ return increment; }
+
     public ForStatement(Expression initialization, Expression condition, Expression increment, Statement statement){
         super();
 

@@ -69,7 +69,13 @@ public class TypeChecker extends SemanticsVisitor {
 		{
 			// consume type -> e.g. bool a; (PrimitiveType pushes "bool" and VariableDeclarationExpression pops it)
 			popType();
-		}else if (node instanceof Name) {
+		}
+		else if(node instanceof ExpressionStatement)
+		{
+			// consume type after ";"
+			popType();
+		}
+		else if (node instanceof Name) {
 			// If the node is just a variable, get the type of it and push it onto the stack
 			Symbol symbol = ((Name) node).getOriginalDeclaration();
 			pushType(symbol.getType());
@@ -106,6 +112,9 @@ public class TypeChecker extends SemanticsVisitor {
 				String assignString = assignType.getFullyQualifiedName();
 				throw new SymbolTableException("Can not assign type '" + assignString + "' to variable '" + lValueString + "'");
 			}
+
+			// add var-type to the stack because assignments can be further processed e.g. (a = 5) * 10;
+			pushType(varType);
 
 			// Add type information to AST
 			((AssignmentExpression)node).setType(assignType);
@@ -146,7 +155,6 @@ public class TypeChecker extends SemanticsVisitor {
 		else if(node instanceof IfStatement)
 		{
 			Type exprType = popType();
-			String typeName = exprType.getFullyQualifiedName();
 
 			// This is another way of getting the type, without the stack
 			// try{
@@ -154,15 +162,29 @@ public class TypeChecker extends SemanticsVisitor {
 			// 	Type exprType = exp.getType();
 			// }catch(Exception e){e.printStackTrace();}
 
-			if(typeName != "BOOL")
+			if(exprType.getFullyQualifiedName() != "BOOL")
 			{
-				throw new SymbolTableException("Type error in if-statement: Expected [BOOL] but type was: " + typeName);
+				throw new SymbolTableException("Type error in if-statement: Expected [BOOL] but type was: " + exprType);
 			}
 		}
 		else if(node instanceof ForStatement)
 		{
-			// Need to to UnaryExpressions first
-			System.out.println("FOR STATEMENT");
+			ForStatement forStmt = (ForStatement)node;
+
+			Expression increment = forStmt.getIncrement();
+			if(increment != null)
+				popType();
+
+			Type conditionType = popType();
+			if(conditionType.getFullyQualifiedName() != "BOOL")
+			{
+				throw new SymbolTableException("Type error in for-statement: "
+				                             + "Expected [BOOL] from condition but type was [" + conditionType + "]");
+			}
+
+			Expression init = forStmt.getInitialization();
+			if(init != null)
+				popType();
 		}
 
 		super.didVisit(node);
