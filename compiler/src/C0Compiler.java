@@ -27,7 +27,8 @@ public class C0Compiler {
     try {
       AST ast = parser.parseTree();
       ast.PrintPretty();
-      SymbolTable table = typeLinking(ast);
+      final SymbolTable table = new SymbolTable();
+      typeLinking(ast, table);
       table.listScopes(); 
       nameLinking(ast, table);
       typeChecking(ast, table);
@@ -43,16 +44,12 @@ public class C0Compiler {
     }
   }
 
-  private static SymbolTable typeLinking(AST ast) throws Exception {
-    final SymbolTable symbolTable = new SymbolTable();
-      		
+  private static void typeLinking(AST ast, SymbolTable symbolTable) throws Exception {
 		ast.getRoot().accept(new GlobalDeclarationAndDefinitionVisitor(symbolTable));
 		System.out.println("C0 Compiler: Global Declarations constructed");
 		
 		ast.getRoot().accept(new DeepDeclarationVisitor(symbolTable));
 		System.out.println("C0 Compiler: Deep Declaration constructed");
-
-    return symbolTable;
   }
 
   private static void nameLinking(AST ast, SymbolTable symbolTable) throws Exception{

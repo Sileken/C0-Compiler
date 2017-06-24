@@ -52,7 +52,7 @@ public class GlobalDeclarationAndDefinitionVisitor extends SemanticsVisitor {
 			}
 
 			FileUnitScope enclosingScope = (FileUnitScope) this.getCurrentScope();
-			Symbol symbol = enclosingScope.resolveStructSymbol(enclosingScope.getDeclartionPrefix() 
+			Symbol symbol = enclosingScope.resolveStructSymbol(enclosingScope.getDeclarationPrefix() 
 				+ ((StructDeclaration) node).getName().getName());    
 			symbol.setType(type);
 		}	
@@ -63,7 +63,7 @@ public class GlobalDeclarationAndDefinitionVisitor extends SemanticsVisitor {
 			}
 
 			FileUnitScope enclosingScope = (FileUnitScope) this.getCurrentScope();
-			Symbol symbol = enclosingScope.resolveFunctionSymbol(enclosingScope.getDeclartionPrefix() 
+			Symbol symbol = enclosingScope.resolveFunctionSymbol(enclosingScope.getDeclarationPrefix() 
 				+  enclosingScope.getSignatureOfFunction((FunctionDeclaration) node));
 			symbol.setType(type);
 		}	

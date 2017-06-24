@@ -16,7 +16,7 @@ public class FileUnitScope extends Scope {
         super(name, referenceNode);
     }
 
-    public String getDeclartionPrefix() {
+    public String getDeclarationPrefix() {
         return this.declartionPrefix;
     }
     
@@ -26,7 +26,7 @@ public class FileUnitScope extends Scope {
 
     public void addStructDeclaration(StructDeclaration structDecl) throws SymbolTableException {
         String symbolName = structDecl.getName().getName();
-        String symbolNameWithDeclPrefix = this.getDeclartionPrefix() + symbolName;
+        String symbolNameWithDeclPrefix = this.getDeclarationPrefix() + symbolName;
         String symbolNameWithDefPrefix = this.getDefinitionPrefix() + symbolName;
         
         if (this.symbols.containsKey(symbolNameWithDeclPrefix)) {
@@ -41,7 +41,7 @@ public class FileUnitScope extends Scope {
 
     public void addFunctionDeclaration(FunctionDeclaration functionDecl) throws SymbolTableException {
         String symbolName = getSignatureOfFunction(functionDecl.getName().getName(), functionDecl.getParameterTypes());
-        String symbolNameWithDeclPrefix = this.getDeclartionPrefix() + symbolName;
+        String symbolNameWithDeclPrefix = this.getDeclarationPrefix() + symbolName;
         String symbolNameWithDefPrefix = this.getDefinitionPrefix() + symbolName;
 
         if (this.symbols.containsKey(symbolNameWithDeclPrefix)) {
