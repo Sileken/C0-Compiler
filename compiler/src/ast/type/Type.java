@@ -8,4 +8,10 @@ public abstract class Type extends ASTNode {
     }
 
     public abstract String getFullyQualifiedName();
+
+    @Override
+    public String toString()
+    {
+        return getFullyQualifiedName();
+    }
 }

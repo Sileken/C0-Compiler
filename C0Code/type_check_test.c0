@@ -2,15 +2,14 @@
 void main()
 {
     //bool b = 5 && 3; // ERROR!
+    //int b = !(5++); // ERROR!
     //int a;
     //bool d = true;
     //int k = 5 + 3;
     //int c = 0;
     //bool b = true;
 
-    //for(int i = 0; i < 5; i++)
-    //{
-//
-    //}
-    
+    ///for(int i = 0; false; i++)
+    ///{}
+    //int a = 35;
 }

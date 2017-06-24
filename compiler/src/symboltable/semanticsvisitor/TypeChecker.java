@@ -120,9 +120,7 @@ public class TypeChecker extends SemanticsVisitor {
 			Type resultType = checkBinaryExpression(leftType, op, rightType);
 			if(resultType == null)
 			{
-				String leftString = leftType.getFullyQualifiedName();
-				String rightString = rightType.getFullyQualifiedName();
-				throw new SymbolTableException("Type error: '" + leftString + "' and '" + rightString + 
+				throw new SymbolTableException("Type error: '" + leftType + "' and '" + rightType + 
 				                               "' does not match with operator '" + op + "'");
 			}
 
@@ -130,6 +128,20 @@ public class TypeChecker extends SemanticsVisitor {
 
 			// Add type information to AST
 			((BinaryExpression)node).setType(resultType);
+		}
+		else if(node instanceof UnaryExpression)
+		{
+			Type exprType = popType();
+			UnaryExpression.Operator op = ((UnaryExpression)node).getOperator();
+
+			// TODO: is the result-type always the same? "Dereference" is a unary-exp -> result-type could change
+			Type resultType = checkUnaryExpression(exprType, op);
+			if(resultType == null)
+			{
+				throw new SymbolTableException("Unary operator '" + op + "' is not compatible with type '" + exprType + "'");
+			}
+
+			pushType(resultType);
 		}
 		else if(node instanceof IfStatement)
 		{
@@ -149,10 +161,43 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof ForStatement)
 		{
-
+			// Need to to UnaryExpressions first
+			System.out.println("FOR STATEMENT");
 		}
 
 		super.didVisit(node);
+	}
+
+	// Return the type for a given type and unary operator
+	// TODO: check if that is all correct
+	// TODO: add dereference support
+	private Type checkUnaryExpression(Type type, UnaryExpression.Operator op)
+	{
+		String typeName = type.getFullyQualifiedName();
+		switch(op)
+		{
+			// "!" => type must be [BOOL], result is [BOOL]
+			case BANG:
+			return typeName == "BOOL" ? type : null;
+			
+			// "~" : bitwise not => type must be [INT], result is [INT]
+			case TILDE:
+			return typeName == "INT" ? type : null;
+
+			// "-" => type must be [INT], result is [INT]
+			case MINUS:
+			return typeName == "INT" ? type : null;
+
+			// "*" => dereferencing, type must be [POINTER], result is [POINTER-TYPE]
+			case STAR:
+			return null;
+
+			// "++", "--" => type must be [INT], result is [INT]
+			case INCR:
+			case DECR:
+			return typeName == "INT" ? type : null;
+		}
+		return null;
 	}
 
 	// Return the result type for a binary expression for two given types and an operator
@@ -190,7 +235,7 @@ public class TypeChecker extends SemanticsVisitor {
 		return null;
 	}
 
-	// TODO: check which operator is allowed for which type (e.g. "+" is not allowed for BOOLEANS)
+	// TODO: check which operator is allowed for which type (e.g. "+=" is not allowed for BOOLEANS)
 	private boolean isAssignable(Type varType, Type assignType, AssignmentExpression.Operator op) {
 		//System.out.println("VarType: " + varType + " " + op +  " assignType: " + assignType);
 		
