@@ -8,6 +8,7 @@ import ast.type.*;
 import ast.declaration.*;
 import ast.expression.primary.*;
 import ast.expression.primary.name.*;
+import ast.statement.*;
 import java.util.Stack;
 
 // Some Notes:
@@ -126,6 +127,23 @@ public class TypeChecker extends SemanticsVisitor {
 
 			// Add type information to AST
 			((BinaryExpression)node).setType(resultType);
+		}
+		else if(node instanceof IfStatement)
+		{
+			Type exprType = popType();
+			System.out.println("TEST: " +exprType.getFullyQualifiedName());
+			String typeName = exprType.getFullyQualifiedName();
+
+			// This is another way of getting the type, without the stack
+			// try{
+			// 	Expression exp = ((IfStatement)node).getCondition();
+			// 	Type exprType = exp.getType();
+			// }catch(Exception e){e.printStackTrace();}
+
+			if(typeName != "BOOL")
+			{
+				throw new SymbolTableException("Type error in if-statement: Expected [BOOL] but type was: " + typeName);
+			}
 		}
 
 		super.didVisit(node);

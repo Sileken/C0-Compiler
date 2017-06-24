@@ -7,6 +7,7 @@ public class IfStatement extends Statement {
     Statement ifStatement;
     ElseStatement elseStatement;
 
+    public Expression getCondition(){ return condition; }
     public IfStatement(Expression condition, Statement ifStatement, ElseStatement elseStatement){
         super();
 
