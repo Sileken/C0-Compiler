@@ -156,15 +156,18 @@ public class TypeChecker extends SemanticsVisitor {
 		{
 			Type exprType = popType();
 
-			// This is another way of getting the type, without the stack
-			// try{
-			// 	Expression exp = ((IfStatement)node).getCondition();
-			// 	Type exprType = exp.getType();
-			// }catch(Exception e){e.printStackTrace();}
-
 			if(exprType.getFullyQualifiedName() != "BOOL")
 			{
 				throw new SymbolTableException("Type error in if-statement: Expected [BOOL] but type was: " + exprType);
+			}
+		}		
+		else if(node instanceof WhileStatement)
+		{
+			Type exprType = popType();
+
+			if(exprType.getFullyQualifiedName() != "BOOL")
+			{
+				throw new SymbolTableException("Type error in while-statement: Expected [BOOL] but type was: " + exprType);
 			}
 		}
 		else if(node instanceof ForStatement)
