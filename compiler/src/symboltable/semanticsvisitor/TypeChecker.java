@@ -9,6 +9,8 @@ import ast.declaration.*;
 import ast.expression.primary.*;
 import ast.expression.primary.name.*;
 import ast.statement.*;
+import ast.definition.*;
+import ast.identifier.*;
 import java.util.Stack;
 
 // Some Notes:
@@ -82,6 +84,66 @@ public class TypeChecker extends SemanticsVisitor {
 			Type primType = popType();
 			if(DEBUG_PRINT) System.out.print("@ReferenceType ");
 			pushType((ReferenceType)node);
+		}
+		else if(node instanceof FieldDefinition)
+		{
+			// Pop primitive-type for a struct-field
+			Type type = popType();
+		}
+		else if(node instanceof StructType)
+		{
+			if(DEBUG_PRINT) System.out.print("@StructType ");
+			pushType((StructType)node);
+		}
+		else if(node instanceof FieldAccess)
+		{
+			FieldIdentifier identifier = ((FieldAccess)node).getFieldIdentifier();
+
+			Type poppedType = popType();
+			if(!(poppedType instanceof StructType))
+				throw new TypeException("FieldAccess: Expected 'Struct' but got '" + poppedType + "'");
+
+			// Get the struct-scope from the symbol-table
+			StructType structType = (StructType)poppedType;
+			StructTypeScope structScope = table.getStructTypeScope(structType.getScopeName());
+
+			// Get the symbol from the struct-scope
+			Symbol symbol = structScope.getFieldDefinition(identifier);
+			Type fieldType = symbol.getType();
+
+			if(DEBUG_PRINT) System.out.print("@FieldAccess ");
+			pushType(fieldType);
+
+			// Add information to the AST
+			identifier.setType(fieldType);
+		}
+		else if(node instanceof FieldDereferenceAccess)
+		{
+			FieldIdentifier identifier = ((FieldDereferenceAccess)node).getFieldIdentifier();
+			Type poppedType = popType();
+			
+			if(!(poppedType instanceof ReferenceType))
+				throw new TypeException("FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
+
+			ReferenceType structRefType = (ReferenceType)poppedType;
+
+			// Get the struct-scope from the symbol-table
+			Type innerType = structRefType.getInnerType();
+			if(!(innerType instanceof StructType))
+				throw new TypeException("FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
+
+			StructType structType = (StructType) innerType;
+			StructTypeScope structScope = table.getStructTypeScope(structType.getScopeName());
+
+			// Get the symbol from the struct-scope
+			Symbol symbol = structScope.getFieldDefinition(identifier);
+			Type fieldType = symbol.getType();
+
+			if(DEBUG_PRINT) System.out.print("@FieldDereferenceAccess ");
+			pushType(fieldType);
+
+			// Add information to the AST
+			identifier.setType(fieldType);
 		}
 		else if(node instanceof VariableDeclarationExpression)
 		{
@@ -383,7 +445,6 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		return false;
 	}
-
 	
 	private Stack<Type> getCurrentTypeStack() {
 		if (!this.typeStacks.isEmpty())

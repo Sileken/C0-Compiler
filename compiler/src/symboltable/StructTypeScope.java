@@ -2,6 +2,7 @@ package symboltable;
 
 import ast.*;
 import ast.definition.*;
+import ast.identifier.*;
 import ast.type.*;
 import symboltable.*;
 
@@ -19,6 +20,10 @@ public class StructTypeScope extends Scope {
         return this.getName() + "." + fieldDef.getName().getName();
     }
 
+    public String nameForFieldIdentifier(FieldIdentifier fieldId) throws SymbolTableException {
+        return this.getName() + "." + fieldId.getName();
+    }
+
     public void addFieldDefinition(FieldDefinition fieldDef) throws SymbolTableException {
         String symbolName = this.nameForFieldDefinition(fieldDef);
         Symbol symbol = new Symbol(symbolName, fieldDef, this);
@@ -33,4 +38,9 @@ public class StructTypeScope extends Scope {
     public Symbol getFieldDefinition(FieldDefinition fieldDef) throws SymbolTableException {
         return this.symbols.get(this.nameForFieldDefinition(fieldDef));
     }
+
+    public Symbol getFieldDefinition(FieldIdentifier fieldId) throws SymbolTableException {
+        return this.symbols.get(this.nameForFieldIdentifier(fieldId));
+    }
+
 }

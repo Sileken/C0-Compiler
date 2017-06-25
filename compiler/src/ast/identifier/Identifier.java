@@ -17,4 +17,14 @@ public abstract class Identifier extends ASTNode {
     public String getName() {
         return this.idToken.image;
     }
+
+    public Type getType()
+    {
+        return type;
+    }
+
+    public void setType(Type type)
+    {
+        this.type = type;
+    }
 }

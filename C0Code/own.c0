@@ -28,9 +28,9 @@ int main() {
     tired = true;
     NSA++;
 
-    struct unsignedInteger uInt1 = alloc(struct unsignedInteger);
-    struct unsignedInteger uInt2 = alloc(struct unsignedInteger);
-    struct unsignedInteger uInt3 = alloc(struct unsignedInteger);
+    struct unsignedInteger* uInt1 = alloc(struct unsignedInteger);
+    struct unsignedInteger* uInt2 = alloc(struct unsignedInteger);
+    struct unsignedInteger* uInt3 = alloc(struct unsignedInteger);
 
     uInt1->mostSignificant = 0;
     uInt1->leastSignificant = 2000000000;

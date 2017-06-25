@@ -9,6 +9,7 @@ import ast.expression.*;
 import ast.expression.primary.*;
 import ast.expression.primary.name.*;
 import ast.type.*;
+import ast.identifier.*;
 import symboltable.*;
 
 /** The Name Linker Visitor links declaration nodes only to names from variables */
@@ -54,8 +55,7 @@ public class NameLinker extends SemanticsVisitor {
 				throw new SymbolTableException("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
 				//System.out.println("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
 			}
-		}
-
+		} 
 		return true;
 	}
 }
