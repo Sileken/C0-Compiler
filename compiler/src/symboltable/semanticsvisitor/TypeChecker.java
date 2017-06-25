@@ -18,10 +18,10 @@ import java.util.List;
 // Some Notes:
 // - it can parse "void b;" => NEED A CHECK THAT A VARIABLE IS NOT VOID 
 //      => I've put that into DeepDeclarationVisitor.java when the type is set
-//      => VOID ARRAY STILL POSSIBLE
+//      => VOID ARRAY + VOID* STILL POSSIBLE
 // - divison by zero check?
 // - infinite function recursion check?
-// - added Type exprType in Expression-Class => MIGHT NOT BE SET HERE ALWAYS
+// - added member "Type exprType" in Expression-Class => MIGHT NOT BE SET HERE ALWAYS
 // - it does not check that a struct-type exists e.g. struct list* as = alloc(struct l);
 // -------------------------------------------------------------------
 // Examples:
@@ -34,18 +34,15 @@ import java.util.List;
 //  => check if return statement is present if not [VOID]
 //  => check that return type match function return type
 // p* 			| "p" must be a pointer
-//  => convert "p->a" to (*p).a, then check type? 
 
 public class TypeChecker extends SemanticsVisitor {
 
-	final boolean DEBUG_PRINT = true;
+	final boolean DEBUG_PRINT = false;
          
-	// This is from the Joos-Compiler, but i never figured it out why he needs several type-stacks
-	// At the moment there is only one type-stack used (pushed in the constructor)
 	// Indent: Types are pushed onto the stack if encountered and popped if something 
 	// has to be checked (e.g. a binary expression). The parsing is bottom-up, which means
 	// that types will be pushed onto the stack from LEAVES first.
-	private Stack<Stack<Type>> typeStacks;
+	private Stack<Type> typeStack = new Stack<Type>();
 
 	// The return type of the current function we are in
 	// Used to check if a "return" statement matches the function return type
@@ -53,10 +50,18 @@ public class TypeChecker extends SemanticsVisitor {
 
 	public TypeChecker(SymbolTable table) {
 		super(table);
-		this.typeStacks = new Stack<Stack<Type>>();
-		typeStacks.push(new Stack<Type>());
 	}
 
+	private void pushType(Type type) {
+		if(DEBUG_PRINT) System.out.println("> Pushing Type " + type.getFullyQualifiedName());
+		this.typeStack.push(type);
+	}
+
+	private Type popType() {
+		Type type = this.typeStack.pop();
+		if(DEBUG_PRINT) System.out.println("Popping Type " + type.getFullyQualifiedName());
+		return type;
+	}
 
 	@Override
 	public void willVisit(ASTNode node) throws SymbolTableException {
@@ -81,9 +86,9 @@ public class TypeChecker extends SemanticsVisitor {
 		if(node instanceof FileUnit)
 		{
 			// Check that Type-Stack is empty (it should)
-			if(!getCurrentTypeStack().isEmpty())
+			if(!typeStack.isEmpty())
 			{
-				while(!getCurrentTypeStack().isEmpty())
+				while(!typeStack.isEmpty())
 				{
 					Type type = popType();
 					System.out.println(">>>>> @FileUnit <<<<<< Type still in stack: " + type);
@@ -128,13 +133,13 @@ public class TypeChecker extends SemanticsVisitor {
 				throw new TypeException("@ConditionExpression: Both alternatives have to be the same type, but have "
 				                        + "'" + firstExpr + "' and '" + secondExpr + "'");
 			
-			// Both alternative have to be the same type => the return type is also that type
+			// Both alternatives have to be the same type => the return type is also that type
 			pushType(firstExpr);
 		}
 		else if(node instanceof FieldDefinition)
 		{
 			// Pop primitive-type for a struct-field
-			Type type = popType();
+			popType();
 		}
 		else if(node instanceof StructDefinition || node instanceof StructDeclaration)
 		{
@@ -198,12 +203,7 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof VariableDeclarationExpression)
 		{
-			// consume type -> e.g. bool a; (PrimitiveType pushes "bool" and VariableDeclarationExpression pops it)
-			// NOT ANYMORE -> ExpressionStatement pops this
 			// TODO: SOMETHING TO DO HERE??
-			//Type type = popType();
-			//((VariableDeclarationExpression)node).setType(type);
-			//pushType(type);
 		}
 		else if(node instanceof VariableDeclaration)
 		{
@@ -214,7 +214,7 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof FunctionDeclaration)
 		{
-			// Pop all argument types and function return type
+			// Pop all argument types and function return types
 			List<Type> args = ((FunctionDeclaration)node).getParameterTypes();
 			for(Type arg : args)
 				popType();
@@ -245,17 +245,15 @@ public class TypeChecker extends SemanticsVisitor {
 			}
 		}
 		else if (node instanceof Name) {
-			// Can be a VARIABLE or a FUNCTION name
+			// Problem: Can be a VARIABLE or a FUNCTION name => Solution: Function-Names will be ignored here
 
 			// If the node has a reference to the declaration, get the type of it and push it onto the stack
 			Symbol symbol = ((Name) node).getOriginalDeclaration();
 			
-			// Find the symbol manually
+			// Actually the symbol reference from all variable-names should be set in the previous stage (name-linking)
+			// but if thats not the case just try to find the symbol manually in the current scope
 			if(symbol == null)
-			{
-				System.out.println("[Warning]@Name: Could not get symbol '" + node.getIdentifier() + "' from the node itself."
-				                   + " Try to manually acquire it from the current scope.");
-
+			{			
 				BlockScope currentScope = (BlockScope) this.getCurrentScope();
 				symbol = currentScope.resolveVariableDeclaration((Name) node);
 				if(symbol == null)
@@ -264,7 +262,9 @@ public class TypeChecker extends SemanticsVisitor {
 					// We ignore it and check the correct function types in MethodInvokeExpression
 					//throw new TypeException("@Name: Could not find symbol of '" + ((Name) node).getName() + "'");
 				} else {
-					// TODO: CAN THIS HAPPEN?
+					System.out.println("[Warning]@Name: Could not get symbol '" + node.getIdentifier() + "' from the node itself."
+				                       + " Tried to manually acquire it from the current scope.");
+					// Add information to AST
 					((Name) node).setOriginalDeclaration(symbol);
 				}
 			} 
@@ -324,6 +324,7 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof LiteralPrimary)
 		{
+			// Determine type of literal and push it onto the stack
 			LiteralPrimary.LiteralType litType = ((LiteralPrimary)node).getLiteralType();
 			try
 			{
@@ -338,9 +339,12 @@ public class TypeChecker extends SemanticsVisitor {
 			if(indexType.getFullyQualifiedName() != "INT")
 				throw new TypeException("Type error: Array index type must be 'INT' but is '" + indexType + "'");
 
-			ArrayType arrayType = (ArrayType)popType();
+			Type type = popType();
+			if(!(type instanceof ArrayType))
+				throw new TypeException("@ArrayAccess: Expected array as type but got '" + type + "'");
+
 			if(DEBUG_PRINT) System.out.print("@ArrayAccess ");
-			pushType(arrayType.getType());
+			pushType(((ArrayType)type).getType());
 		}
 		else if(node instanceof AssignmentExpression)
 		{
@@ -404,7 +408,7 @@ public class TypeChecker extends SemanticsVisitor {
 			Type exprType = popType();
 			UnaryExpression.Operator op = ((UnaryExpression)node).getOperator();
 
-			// TODO: is the result-type always the same? "Dereference" is a unary-exp -> result-type could change
+			// The resultType is only different from the exprType if its a pointer
 			Type resultType = checkUnaryExpression(exprType, op);
 			if(resultType == null)
 			{
@@ -482,8 +486,7 @@ public class TypeChecker extends SemanticsVisitor {
 	}
 
 	// Return the type for a given type and unary operator
-	// TODO: check if that is all correct
-	// TODO: add dereference support
+	// TODO: Not 100% sure if every valid case is included
 	private Type checkUnaryExpression(Type type, UnaryExpression.Operator op)
 	{
 		String typeName = type.getFullyQualifiedName();
@@ -553,7 +556,7 @@ public class TypeChecker extends SemanticsVisitor {
 		return null;
 	}
 
-	// TODO: Are the types correct?
+	// TODO: Not 100% sure if every valid case is included
 	private boolean checkAssignmentExpression(Type varType, Type assignType, AssignmentExpression.Operator op) {
 		String varTypeName = varType.getFullyQualifiedName();
 		String assignTypeName = assignType.getFullyQualifiedName();
@@ -561,7 +564,7 @@ public class TypeChecker extends SemanticsVisitor {
 		// NULL can be assigned to a pointer
 		if(varType instanceof ReferenceType && assignType instanceof NullType)
 		{
-			// To nothing here, check which op is valid for this assignment below
+			// Do nothing here, check which op is valid for this assignment below
 		}
 		// Both types HAS TO BE EQUAL in all remaining cases
 		else if(!varTypeName.equals(assignTypeName))
@@ -589,21 +592,5 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		return false;
 	}
-	
-	private Stack<Type> getCurrentTypeStack() {
-		if (!this.typeStacks.isEmpty())
-			return this.typeStacks.peek();
-		return null;
-	}
 
-	private void pushType(Type type) {
-		if(DEBUG_PRINT) System.out.println("> Pushing Type " + type.getFullyQualifiedName());
-		this.getCurrentTypeStack().push(type);
-	}
-
-	private Type popType() {
-		Type type = this.getCurrentTypeStack().pop();
-		if(DEBUG_PRINT) System.out.println("Popping Type " + type.getFullyQualifiedName());
-		return type;
-	}
 }
