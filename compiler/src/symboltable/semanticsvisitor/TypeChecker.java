@@ -76,11 +76,21 @@ public class TypeChecker extends SemanticsVisitor {
 			if(DEBUG_PRINT) System.out.print("@ArrayType ");
 			pushType((ArrayType)node);
 		}
+		else if(node instanceof ReferenceType)
+		{
+			// pop primitive type and push corresponding reference-type
+			Type primType = popType();
+			if(DEBUG_PRINT) System.out.print("@ReferenceType ");
+			pushType((ReferenceType)node);
+		}
 		else if(node instanceof VariableDeclarationExpression)
 		{
 			// consume type -> e.g. bool a; (PrimitiveType pushes "bool" and VariableDeclarationExpression pops it)
 			// NOT ANYMORE -> ExpressionStatement pops this
-			//popType();
+			// TODO: SOMETHING TO DO HERE??
+			//Type type = popType();
+			//((VariableDeclarationExpression)node).setType(type);
+			//pushType(type);
 		}
 		else if(node instanceof ExpressionStatement)
 		{
@@ -138,17 +148,22 @@ public class TypeChecker extends SemanticsVisitor {
 				// This is a bit hacky because the class AssignmentExpression contains either a 
 				// VariableDeclaration OR an Expression (which is ugly by the way :D)
 				VariableDeclaration var = ((AssignmentExpression)node).getVariableDeclaration();
-				String lValueString = "";
 				if(var != null)	{
-					lValueString = varType.getFullyQualifiedName() + " " + var.getIdentifier();
+					String lValueString = varType + " " + var.getIdentifier();
+
+					throw new TypeException("AssignmentExpression: Can not " + op + " type '"
+											+ assignType + "' to variable '" + lValueString + "'");
 				} else {
 					Expression exp = ((AssignmentExpression)node).getLeftValue();
-					lValueString = exp.getIdentifier();
+					String lValueString = varType.getFullyQualifiedName();
+					// TODO: There might be a better way for this
+					if(!exp.getIdentifier().isEmpty())
+						lValueString += " " + exp.getIdentifier();
+
+					throw new TypeException("AssignmentExpression: Can not " + op + " type '"
+											+ assignType + "' to lValue type '" + lValueString + "'");
 				}
 				
-				String assignString = assignType.getFullyQualifiedName();
-				throw new TypeException("Type error in Assignment: Can not " + op + " type '"
-				                         + assignString + "' to variable '" + lValueString + "'");
 			}
 
 			// add var-type to the stack because assignments can be further processed e.g. (a = 5) * 10;
@@ -235,14 +250,26 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof AllocExpression)
 		{
-			Type amtType = popType();
-			Type allocType = popType();
+			if(((AllocExpression)node).isArrayAlloc())
+			{
+				// alloc_array(type, amount)
+				Type amtType = popType();
+				Type allocType = popType();
 
-			if(amtType.getFullyQualifiedName() != "INT")
-				throw new TypeException("2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
+				if(amtType.getFullyQualifiedName() != "INT")
+					throw new TypeException("2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
+				
+				// push a new array type to the stack
+				if(DEBUG_PRINT) System.out.print("@AllocExpression ");
+				pushType(new ArrayType(allocType));
+			}else{
+				// alloc(type)
+				Type allocType = popType();
 
-			if(DEBUG_PRINT) System.out.print("@AllocExpression ");
-			pushType(new ArrayType(allocType));
+				// push a new pointer type to the stack
+				if(DEBUG_PRINT) System.out.print("@AllocExpression ");
+				pushType(new ReferenceType(allocType));
+			}
 		}
 
 		super.didVisit(node);
@@ -270,7 +297,12 @@ public class TypeChecker extends SemanticsVisitor {
 
 			// "*" => dereferencing, type must be [POINTER], result is [POINTER-TYPE]
 			case STAR:
-			return null;
+			if(type instanceof ReferenceType)
+			{
+				return ((ReferenceType)type).getInnerType();
+			} else {
+				return null;
+			}
 
 			// "++", "--" => type must be [INT], result is [INT]
 			case INCR:
@@ -289,7 +321,6 @@ public class TypeChecker extends SemanticsVisitor {
 		// Both types HAS TO BE EQUAL in all cases
 		if(!typeName1.equals(typeName2))
 			return null;
-
 
 		switch(op)
 		{
@@ -321,8 +352,13 @@ public class TypeChecker extends SemanticsVisitor {
 		String varTypeName = varType.getFullyQualifiedName();
 		String assignTypeName = assignType.getFullyQualifiedName();
 
-		// Both types HAS TO BE EQUAL in all cases
-		if(!varTypeName.equals(assignTypeName))
+		// NULL can be assigned to a pointer
+		if(varType instanceof ReferenceType && assignType instanceof NullType)
+		{
+			// To nothing here, check which op is valid for this assignment below
+		}
+		// Both types HAS TO BE EQUAL in all remaining cases
+		else if(!varTypeName.equals(assignTypeName))
 			return false;		
 
 		switch(op)

@@ -23,4 +23,6 @@ public class AllocExpression extends Expression {
         this.dimension = dimension;
         this.addChild(dimension);
     }
+
+    public boolean isArrayAlloc(){ return isArrayAllocation; }
 }

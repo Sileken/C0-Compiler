@@ -12,7 +12,7 @@ public abstract class Expression extends ASTNode {
     }
 
 
-    public Type getType() throws Exception
+    public Type getType()
     {
         return exprType;
     }

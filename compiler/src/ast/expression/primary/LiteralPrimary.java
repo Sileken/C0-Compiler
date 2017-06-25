@@ -24,7 +24,7 @@ public class LiteralPrimary extends Primary {
     }
 
 	@Override
-    public Type getType() throws Exception {
+    public Type getType() {
         PrimitiveType.Primitive primitive = null;
         switch(this.getLiteralType()) {
             case BOOLLIT: primitive = PrimitiveType.Primitive.BOOL; break;
