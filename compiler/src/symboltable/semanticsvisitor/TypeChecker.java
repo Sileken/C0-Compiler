@@ -84,11 +84,21 @@ public class TypeChecker extends SemanticsVisitor {
 			Type primType = popType();
 			if(DEBUG_PRINT) System.out.print("@ReferenceType ");
 			pushType((ReferenceType)node);
+		}	
+		else if(node instanceof ExpressionStatement)
+		{
+			// consume type after ";"
+			popType();
 		}
 		else if(node instanceof FieldDefinition)
 		{
 			// Pop primitive-type for a struct-field
 			Type type = popType();
+		}
+		else if(node instanceof StructDefinition)
+		{
+			// Pop struct type
+			popType();
 		}
 		else if(node instanceof StructType)
 		{
@@ -154,13 +164,41 @@ public class TypeChecker extends SemanticsVisitor {
 			//((VariableDeclarationExpression)node).setType(type);
 			//pushType(type);
 		}
-		else if(node instanceof ExpressionStatement)
+		else if(node instanceof ReturnStatement)
 		{
-			// consume type after ";"
-			popType();
+			// Check if return type match function type
+			Type type = popType();
+
+			if(this.getCurrentTypeStack().isEmpty())
+			{
+				// Return statement without something e.g. return;
+				Type functionType = type;
+				if(functionType.getFullyQualifiedName() != "VOID")
+					throw new TypeException("@ReturnStatement: Function must return '" + functionType + "' but is 'VOID'");
+			} else {
+				Type returnType = type;
+				Type functionType = popType();
+
+				if(!returnType.getFullyQualifiedName().equals(functionType.getFullyQualifiedName()))
+					throw new TypeException("@ReturnStatement: Return type '" + returnType 
+											+ "' does not match function type '" + functionType + "'");
+			}
+		}
+		else if(node instanceof FunctionDefinition)
+		{
+			// Check that a return type exists
+			if(!this.getCurrentTypeStack().isEmpty())
+			{
+				String name = node.getIdentifier();
+				Type returnType = popType();
+				if(!(returnType.getFullyQualifiedName().equals("VOID")))
+					throw new TypeException("@FunctionDefinition: Function '" + name + "()' must return '" + returnType + "'");
+			}
 		}
 		else if (node instanceof Name) {
-			// If the node is just a variable, get the type of it and push it onto the stack
+			// Can be a VARIABLE or a FUNCTION
+
+			// If the node has a reference to the declaration, get the type of it and push it onto the stack
 			Symbol symbol = ((Name) node).getOriginalDeclaration();
 			
 			// Check if symbol was found, but normally it should be found
@@ -172,8 +210,9 @@ public class TypeChecker extends SemanticsVisitor {
 				String name = ((Name) node).getName();
 				BlockScope currentScope = (BlockScope) this.getCurrentScope();
 				symbol = currentScope.resolveVariableDeclaration((Name) node);
+				if(symbol == null)
+					throw new TypeException("@Name: Could not find symbol of '" + name + "'");
 			} 
-
 
 			if(DEBUG_PRINT) System.out.print("@Name: " + symbol.getName() + " ");
 			pushType(symbol.getType());

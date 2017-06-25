@@ -5,7 +5,12 @@ struct MyStruct {
     int[] arr;
 };
 
-// TODO: Structs, Functions
+// TODO: Functions
+
+int calculate()
+{
+    return 0;
+}
 
 void main()
 {
@@ -23,13 +28,12 @@ void main()
     //}    
     //int* ptr = alloc(int);
     //*ptr = k;
+    //struct MyStruct* s = alloc(struct MyStruct);
+    //struct MyStruct* s2;
+    //(*s).test = true;
+    //s->test = true;
+    //s->arr[0] = 35;
 
-    struct MyStruct* s = alloc(struct MyStruct);
-    struct MyStruct* s2;
-    (*s).test = true;
-    s->test = true;
-    s->arr[0] = 35;
+    //int i = calculate();
 
-    struct MyStruct* s3;
-    s3->test = false;
 }
