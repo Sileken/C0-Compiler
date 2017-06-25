@@ -148,6 +148,18 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof StructType)
 		{
+			String structName = ((StructType)node).getFullyQualifiedName();
+
+			// split "struct MyStruct" into [struct, MyStruct], because resolveStructSymbol() expects only "MyStruct"
+			String[] splitted = structName.split(" ");
+			String structTypeName = splitted[splitted.length - 1];
+
+			FileUnitScope fileUnitScope = table.getFileUnitScope();
+			Symbol structDeclaration = fileUnitScope.resolveStructSymbol(structTypeName);
+
+			if(structDeclaration == null)
+				throw new TypeException("@StructType: Encountered unknown struct type '" + structTypeName + "'");
+
 			if(DEBUG_PRINT) System.out.print("@StructType ");
 			pushType((StructType)node);
 		}
