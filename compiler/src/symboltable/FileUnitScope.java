@@ -120,22 +120,22 @@ public class FileUnitScope extends Scope {
         return symbol;
     }
 
-    public Symbol findStructDeclaration(String structName)
-    {
-        Symbol symbol = null;
-        List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), structName);
-        if (matchedSymbols.size() > 0) {
-            symbol = matchedSymbols.get(0);
-        }
-        for(Symbol s : matchedSymbols)
-        {
-            if(s.getName().startsWith("decl"))
-            {
-                symbol = s;
-                break;
-            }
-        }
-
-        return symbol;
-    }
+    // S.H.: I wrote this, but not sure if i need this :-)
+    // public Symbol findStructDeclaration(String structName)
+    // {
+    //     Symbol symbol = null;
+    //     List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), structName);
+    //     if (matchedSymbols.size() > 0) {
+    //         symbol = matchedSymbols.get(0);
+    //     }
+    //     for(Symbol s : matchedSymbols)
+    //     {
+    //         if(s.getName().startsWith("decl"))
+    //         {
+    //             symbol = s;
+    //             break;
+    //         }
+    //     }
+    //     return symbol;
+    // }
 }
