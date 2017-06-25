@@ -34,7 +34,6 @@ int functDecl123(int* para1, bool* para2, int* para3, bool* para4, struct x* qwe
 struct p******** testType();
 int[][][] testArray();
 
-int[]*[]*[] testArray();
 
 int main() {
   struct list* as = alloc(struct list);

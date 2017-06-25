@@ -12,6 +12,7 @@ import ast.definition.*;
 /** Symbol Table holds all possible scopes and provides functions to create a scope */
 public class SymbolTable {
 
+    private FileUnitScope fileUnitScope = null;
     private Map<String, Scope> scopes = new LinkedHashMap<String, Scope>();
 
     public SymbolTable() {
@@ -28,9 +29,12 @@ public class SymbolTable {
             throw new SymbolTableException("Duplicate File Unit: " + fileUnitName);
         }
 
-        FileUnitScope scope = new FileUnitScope(fileUnitName, fileUnit);
-        this.scopes.put(fileUnitName, scope);
-        return scope;
+        if(fileUnitScope != null)
+            throw new SymbolTableException("Only one FileUnitScope is allowed");
+
+        fileUnitScope = new FileUnitScope(fileUnitName, fileUnit);
+        this.scopes.put(fileUnitName, fileUnitScope);
+        return fileUnitScope;
     }
 
     public FileUnitScope getFileUnitScope(FileUnit fileUnit) throws SymbolTableException {
@@ -40,6 +44,12 @@ public class SymbolTable {
             throw new SymbolTableException("Expecting BlockScope but get " + scope);
         }
         return (FileUnitScope) scope;
+    }
+
+    public FileUnitScope getFileUnitScope() throws SymbolTableException{
+        if(fileUnitScope == null)
+            throw new SymbolTableException("FileUnitScope is not set in Symbol-Table");
+        return fileUnitScope;
     }
 
     public String getBlockScopeName(Scope currentScope, int blockCount){

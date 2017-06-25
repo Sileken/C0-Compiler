@@ -1,16 +1,23 @@
 
-struct MyStruct {
-    int mostSignificant;
-    bool test;
-    int[] arr;
-};
+//struct MyStruct {
+//    int mostSignificant;
+//    bool test;
+//    int[] arr;
+//};
 
-// TODO: Functions
 
 int calculate()
 {
-    return 0;
+    if(true)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
+
 
 void main()
 {
@@ -35,5 +42,7 @@ void main()
     //s->arr[0] = 35;
 
     //int i = calculate();
-
+    //int* x;
+    //bool b = *x < 1337;
+    bool b = 3 < 5 ? true : false;
 }

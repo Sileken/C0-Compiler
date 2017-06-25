@@ -13,4 +13,6 @@ public class ReturnStatement extends Statement {
             this.addChild(expression);
         }
     }
+
+    public boolean hasExpression(){ return this.expression != null; }
 }

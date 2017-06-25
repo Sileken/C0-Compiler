@@ -21,10 +21,10 @@ struct unsignedInteger {
 int eat(bool exitPoint, int* boolean);
 void* sleep(int rest);
 void code(int* x, bool y);
-struct s1rukture createSomething();
+struct s1rukture* createSomething();
 void move(int from, int buffer, int to, int size);
-struct unsignedInteger add(struct unsignedInteger uI1, struct unsignedInteger uI2);
-struct unsignedInteger sub(struct unsignedInteger uI1, struct unsignedInteger uI2);
+struct unsignedInteger* add(struct unsignedInteger* uI1, struct unsignedInteger* uI2);
+struct unsignedInteger* sub(struct unsignedInteger* uI1, struct unsignedInteger* uI2);
 
 int main() {
     
@@ -32,15 +32,15 @@ int main() {
     int* exitPoint; 
     int NSA = eat(tired, exitPoint);
 
-    struct s1rukture hodor = createSomething();
-    hodor.isUseful = true;
+    struct s1rukture* hodor = createSomething();
+    hodor->isUseful = true;
     hodor->numbers[0] = 1333;
 
     move(1, 2, 3, 5);
 
-    struct unsignedInteger uInt1 = alloc(struct unsignedInteger);
-    struct unsignedInteger uInt2 = alloc(struct unsignedInteger);
-    struct unsignedInteger uInt3 = alloc(struct unsignedInteger);
+    struct unsignedInteger* uInt1 = alloc(struct unsignedInteger);
+    struct unsignedInteger* uInt2 = alloc(struct unsignedInteger);
+    struct unsignedInteger* uInt3 = alloc(struct unsignedInteger);
 
     uInt1->mostSignificant = 0;
     uInt1->leastSignificant = 2000000000;
@@ -58,7 +58,7 @@ int eat(bool exitPoint, int* boolean) {
     *source = 0;
     
     if (!exitPoint && true) {
-        while (boolean <= 4747) {
+        while (*boolean <= 4747) {
             (*boolean)++;
             sleep(*boolean);
             code(source, exitPoint);
@@ -85,18 +85,19 @@ void code(int* x, bool y) {
     return;
 }
 
-struct s1rukture createSomething() {
-    struct s1rukture ss7 = alloc(struct s1rukture);
+struct s1rukture* createSomething() {
+    struct s1rukture* ss7 = alloc(struct s1rukture);
     ss7->number = 1337;
     ss7->numbers = alloc_array(int, 42);
     ss7->isUseful = false;
-    ss7->point2someMemory = 0x10CAFFEE;
+    //ss7->point2someMemory = 0x10CAFFEE; // S.H.: I think "void*" are not allowed (and this assignment does not make sense) 
 
     return ss7;
 }
 
 void move (int from, int buffer, int to, int size)
 {
+    int n = 0;
     if (n == 1) {
         return;
 
@@ -107,11 +108,11 @@ void move (int from, int buffer, int to, int size)
     }
 }
 
-struct unsignedInteger add(struct unsignedInteger uI1, struct unsignedInteger uI2) {
+struct unsignedInteger* add(struct unsignedInteger* uI1, struct unsignedInteger* uI2) {
     // toDo two's complement calculation ?
 }
 
-struct unsignedInteger sub(struct unsignedInteger uI1, struct unsignedInteger uI2) {
+struct unsignedInteger* sub(struct unsignedInteger* uI1, struct unsignedInteger* uI2) {
     // toDo
 }
 

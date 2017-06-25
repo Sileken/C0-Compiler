@@ -12,6 +12,8 @@ import ast.statement.*;
 import ast.definition.*;
 import ast.identifier.*;
 import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 // Some Notes:
 // - it can parse "void b;" => NEED A CHECK THAT A VARIABLE IS NOT VOID 
@@ -20,6 +22,7 @@ import java.util.Stack;
 // - divison by zero check?
 // - infinite function recursion check?
 // - added Type exprType in Expression-Class => MIGHT NOT BE SET HERE ALWAYS
+// - it does not check that a struct-type exists e.g. struct list* as = alloc(struct l);
 // -------------------------------------------------------------------
 // Examples:
 // x + y  		| "x" and "y" must have numeric types
@@ -44,6 +47,10 @@ public class TypeChecker extends SemanticsVisitor {
 	// that types will be pushed onto the stack from LEAVES first.
 	private Stack<Stack<Type>> typeStacks;
 
+	// The return type of the current function we are in
+	// Used to check if a "return" statement matches the function return type
+	private Type currentFunctionReturnType = null;
+
 	public TypeChecker(SymbolTable table) {
 		super(table);
 		this.typeStacks = new Stack<Stack<Type>>();
@@ -53,6 +60,11 @@ public class TypeChecker extends SemanticsVisitor {
 
 	@Override
 	public void willVisit(ASTNode node) throws SymbolTableException {
+
+		if(node instanceof FunctionDefinition)
+		{
+			currentFunctionReturnType = ((FunctionDefinition)node).getType();
+		}
 		
 		super.willVisit(node);
 	}
@@ -66,7 +78,20 @@ public class TypeChecker extends SemanticsVisitor {
 	@Override
 	public void didVisit(ASTNode node) throws SymbolTableException {
 
-		if(node instanceof PrimitiveType)
+		if(node instanceof FileUnit)
+		{
+			// Check that Type-Stack is empty (it should)
+			if(!getCurrentTypeStack().isEmpty())
+			{
+				while(!getCurrentTypeStack().isEmpty())
+				{
+					Type type = popType();
+					System.out.println(">>>>> @FileUnit <<<<<< Type still in stack: " + type);
+				}
+				throw new TypeException("Type-Stack is not empty, something might be wrong.");
+			}
+		}
+	    else if(node instanceof PrimitiveType)
 		{
 			if(DEBUG_PRINT) System.out.print("@PrimitiveType ");
 			pushType((PrimitiveType)node);
@@ -90,12 +115,28 @@ public class TypeChecker extends SemanticsVisitor {
 			// consume type after ";"
 			popType();
 		}
+		else if(node instanceof ConditionalExpression)
+		{
+			Type firstExpr = popType();
+			Type secondExpr = popType();
+			Type condition = popType();
+
+			if(!condition.getFullyQualifiedName().equals("BOOL"))
+			 	throw new TypeException("@ConditionExpression: Expected condition of type 'BOOL' but got '" + condition + "'");
+
+			if(!firstExpr.getFullyQualifiedName().equals(secondExpr.getFullyQualifiedName()))
+				throw new TypeException("@ConditionExpression: Both alternatives have to be the same type, but have "
+				                        + "'" + firstExpr + "' and '" + secondExpr + "'");
+			
+			// Both alternative have to be the same type => the return type is also that type
+			pushType(firstExpr);
+		}
 		else if(node instanceof FieldDefinition)
 		{
 			// Pop primitive-type for a struct-field
 			Type type = popType();
 		}
-		else if(node instanceof StructDefinition)
+		else if(node instanceof StructDefinition || node instanceof StructDeclaration)
 		{
 			// Pop struct type
 			popType();
@@ -164,58 +205,122 @@ public class TypeChecker extends SemanticsVisitor {
 			//((VariableDeclarationExpression)node).setType(type);
 			//pushType(type);
 		}
-		else if(node instanceof ReturnStatement)
+		else if(node instanceof VariableDeclaration)
 		{
-			// Check if return type match function type
-			Type type = popType();
+			// TODO: is there a better way?
+			// This pop is for function parameters (normal variable decl. get popped through ExpressionStatement)
+			if(node.getParent() instanceof FunctionDefinition)
+				popType();
+		}
+		else if(node instanceof FunctionDeclaration)
+		{
+			// Pop all argument types and function return type
+			List<Type> args = ((FunctionDeclaration)node).getParameterTypes();
+			for(Type arg : args)
+				popType();
 
-			if(this.getCurrentTypeStack().isEmpty())
-			{
-				// Return statement without something e.g. return;
-				Type functionType = type;
-				if(functionType.getFullyQualifiedName() != "VOID")
-					throw new TypeException("@ReturnStatement: Function must return '" + functionType + "' but is 'VOID'");
-			} else {
-				Type returnType = type;
-				Type functionType = popType();
-
-				if(!returnType.getFullyQualifiedName().equals(functionType.getFullyQualifiedName()))
-					throw new TypeException("@ReturnStatement: Return type '" + returnType 
-											+ "' does not match function type '" + functionType + "'");
-			}
+			popType();	// return type
 		}
 		else if(node instanceof FunctionDefinition)
 		{
-			// Check that a return type exists
-			if(!this.getCurrentTypeStack().isEmpty())
+			// just pop the return type and set the current function return type to null
+			Type returnType = popType();
+			currentFunctionReturnType = null;
+		}		
+		else if(node instanceof ReturnStatement)
+		{
+			// Check if return type match function type
+			if(((ReturnStatement)node).hasExpression())
 			{
-				String name = node.getIdentifier();
 				Type returnType = popType();
-				if(!(returnType.getFullyQualifiedName().equals("VOID")))
-					throw new TypeException("@FunctionDefinition: Function '" + name + "()' must return '" + returnType + "'");
+
+				if(currentFunctionReturnType instanceof ReferenceType && returnType instanceof NullType)
+				{ /* NULL can be returned for pointers */ }
+				else if(!returnType.getFullyQualifiedName().equals(currentFunctionReturnType.getFullyQualifiedName()))
+					throw new TypeException("@ReturnStatement: Return type '" + returnType 
+											+ "' does not match function type '" + currentFunctionReturnType + "'");
+			} else { // empty return statement e.g. return;
+				if(currentFunctionReturnType.getFullyQualifiedName() != "VOID")
+					throw new TypeException("@ReturnStatement: Function must return '" + currentFunctionReturnType + "' but is 'VOID'");
 			}
 		}
 		else if (node instanceof Name) {
-			// Can be a VARIABLE or a FUNCTION
+			// Can be a VARIABLE or a FUNCTION name
 
 			// If the node has a reference to the declaration, get the type of it and push it onto the stack
 			Symbol symbol = ((Name) node).getOriginalDeclaration();
 			
-			// Check if symbol was found, but normally it should be found
+			// Find the symbol manually
 			if(symbol == null)
 			{
 				System.out.println("[Warning]@Name: Could not get symbol '" + node.getIdentifier() + "' from the node itself."
 				                   + " Try to manually acquire it from the current scope.");
 
-				String name = ((Name) node).getName();
 				BlockScope currentScope = (BlockScope) this.getCurrentScope();
 				symbol = currentScope.resolveVariableDeclaration((Name) node);
 				if(symbol == null)
-					throw new TypeException("@Name: Could not find symbol of '" + name + "'");
+				{
+					// If we get to here, then the node is a FunctionIdentifier
+					// We ignore it and check the correct function types in MethodInvokeExpression
+					//throw new TypeException("@Name: Could not find symbol of '" + ((Name) node).getName() + "'");
+				} else {
+					// TODO: CAN THIS HAPPEN?
+					((Name) node).setOriginalDeclaration(symbol);
+				}
 			} 
 
-			if(DEBUG_PRINT) System.out.print("@Name: " + symbol.getName() + " ");
-			pushType(symbol.getType());
+			if(symbol != null)
+			{
+				if(DEBUG_PRINT) System.out.print("@Name: " + symbol.getName() + " ");
+				pushType(symbol.getType());
+			}
+		}
+		else if(node instanceof MethodInvokeExpression)
+		{
+			MethodInvokeExpression method = (MethodInvokeExpression) node;
+
+			Primary prefix = method.getPrefix();			
+			String funcName = prefix.getIdentifier(); // TODO: IS THIS ALWAYS THE FUNCTION NAME?
+
+			List<Expression> args = method.getArguments();
+
+			// Pop the amount of argument-types from the stack
+			List<Type> argumentTypes = new ArrayList<Type>();
+			for(int i = 0; i < args.size(); i++)
+			{
+				Type argType = popType();
+				argumentTypes.add(0, argType);
+			}
+
+			// Check if a function exists with the arguments and name
+			FileUnitScope fileUnitScope = table.getFileUnitScope();
+			String functionSignature = fileUnitScope.getSignatureOfFunction(funcName, argumentTypes);
+			if(DEBUG_PRINT) System.out.println(">>>>>> Function Signature: " + functionSignature);
+
+			Symbol symbol = fileUnitScope.resolveFunctionSymbol(functionSignature);
+
+			// If symbol was not found, function with those arguments does not exist
+			if(symbol == null)
+			{
+				String argString = "";
+				for(int i = 0; i < argumentTypes.size() - 1; i++){
+					argString += argumentTypes.get(i) + ", " ;
+				}
+				argString += argumentTypes.get(argumentTypes.size() - 1);
+				throw new TypeException("@MethodInvokeExpression: Could not resolve function '" + funcName + "("+ argString +")'");
+			}
+
+			// Push function type on stack
+			if(DEBUG_PRINT) System.out.print("@MethodInvokeExpression: ");
+			Type functionType = symbol.getType();
+			pushType(functionType);	
+
+			// Add information to ast
+			if(!(prefix instanceof Name))
+				throw new TypeException("Ooops @MethodInvokeExpression, thought every Prefix is a NAME but it wasn't!");
+			
+			((Name)prefix).setOriginalDeclaration(symbol);
+			method.setType(functionType);
 		}
 		else if(node instanceof LiteralPrimary)
 		{

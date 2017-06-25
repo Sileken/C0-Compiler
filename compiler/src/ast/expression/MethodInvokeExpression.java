@@ -26,4 +26,8 @@ public class MethodInvokeExpression extends Expression {
     public List<Expression> getArguments(){
         return this.arguments;
     }
+
+    public int numArguments() {
+        return this.arguments.size();
+    }
 }
