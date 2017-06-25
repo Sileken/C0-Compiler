@@ -90,6 +90,19 @@ public class TypeChecker extends SemanticsVisitor {
 		else if (node instanceof Name) {
 			// If the node is just a variable, get the type of it and push it onto the stack
 			Symbol symbol = ((Name) node).getOriginalDeclaration();
+			
+			// Check if symbol was found, but normally it should be found
+			if(symbol == null)
+			{
+				System.out.println("[Warning]@Name: Could not get symbol '" + node.getIdentifier() + "' from the node itself."
+				                   + " Try to manually acquire it from the current scope.");
+
+				String name = ((Name) node).getName();
+				BlockScope currentScope = (BlockScope) this.getCurrentScope();
+				symbol = currentScope.resolveVariableDeclaration((Name) node);
+			} 
+
+
 			if(DEBUG_PRINT) System.out.print("@Name: " + symbol.getName() + " ");
 			pushType(symbol.getType());
 		}
@@ -343,13 +356,13 @@ public class TypeChecker extends SemanticsVisitor {
 	}
 
 	private void pushType(Type type) {
-		System.out.println("> Pushing Type " + type.getFullyQualifiedName());
+		if(DEBUG_PRINT) System.out.println("> Pushing Type " + type.getFullyQualifiedName());
 		this.getCurrentTypeStack().push(type);
 	}
 
 	private Type popType() {
 		Type type = this.getCurrentTypeStack().pop();
-		System.out.println("Popping Type " + type.getFullyQualifiedName());
+		if(DEBUG_PRINT) System.out.println("Popping Type " + type.getFullyQualifiedName());
 		return type;
 	}
 }
