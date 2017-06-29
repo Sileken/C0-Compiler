@@ -41,6 +41,7 @@ void main()
     //bool b = *x < 1337;
     //int funcRes = calculate();
 
-    struct MyStruct str;
+    void* a;
+
     return;
 }

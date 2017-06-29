@@ -219,6 +219,9 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 		else if(node instanceof VariableDeclaration)
 		{
+			// Throw an error if "void" is used as type
+			checkIsVoidType((VariableDeclaration)node);
+
 			// TODO: is there a better way?
 			// This pop is for function parameters (normal variable decl. get popped through ExpressionStatement)
 			if(node.getParent() instanceof FunctionDefinition)
@@ -603,6 +606,32 @@ public class TypeChecker extends SemanticsVisitor {
 			return varTypeName == "INT" ? true : false;
 		}
 		return false;
+	}
+
+	// Checks if the given variable declaration has not any type of void (void, void*, void[])
+	private void checkIsVoidType(VariableDeclaration var) throws TypeException
+	{
+		Type type = var.getType();
+
+		// Checks if the data-type is VOID, VOID* or VOID[] and throws an error if so 
+		if(type instanceof PrimitiveType)
+		{
+			PrimitiveType prim = (PrimitiveType) type;
+			if(prim.getPrimitive() == PrimitiveType.Primitive.VOID)
+				throw new TypeException("Invalid type [VOID] for variable '" + var.getIdentifier() + "'");
+		} 
+		else if(type instanceof ReferenceType)
+		{
+			Type innerType = ((ReferenceType)type).getInnerType();
+			if(innerType.getFullyQualifiedName() == "VOID")
+				throw new TypeException("Invalid type [VOID*] for variable '" + var.getIdentifier() + "'");
+		}
+		else if(type instanceof ArrayType)
+		{
+			Type arrayType = ((ArrayType)type).getType();
+			if(arrayType.getFullyQualifiedName() == "VOID")
+				throw new TypeException("Invalid type [VOID[]] for variable '" + var.getIdentifier() + "'");
+		}
 	}
 
 }
