@@ -53,7 +53,9 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 
 			Scope scope = this.table.getStructTypeScope(structTypeScopeName);
 			this.pushScope(scope);
-		} else if (node instanceof Block && !(((Block) node).getParent() instanceof FunctionDefinition)) {
+		}  else if ((node instanceof Block || node instanceof ForStatement)
+				&& !((node instanceof Block && ((Block) node).getParent() instanceof FunctionDefinition)
+					|| (node instanceof Block && ((Block) node).getParent() instanceof ForStatement))) {
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			String blockName = this.table.getBlockScopeName(currentScope, this.blockCount);
 			Scope scope = this.table.getBlockScope(blockName);
@@ -75,7 +77,9 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 			if (this.getCurrentScope() instanceof StructTypeScope) {
 				this.popScope();
 			}
-		} else if (node instanceof Block) { // leaving Block or Struct Type Scope
+		} else if ((node instanceof Block || node instanceof ForStatement) 
+			&& !(node instanceof Block && ((Block) node).getParent() instanceof ForStatement)) {
+			// leaving Block or Struct Type Scope or For Statemenet
 			this.popScope();
 		}
 	}

@@ -32,7 +32,9 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 
 			this.blockCount = 0;
 			this.pushScope(scope);
-		} else if (node instanceof Block && !(((Block) node).getParent() instanceof FunctionDefinition)) { 
+		} else if ((node instanceof Block || node instanceof ForStatement)
+				&& !((node instanceof Block && ((Block) node).getParent() instanceof FunctionDefinition)
+					|| (node instanceof Block && ((Block) node).getParent() instanceof ForStatement))) {
 			// Add block scope to symboltable
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			String blockName = this.table.getBlockScopeName(currentScope, this.blockCount);
@@ -40,7 +42,8 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 
 			this.blockCount++;
 			this.pushScope(scope);
-		} else {
+		}
+		else {
 			super.willVisit(node);
 		}
 	}
