@@ -16,13 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Some Notes:
-// - it can parse "void b;" => NEED A CHECK THAT A VARIABLE IS NOT VOID 
-//      => I've put that into DeepDeclarationVisitor.java when the type is set
-//      => VOID ARRAY + VOID* STILL POSSIBLE
-// - divison by zero check?
 // - infinite function recursion check?
 // - added member "Type exprType" in Expression-Class => MIGHT NOT BE SET HERE ALWAYS
-// - it does not check that a struct-type exists e.g. struct list* as = alloc(struct l);
 // -------------------------------------------------------------------
 // Examples:
 // x + y  		| "x" and "y" must have numeric types
