@@ -177,6 +177,11 @@ public class TypeChecker extends SemanticsVisitor {
 
 			// Get the symbol from the struct-scope
 			Symbol symbol = structScope.getFieldDefinition(identifier);
+
+			// If the symbol is null, the field does not exist in the struct-scope (TODO: move this in name-linker?)
+			if(symbol == null)
+				throw new SymbolTableException("@FieldAccess: Could not find struct field '" + identifier.getName()+ "' for struct type '" + structType + "'");
+
 			Type fieldType = symbol.getType();
 
 			if(DEBUG_PRINT) System.out.print("@FieldAccess ");
@@ -199,12 +204,17 @@ public class TypeChecker extends SemanticsVisitor {
 			Type innerType = structRefType.getInnerType();
 			if(!(innerType instanceof StructType))
 				throw new TypeException("FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
-
+				
 			StructType structType = (StructType) innerType;
 			StructTypeScope structScope = table.getStructTypeScope(structType.getScopeName());
 
 			// Get the symbol from the struct-scope
 			Symbol symbol = structScope.getFieldDefinition(identifier);
+			
+			// If the symbol is null, the field does not exist in the struct-scope (TODO: move this in name-linker?)
+			if(symbol == null)
+				throw new SymbolTableException("@FieldDereferenceAccess: Could not find struct field '" + identifier.getName()+ "' for struct type '" + structType + "'");
+
 			Type fieldType = symbol.getType();
 
 			if(DEBUG_PRINT) System.out.print("@FieldDereferenceAccess ");
