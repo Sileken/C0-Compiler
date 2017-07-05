@@ -1,0 +1,44 @@
+
+struct Mystruct;
+
+int calculate();
+
+
+bool functionWithParam(int a, int b) {
+    bool c = a > b;
+    c = c && true;
+    return c;
+}
+
+bool secondFunction(int a, int b) {
+    return false;
+}
+
+void main(){
+    
+    int a;
+    bool d = true;
+    a = 10;
+
+    int b = 2 * a;
+
+    for (int i = 0; i < a; i++) {
+        b +=1;
+    }
+
+    int funcRes = calculate();
+
+    return;
+}
+
+struct MyStruct {
+    int mostSignificant;
+    bool test;
+    int[] arr;
+};
+
+
+int calculate()
+{
+    return 0;
+}

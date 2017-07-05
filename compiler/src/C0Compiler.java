@@ -2,6 +2,7 @@ import parser.*;
 import ast.*;
 import ast.identifier.*;
 import ast.statement.*;
+import codegen.*;
 import symboltable.*;
 import symboltable.semanticsvisitor.*;
 
@@ -32,7 +33,8 @@ public class C0Compiler {
       //table.listScopes(); 
       nameLinking(ast, table);
       typeChecking(ast, table);
-      generateCode(ast, table);
+      indexing(ast, table);       // no error but unfinished
+      //generateCode(ast, table); // currently error
 
         
     } catch (ParseException e) {
@@ -52,16 +54,23 @@ public class C0Compiler {
 		System.out.println("C0 Compiler: Deep Declaration constructed");
   }
 
-  private static void nameLinking(AST ast, SymbolTable symbolTable) throws Exception{
+  private static void nameLinking(AST ast, SymbolTable symbolTable) throws Exception {
 		ast.getRoot().accept(new NameLinker(symbolTable));
 		System.out.println("C0 Compiler: Name Linking finished");
   }
 
-  private static void typeChecking(AST ast, SymbolTable symbolTable) throws Exception{
+  private static void typeChecking(AST ast, SymbolTable symbolTable) throws Exception {
 		ast.getRoot().accept(new TypeChecker(symbolTable));
 		System.out.println("C0 Compiler: Type Checking finished");
   }
 
-  private static void generateCode(AST ast, SymbolTable symbolTable) throws Exception{
+  private static void indexing(AST ast, SymbolTable symbolTable) throws Exception {
+    ast.getRoot().accept(new IndexerVisitor(symbolTable));
+    System.out.println("C0 Compiler: Indexing finished");
+  }
+
+  private static void generateCode(AST ast, SymbolTable symbolTable) throws Exception {
+    ast.getRoot().accept(new CodeGenerator(symbolTable));
+    System.out.println("C0 Compiler: Code Generation finished");
   }  
 }

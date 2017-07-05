@@ -7,7 +7,6 @@ public class IfStatement extends Statement {
     Statement ifStatement;
     ElseStatement elseStatement;
 
-    public Expression getCondition(){ return condition; }
     public IfStatement(Expression condition, Statement ifStatement, ElseStatement elseStatement){
         super();
 
@@ -21,5 +20,17 @@ public class IfStatement extends Statement {
             this.elseStatement = elseStatement;
             this.addChild(this.elseStatement);
         }
+    }
+
+    public Expression getIfCondition(){ 
+            return this.condition; 
+    }
+
+    public Statement getIfStatement() {
+        return this.ifStatement;
+    }
+
+    public ElseStatement getElseStatement() {
+        return this.elseStatement;
     }
 }
