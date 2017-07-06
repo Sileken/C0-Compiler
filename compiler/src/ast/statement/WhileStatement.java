@@ -11,4 +11,8 @@ public class WhileStatement extends Statement {
         this.condition = condition;
         this.addChild(this.condition);
     }
+
+    public Expression getWhileCondition() {
+        return this.condition;
+    }
 }

@@ -6,6 +6,7 @@ import ast.type.*;
 
 public abstract class Definition extends ASTNode {
     private Identifier identifier;
+    private int index;
 
     protected Definition(Identifier identifier) {
         super();
@@ -21,4 +22,12 @@ public abstract class Definition extends ASTNode {
     }
 
     public abstract Type getType();
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 }

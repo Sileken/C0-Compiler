@@ -11,6 +11,7 @@ public class FunctionDefinition extends Definition {
   private Type returnType;
   private List<VariableDeclaration> parameters = new ArrayList<VariableDeclaration>();
   private Block block;
+  private int totalLocalVariables;
 
   public FunctionDefinition(Type returnType, VariableFunctionIdentifier funcId, List<VariableDeclaration> parameters,
       Block block) {
@@ -25,6 +26,7 @@ public class FunctionDefinition extends Definition {
     }
 
     this.block = block;
+    this.totalLocalVariables = 0;
     this.addChild(this.block);
   }
 
@@ -37,7 +39,23 @@ public class FunctionDefinition extends Definition {
     return types;
   }
 
+  public List<VariableDeclaration> getParameters() {
+    return parameters;
+  }
+
   public Type getType() {
 		return returnType;
 	}
+
+  public Block getFunctionBlock() {
+    return block;
+  }
+
+  public void setTotalLocalVariables(int totalLocalVariables) {
+    this.totalLocalVariables = totalLocalVariables;
+  }
+
+  public int getTotalLocalVariables() {
+    return totalLocalVariables;
+  }
 }
