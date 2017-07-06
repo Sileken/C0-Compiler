@@ -93,7 +93,7 @@ public class TypeChecker extends SemanticsVisitor {
 				}
 				throw new TypeException("Type-Stack is not empty, something might be wrong.");
 			}
-			Logger.setDebugEnabled(false);
+			Logger.setDebugEnabled(true);
 		}
 	    else if(node instanceof PrimitiveType)
 		{

@@ -6,6 +6,7 @@ import ast.definition.*;
 import ast.statement.*;
 import symboltable.*;
 import symboltable.semanticsvisitor.*;
+import utils.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +23,6 @@ import java.util.Map;
  * Based on the indexes the CodeGenerator will place and handle the Stackpointer
  */
 public class IndexerVisitor extends SemanticsVisitor {
-	
-    private static final boolean DEBUG = true;
 
     int globals = 0;
 	int fields = 0;
@@ -41,13 +40,13 @@ public class IndexerVisitor extends SemanticsVisitor {
 	public void willVisit(ASTNode node) throws SymbolTableException {
 		super.willVisit(node);
 		if (node instanceof FunctionDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG] Set global index of FunctionDefinition " + node.getIdentifier() + " to " + globals);
+            Logger.log("  [DEBUG] Set global index of FunctionDefinition " + node.getIdentifier() + " to " + globals);
             globalList.put(globals, this.getCurrentScope());
             ((FunctionDefinition) node).setIndex(globals);
             globals++;
         }
 		else if (node instanceof StructDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG] Set global index of StructDefinition " + node.getIdentifier() + " to " + globals);
+			Logger.log("  [DEBUG] Set global index of StructDefinition " + node.getIdentifier() + " to " + globals);
             globalList.put(globals, this.getCurrentScope());
             ((StructDefinition) node).setIndex(globals);
             globals++;
@@ -63,7 +62,7 @@ public class IndexerVisitor extends SemanticsVisitor {
             
             // Get Parameters
 			for (VariableDeclaration param : functionDefinition.getParameters()) {
-                if (DEBUG) System.out.println("  [DEBUG] FunctionDefinition " + node.getIdentifier() + " param " + param.getIdentifier() + " index: " + parameters);
+                Logger.log("  [DEBUG] FunctionDefinition " + node.getIdentifier() + " param " + param.getIdentifier() + " index: " + parameters);
 				param.setIndex(parameters); 
 				parameters--;
 			}
@@ -78,16 +77,16 @@ public class IndexerVisitor extends SemanticsVisitor {
 																					// REMOVE
 			}
 		}  else if (node instanceof StructDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG] StructDefinition " + node.getIdentifier() + " visit");
+            Logger.log("  [DEBUG] StructDefinition " + node.getIdentifier() + " visit");
             // ...
         } else if (node instanceof FieldDefinition) {
-				if (DEBUG) System.out.println("  [DEBUG] Set local Index of FieldDefinition " + node.getIdentifier() + " to " + fields);
+				Logger.log("  [DEBUG] Set local Index of FieldDefinition " + node.getIdentifier() + " to " + fields);
                 ((FieldDefinition) node).setIndex(fields);
 				fields++;
 		}
         // Problem with Parameters, will be double-checked for example, set index if it's not already set?
         else if (node instanceof VariableDeclaration) {
-            if (DEBUG) System.out.println("  [DEBUG] Set local Index of VariableDeclaration " + node.getIdentifier() + " to " + locals);
+            Logger.log("  [DEBUG] Set local Index of VariableDeclaration " + node.getIdentifier() + " to " + locals);
 			((VariableDeclaration) node).setIndex(locals);
 			locals++;
 		}
@@ -99,12 +98,12 @@ public class IndexerVisitor extends SemanticsVisitor {
 	public void didVisit(ASTNode node) throws SymbolTableException {
 
 		if (node instanceof FunctionDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG] Finished FunctionDefinition " + node.getIdentifier() + " with " + locals + " local variables");
+            Logger.log("  [DEBUG] Finished FunctionDefinition " + node.getIdentifier() + " with " + locals + " local variables");
 			((FunctionDefinition) node).setTotalLocalVariables(locals);
 			locals = 0;
 			parameters = -1;
 		} else if (node instanceof StructDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG] Finished StructDefinition " + node.getIdentifier() + " with " + fields + " local fields");
+            Logger.log("  [DEBUG] Finished StructDefinition " + node.getIdentifier() + " with " + fields + " local fields");
             fields = 1;
         }
 

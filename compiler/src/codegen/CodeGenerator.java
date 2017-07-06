@@ -12,6 +12,7 @@ import ast.definition.*;
 import ast.identifier.*;
 import symboltable.*;
 import symboltable.semanticsvisitor.*;
+import utils.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,8 +23,6 @@ import java.util.ArrayList;
 
 
 public class CodeGenerator extends SemanticsVisitor {
-
-    private static final boolean DEBUG = true;
 
 	protected static final String BOOLEAN_TRUE = "0xffffffff";
 	protected static final String BOOLEAN_FALSE = "0x0";
@@ -75,10 +74,10 @@ public class CodeGenerator extends SemanticsVisitor {
 		super.willVisit(node);
 
 		if (node instanceof FileUnit) {
-            if (DEBUG) System.out.println("  [DEBUG]: Initialize CodeGenerator");
+            Logger.log("  [DEBUG]: Initialize CodeGenerator");
 			this.initialize();
 		} else if (node instanceof FunctionDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG]: Preparing Function");
+            Logger.log("  [DEBUG]: Preparing Function");
 			/* This is the relevant part from joos-compiler
                 commands have to be changed to our CMa 
 
@@ -106,7 +105,7 @@ public class CodeGenerator extends SemanticsVisitor {
 
             */
 		} else if (node instanceof StructDefinition) {
-            if (DEBUG) System.out.println("  [DEBUG]: Preparing Struct");
+            Logger.log("  [DEBUG]: Preparing Struct");
             // like FunctionDeclaration
         }
     }
@@ -114,7 +113,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	// not all listed
     @Override
 	public boolean visit(ASTNode node) throws Exception {
-		if (DEBUG) System.out.println("  [DEBUG]: Visiting " + node);
+		Logger.log("  [DEBUG]: Visiting " + node);
 
 		if (node instanceof MethodInvokeExpression) {
 			this.generateMethodInvoke((MethodInvokeExpression) node);
@@ -166,7 +165,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	public void didVisit(ASTNode node) throws SymbolTableException {
         // leaving FileUnit, write content on disk
 		if (node instanceof FileUnit) {
-            if (DEBUG) System.out.println("  [DEBUG]: writing content to: " + asmFile);        
+            Logger.log("  [DEBUG]: writing content to: " + asmFile);        
 			File dir = this.asmFile.getParentFile();
 
 			if (dir != null) {
