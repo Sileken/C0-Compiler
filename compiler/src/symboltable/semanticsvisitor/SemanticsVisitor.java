@@ -2,6 +2,8 @@ package symboltable.semanticsvisitor;
 
 import java.util.Stack;
 
+import utils.*;
+
 import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
@@ -25,13 +27,13 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 	}
 
 	protected void pushScope(Scope scope) {
-		System.out.println("Pushing scope " + scope.toString());
+		Logger.log("Pushing scope " + scope.toString());
 		this.viewStack.push(scope);
 	}
 
 	protected Scope popScope() {
 		Scope scope = this.viewStack.pop();
-		System.out.println("Popping scope " + scope);
+		Logger.log("Popping scope " + scope);
 		return scope;
 	}
 

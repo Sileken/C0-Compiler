@@ -60,11 +60,7 @@ public class TypeChecker extends SemanticsVisitor {
 	@Override
 	public void willVisit(ASTNode node) throws SymbolTableException {
 
-		if(node instanceof FileUnit)
-		{
-			Logger.setDebugEnabled(false);
-		}
-		else if(node instanceof FunctionDefinition)
+		if(node instanceof FunctionDefinition)
 		{
 			currentFunctionReturnType = ((FunctionDefinition)node).getType();
 		}
@@ -93,7 +89,6 @@ public class TypeChecker extends SemanticsVisitor {
 				}
 				throw new TypeException("Type-Stack is not empty, something might be wrong.");
 			}
-			Logger.setDebugEnabled(true);
 		}
 	    else if(node instanceof PrimitiveType)
 		{

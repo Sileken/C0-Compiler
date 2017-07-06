@@ -3,6 +3,8 @@ package symboltable;
 import ast.*;
 import ast.expression.primary.name.*;
 
+import utils.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,24 +24,24 @@ public class Scope {
 	}
 
 	public void putSymbol(String key, Symbol symbol) {
-		System.out.println("Put symbol \"" + symbol.getName() + "\" to scope: " + this.getName());
+		Logger.log("Put symbol \"" + symbol.getName() + "\" to scope: " + this.getName());
 		this.symbols.put(key, symbol);
 	}
 
 	public void listSymbols() {
 		if (this instanceof BlockScope) {
-			System.out.println("\tParent Scope: " + ((BlockScope) this).parent.getName());
+			Logger.log("\tParent Scope: " + ((BlockScope) this).parent.getName());
 		} else if (this instanceof StructTypeScope) {
-			System.out.println("\tParent Scope: " + ((StructTypeScope) this).parent.getName());
+			Logger.log("\tParent Scope: " + ((StructTypeScope) this).parent.getName());
 		}
-		System.out.println("\tReferences to: " + this.referenceNode);
-		System.out.println("\tSymbols:");
+		Logger.log("\tReferences to: " + this.referenceNode);
+		Logger.log("\tSymbols:");
 		List<String> keys = new ArrayList<String>(this.symbols.keySet());
 		//Collections.sort(keys);
 		for (String key : keys) {
-			System.out.println("\t\t" + this.symbols.get(key));
+			Logger.log("\t\t" + this.symbols.get(key));
 		}
-		System.out.println();
+		Logger.log("");
 	}
 
 	public String getName() {

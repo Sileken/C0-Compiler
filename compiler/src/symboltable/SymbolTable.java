@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import utils.*;
 
 import ast.*;
 import ast.definition.*;
@@ -98,11 +99,11 @@ public class SymbolTable {
     }
 
     public void listScopes() {
-        System.out.println("Listing Scopes:");
+        Logger.log("Listing Scopes:");
         List<String> keys = new ArrayList<String>(this.scopes.keySet());
         //Collections.sort(keys);
         for (String key : keys) {
-            System.out.println(this.scopes.get(key).getName());
+            Logger.log(this.scopes.get(key).getName());
             this.scopes.get(key).listSymbols();
         }
     }

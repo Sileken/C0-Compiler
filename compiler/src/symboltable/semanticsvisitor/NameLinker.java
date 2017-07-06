@@ -2,6 +2,7 @@ package symboltable.semanticsvisitor;
 
 import java.util.HashSet;
 import java.util.Set;
+import utils.*;
 
 import ast.*;
 import ast.statement.*;
@@ -49,11 +50,10 @@ public class NameLinker extends SemanticsVisitor {
 
 			if (resolvedDeclaration != null) {
 				((Name) node).setOriginalDeclaration(resolvedDeclaration);
-				System.out.println(
-						"Resolved " + name + " => " + resolvedDeclaration.getName() + "\tParent: " + node.getParent());
+				Logger.log("Resolved " + name + " => " + resolvedDeclaration.getName() + "\tParent: " + node.getParent());
 			} else {
 				throw new SymbolTableException("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
-				//System.out.println("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
+				//Logger.log("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
 			}
 		} 
 		return true;
