@@ -11,6 +11,7 @@ import ast.expression.primary.name.*;
 import ast.statement.*;
 import ast.definition.*;
 import ast.identifier.*;
+import utils.*;
 import java.util.Stack;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,6 @@ import java.util.List;
 
 public class TypeChecker extends SemanticsVisitor {
 
-	final boolean DEBUG_PRINT = false;
-         
 	// Indent: Types are pushed onto the stack if encountered and popped if something 
 	// has to be checked (e.g. a binary expression). The parsing is bottom-up, which means
 	// that types will be pushed onto the stack from LEAVES first.
@@ -48,20 +47,24 @@ public class TypeChecker extends SemanticsVisitor {
 	}
 
 	private void pushType(Type type) {
-		if(DEBUG_PRINT) System.out.println("> Pushing Type " + type.getFullyQualifiedName());
+		Logger.log("> Pushing Type " + type.getFullyQualifiedName());
 		this.typeStack.push(type);
 	}
 
 	private Type popType() {
 		Type type = this.typeStack.pop();
-		if(DEBUG_PRINT) System.out.println("Popping Type " + type.getFullyQualifiedName());
+		Logger.log("Popping Type " + type.getFullyQualifiedName());
 		return type;
 	}
 
 	@Override
 	public void willVisit(ASTNode node) throws SymbolTableException {
 
-		if(node instanceof FunctionDefinition)
+		if(node instanceof FileUnit)
+		{
+			Logger.setDebugEnabled(false);
+		}
+		else if(node instanceof FunctionDefinition)
 		{
 			currentFunctionReturnType = ((FunctionDefinition)node).getType();
 		}
@@ -90,24 +93,25 @@ public class TypeChecker extends SemanticsVisitor {
 				}
 				throw new TypeException("Type-Stack is not empty, something might be wrong.");
 			}
+			Logger.setDebugEnabled(false);
 		}
 	    else if(node instanceof PrimitiveType)
 		{
-			if(DEBUG_PRINT) System.out.print("@PrimitiveType ");
+			Logger.logNoNewline("@PrimitiveType ");
 			pushType((PrimitiveType)node);
 		}	
 		else if(node instanceof ArrayType)
 		{
 			// Pop the primitive-type and push the corresponding array-type
 			Type arrType = popType();
-			if(DEBUG_PRINT) System.out.print("@ArrayType ");
+			Logger.logNoNewline("@ArrayType ");
 			pushType((ArrayType)node);
 		}
 		else if(node instanceof ReferenceType)
 		{
 			// pop primitive type and push corresponding reference-type
 			Type primType = popType();
-			if(DEBUG_PRINT) System.out.print("@ReferenceType ");
+			Logger.logNoNewline("@ReferenceType ");
 			pushType((ReferenceType)node);
 		}	
 		else if(node instanceof ExpressionStatement)
@@ -155,7 +159,7 @@ public class TypeChecker extends SemanticsVisitor {
 			if(structDeclaration == null)
 				throw new TypeException("@StructType: Encountered unknown struct type '" + structTypeName + "'");
 
-			if(DEBUG_PRINT) System.out.print("@StructType ");
+			Logger.logNoNewline("@StructType ");
 			pushType((StructType)node);
 		}
 		else if(node instanceof FieldAccess)
@@ -179,7 +183,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type fieldType = symbol.getType();
 
-			if(DEBUG_PRINT) System.out.print("@FieldAccess ");
+			Logger.logNoNewline("@FieldAccess ");
 			pushType(fieldType);
 
 			// Add information to the AST
@@ -212,7 +216,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type fieldType = symbol.getType();
 
-			if(DEBUG_PRINT) System.out.print("@FieldDereferenceAccess ");
+			Logger.logNoNewline("@FieldDereferenceAccess ");
 			pushType(fieldType);
 
 			// Add information to the AST
@@ -291,7 +295,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			if(symbol != null)
 			{
-				if(DEBUG_PRINT) System.out.print("@Name: " + symbol.getName() + " ");
+				Logger.logNoNewline("@Name: " + symbol.getName() + " ");
 				pushType(symbol.getType());
 			}
 		}
@@ -315,7 +319,7 @@ public class TypeChecker extends SemanticsVisitor {
 			// Check if a function exists with the arguments and name
 			FileUnitScope fileUnitScope = table.getFileUnitScope();
 			String functionSignature = fileUnitScope.getSignatureOfFunction(funcName, argumentTypes);
-			if(DEBUG_PRINT) System.out.println(">>>>>> Function Signature: " + functionSignature);
+			Logger.log(">>>>>> Function Signature: " + functionSignature);
 
 			Symbol symbol = fileUnitScope.resolveFunctionSymbol(functionSignature);
 
@@ -331,7 +335,7 @@ public class TypeChecker extends SemanticsVisitor {
 			}
 
 			// Push function type on stack
-			if(DEBUG_PRINT) System.out.print("@MethodInvokeExpression: ");
+			Logger.logNoNewline("@MethodInvokeExpression: ");
 			Type functionType = symbol.getType();
 			pushType(functionType);	
 
@@ -349,7 +353,7 @@ public class TypeChecker extends SemanticsVisitor {
 			try
 			{
 				Type type = ((LiteralPrimary)node).getType();
-				if(DEBUG_PRINT) System.out.print("@LiteralPrimary ");
+				Logger.logNoNewline("@LiteralPrimary ");
 				pushType(type);
 			} catch(Exception e){ e.printStackTrace(); }
 		}
@@ -363,7 +367,7 @@ public class TypeChecker extends SemanticsVisitor {
 			if(!(type instanceof ArrayType))
 				throw new TypeException("@ArrayAccess: Expected array as type but got '" + type + "'");
 
-			if(DEBUG_PRINT) System.out.print("@ArrayAccess ");
+			Logger.logNoNewline("@ArrayAccess ");
 			pushType(((ArrayType)type).getType());
 		}
 		else if(node instanceof AssignmentExpression)
@@ -397,7 +401,7 @@ public class TypeChecker extends SemanticsVisitor {
 			}
 
 			// add var-type to the stack because assignments can be further processed e.g. (a = 5) * 10;
-			if(DEBUG_PRINT) System.out.print("@AssignmentExpression ");
+			Logger.logNoNewline("@AssignmentExpression ");
 			pushType(varType);
 
 			// Add type information to AST
@@ -417,7 +421,7 @@ public class TypeChecker extends SemanticsVisitor {
 				                        "' does not match with operator '" + op + "'");
 			}
 
-			if(DEBUG_PRINT) System.out.print("@BinaryExpression ");
+			Logger.logNoNewline("@BinaryExpression ");
 			pushType(resultType);
 
 			// Add type information to AST
@@ -435,7 +439,7 @@ public class TypeChecker extends SemanticsVisitor {
 				throw new TypeException("Unary operator '" + op + "' is not compatible with type '" + exprType + "'");
 			}
 
-			if(DEBUG_PRINT) System.out.print("@UnaryExpression ");
+			Logger.logNoNewline("@UnaryExpression ");
 			pushType(resultType);
 
 			// Add type information to AST
@@ -490,14 +494,14 @@ public class TypeChecker extends SemanticsVisitor {
 					throw new TypeException("2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
 				
 				// push a new array type to the stack
-				if(DEBUG_PRINT) System.out.print("@AllocExpression ");
+				Logger.logNoNewline("@AllocExpression ");
 				pushType(new ArrayType(allocType));
 			}else{
 				// alloc(type)
 				Type allocType = popType();
 
 				// push a new pointer type to the stack
-				if(DEBUG_PRINT) System.out.print("@AllocExpression ");
+				Logger.logNoNewline("@AllocExpression ");
 				pushType(new ReferenceType(allocType));
 			}
 		}

@@ -5,6 +5,7 @@ import ast.statement.*;
 import codegen.*;
 import symboltable.*;
 import symboltable.semanticsvisitor.*;
+import utils.*;
 
 public class C0Compiler {
   public static void main(String args[]) {
@@ -24,6 +25,8 @@ public class C0Compiler {
       System.out.println("C0 Compiler: Reading input from console.");
       parser = new C0Parser(System.in);
     }
+
+    Logger.setDebugEnabled(true);
 
     try {
       AST ast = parser.parseTree();
