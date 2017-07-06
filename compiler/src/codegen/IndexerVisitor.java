@@ -4,9 +4,8 @@ import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
 import ast.statement.*;
-import symboltable.*;
-import symboltable.semanticsvisitor.*;
-import utils.*;
+import ast.visitor.ASTVisitor;
+import utils.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,95 +19,83 @@ import java.util.Map;
  *  - FieldDefinition
  *  - VariableDeclaration
  * 
- * Based on the indexes the CodeGenerator will place and handle the Stackpointer
+ * Based on the indexes the CodeGenerator will place and handle the StackPointer
+ *
+ * Currently inefficiente local variables (declarations within a Block will be persistent)
  */
-public class IndexerVisitor extends SemanticsVisitor {
+public class IndexerVisitor extends ASTVisitor {
 
-    int globals = 0;
-	int fields = 0;
-	int locals = 0;
+    private int globals;			/* index for functions */
+	private int fields;				/* index for struct-fields */ 
+	private int parameters;			/* index for parameters (negative) */
+	private int locals;				/* index for local variables */
 
-	private int parameters = -1;
-
-	Map<Integer, Scope> globalList = new HashMap<Integer, Scope>();
-
-	public IndexerVisitor(SymbolTable table) {
-		super(table);
+	public IndexerVisitor() {
+		this.globals = -1;			/* global index begins at zero (will be incremented before used) */
+		this.fields = 0;			/* fields begin at index 1 (because of the addition with the register pointer) */
+		this.parameters = 0;		/* parameters begin at index -1 (will be decremented), same reason as fields */
+		this.locals = 0;			/* like fields */
     }
 
+	/* Ignore function and struct declarations, the important parts are the definitions */
     @Override
-	public void willVisit(ASTNode node) throws SymbolTableException {
-		super.willVisit(node);
+	public void willVisit(ASTNode node) throws Exception {
+
 		if (node instanceof FunctionDefinition) {
-            Logger.log("  [DEBUG] Set global index of FunctionDefinition " + node.getIdentifier() + " to " + globals);
-            globalList.put(globals, this.getCurrentScope());
+			globals++;
+            Logger.debug("Set global index of FunctionDefinition " + node.getIdentifier() + " to " + globals);
             ((FunctionDefinition) node).setIndex(globals);
-            globals++;
         }
 		else if (node instanceof StructDefinition) {
-			Logger.log("  [DEBUG] Set global index of StructDefinition " + node.getIdentifier() + " to " + globals);
-            globalList.put(globals, this.getCurrentScope());
-            ((StructDefinition) node).setIndex(globals);
             globals++;
+			Logger.debug("Set global index of StructDefinition " + node.getIdentifier() + " to " + globals);
+            ((StructDefinition) node).setIndex(globals);
         }
 	}
 
     @Override
-	public boolean visit(ASTNode node) throws SymbolTableException {
+	public boolean visit(ASTNode node) throws Exception {
 
 		if (node instanceof FunctionDefinition) {
-            
-            FunctionDefinition functionDefinition = (FunctionDefinition) node;
-            
-            // Get Parameters
-			for (VariableDeclaration param : functionDefinition.getParameters()) {
-                Logger.log("  [DEBUG] FunctionDefinition " + node.getIdentifier() + " param " + param.getIdentifier() + " index: " + parameters);
-				param.setIndex(parameters); 
-				parameters--;
+                        
+            // Set indexes for parameters
+			for (VariableDeclaration param : ((FunctionDefinition) node).getParameters()) {
+                parameters--;
+				param.setIndex(parameters);
+				Logger.debug("FunctionDefinition " + node.getIdentifier() + " param " + param.getIdentifier() + " index: " + parameters); 
 			}
-			Block body = functionDefinition.getFunctionBlock();
-			if (body != null) {
-                // getLocalVariable not supported... maybe not needed (codegen reserve space for all local variables)?
-                // will be set in didVisit ?
 
-				//List<VariableDeclaration> vars = functionDefinition.getFunctionBlock().getLocalVariable();
-				//if (vars != null)
-				//	functionDefinition.setTotalVariables(vars.size()); // TODO
-																					// REMOVE
-			}
 		}  else if (node instanceof StructDefinition) {
-            Logger.log("  [DEBUG] StructDefinition " + node.getIdentifier() + " visit");
-            // ...
+            Logger.debug("StructDefinition " + node.getIdentifier() + " visit");
+            // nothing to do ?
         } else if (node instanceof FieldDefinition) {
-				Logger.log("  [DEBUG] Set local Index of FieldDefinition " + node.getIdentifier() + " to " + fields);
-                ((FieldDefinition) node).setIndex(fields);
-				fields++;
+			fields++;
+			((FieldDefinition) node).setIndex(fields);
+			Logger.debug("Set local index of FieldDefinition " + node.getIdentifier() + " to " + fields);
 		}
-        // Problem with Parameters, will be double-checked for example, set index if it's not already set?
         else if (node instanceof VariableDeclaration) {
-            Logger.log("  [DEBUG] Set local Index of VariableDeclaration " + node.getIdentifier() + " to " + locals);
-			((VariableDeclaration) node).setIndex(locals);
-			locals++;
+			// Do not overwrite indexes (e.g. parameters are also VariableDeclaration's)
+			if ( ((VariableDeclaration) node).getIndex() == 0) {
+				locals++;
+				((VariableDeclaration) node).setIndex(locals);
+				Logger.debug("Set local index of VariableDeclaration " + node.getIdentifier() + " to " + locals);
+			}
 		}
 		return true;
     }
 
-    
 	@Override
-	public void didVisit(ASTNode node) throws SymbolTableException {
+	public void didVisit(ASTNode node) throws Exception {
 
 		if (node instanceof FunctionDefinition) {
-            Logger.log("  [DEBUG] Finished FunctionDefinition " + node.getIdentifier() + " with " + locals + " local variables");
+            Logger.debug("FunctionDefinition " + node.getIdentifier() + " contains " + Math.abs(parameters) + " parameters and " + locals + " local variables");
 			((FunctionDefinition) node).setTotalLocalVariables(locals);
 			locals = 0;
-			parameters = -1;
+			parameters = 0;
 		} else if (node instanceof StructDefinition) {
-            Logger.log("  [DEBUG] Finished StructDefinition " + node.getIdentifier() + " with " + fields + " local fields");
-            fields = 1;
+            Logger.debug("StructDefinition " + node.getIdentifier() + " contains " + fields + " fields");
+			((StructDefinition) node).setTotalFields(fields);
+            fields = 0;
         }
-
-		super.didVisit(node);
     }
-
-
 }

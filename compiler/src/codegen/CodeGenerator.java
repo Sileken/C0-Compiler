@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
+// guckst du handout.pdf S. 97 Codegenerierung Funktionen!
+// <LabelName>: enter q          // Instruktion muss in die selbe Zeile des Labels
+// alloc k
 
 public class CodeGenerator extends SemanticsVisitor {
 
-	protected static final String BOOLEAN_TRUE = "0xffffffff";
-	protected static final String BOOLEAN_FALSE = "0x0";
-	protected static final String NULL = "0x0";
+	protected static final String BOOLEAN_TRUE = "1"; // CMa returns Bool 0 or 1
+	protected static final String BOOLEAN_FALSE = "0";
+	protected static final String NULL = "0";
 
 	protected File asmFile = null;
 	protected static File startFile = null;

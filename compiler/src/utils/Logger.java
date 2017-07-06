@@ -22,5 +22,10 @@ public class Logger{
             System.out.print(s);
     }
 
+    public static void debug(String s)
+    {
+        if(DEBUG)
+            System.out.println("  [DEBUG] " + s);
+    }
 
 }

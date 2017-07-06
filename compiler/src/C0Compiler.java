@@ -36,7 +36,7 @@ public class C0Compiler {
       //table.listScopes(); 
       nameLinking(ast, table);
       typeChecking(ast, table);
-      indexing(ast, table);       // no error but unfinished
+      indexing(ast);       // no error but unfinished
       //generateCode(ast, table); // currently error
 
         
@@ -67,8 +67,8 @@ public class C0Compiler {
 		System.out.println("C0 Compiler: Type Checking finished");
   }
 
-  private static void indexing(AST ast, SymbolTable symbolTable) throws Exception {
-    ast.getRoot().accept(new IndexerVisitor(symbolTable));
+  private static void indexing(AST ast) throws Exception {
+    ast.getRoot().accept(new IndexerVisitor());
     System.out.println("C0 Compiler: Indexing finished");
   }
 
