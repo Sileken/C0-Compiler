@@ -31,13 +31,10 @@ public class CodeGenerator extends SemanticsVisitor {
 	protected static final String BOOLEAN_FALSE = "0";
 	protected static final String NULL = "0";
 
-	protected File asmFile = null;
+	protected File cmaFile = null;
 	protected static File startFile = null;
 	
 	protected List<String> texts = null;            /* list containing the final commands of the executable */
-	protected List<String> data = null;
-
-	protected static List<String> staticInit = new ArrayList<String>();
 
 	private String methodLabel = null;
 	private Integer literalCount = 0;
@@ -53,23 +50,14 @@ public class CodeGenerator extends SemanticsVisitor {
 
 
 	private void initialize() {
-		this.asmFile = null;
+		this.cmaFile = null;
 		this.texts = new ArrayList<String>();
-		this.data = new ArrayList<String>();
 		this.methodLabel = null;
 		this.literalCount = 0;
 		this.comparisonCount = 0;
 		this.loopCount = 0;
 		this.dereferenceVariable = true;
 		this.referenceCurrentObject = true;
-
-		this.texts.add("");
-		this.texts.add("section .text");
-		this.texts.add("");
-
-		this.data.add("");
-		this.data.add("section .data");
-		this.data.add("");
     }
     
 	@Override
@@ -77,36 +65,33 @@ public class CodeGenerator extends SemanticsVisitor {
 		super.willVisit(node);
 
 		if (node instanceof FileUnit) {
-            Logger.log("  [DEBUG]: Initialize CodeGenerator");
+            Logger.debug("Initialize CodeGenerator");
 			this.initialize();
-		} else if (node instanceof FunctionDefinition) {
-            Logger.log("  [DEBUG]: Preparing Function");
-			/* This is the relevant part from joos-compiler
-                commands have to be changed to our CMa 
+			String fileName = node.getIdentifier();
+			fileName = fileName.substring(0, fileName.indexOf('.'));
+			fileName += ".cma";
 
-            
-            this.methodLabel = methodLabel(this.getCurrentScope().getName());
+			this.cmaFile = new File(fileName);
 
-            this.texts.add("global " + this.methodLabel);
-            this.texts.add(this.methodLabel + ":");
+			this.texts.add("enter 4"); // is it always 4 ?
+			this.texts.add("alloc 1"); // always 1 ?
+			this.texts.add("mark");
+			this.texts.add("loadc _main()");
+			this.texts.add("call");
+			this.texts.add("halt");
+			this.texts.add("");
 
-            // Preamble
-            this.texts.add("push ebp\t\t\t; Preamble");
-            this.texts.add("mov ebp, esp");
+		} else if (node instanceof FunctionDefinition) {           
+            this.methodLabel = this.getCurrentScope().getName();
+            Logger.debug("Preparing Function " + methodLabel);
+			
+			int k = ((FunctionDefinition) node).getTotalLocalVariables();
+			int max = 150; 		// ToDo: calculate max (simple version: count arithmetic operations in body..)
+			int q = max + k;
 
-            // Allocate space for local variables
-            // Multiply by 4 because of the 32bit architecture
-            this.texts.add("sub esp, " + (((MethodDeclaration) node).totalLocalVariables * 4));
-
-            // Push registers
-            // this.texts.add("push eax"); // Leave eax as return value
-            this.texts.add("push ebx");
-            this.texts.add("push ecx");
-            this.texts.add("push edx");
-            this.texts.add("");
-
-
-            */
+            this.texts.add("_" + this.methodLabel + ":" + " enter " + q);
+            this.texts.add("alloc " + k);
+			
 		} else if (node instanceof StructDefinition) {
             Logger.log("  [DEBUG]: Preparing Struct");
             // like FunctionDeclaration
@@ -116,7 +101,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	// not all listed
     @Override
 	public boolean visit(ASTNode node) throws Exception {
-		Logger.log("  [DEBUG]: Visiting " + node);
+		Logger.debug("Visiting " + node);
 
 		if (node instanceof MethodInvokeExpression) {
 			this.generateMethodInvoke((MethodInvokeExpression) node);
@@ -160,7 +145,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		//return !this.complexNodes.contains(node.getClass());
-		return false;
+		return true;
 	}
 
 
@@ -168,30 +153,26 @@ public class CodeGenerator extends SemanticsVisitor {
 	public void didVisit(ASTNode node) throws SymbolTableException {
         // leaving FileUnit, write content on disk
 		if (node instanceof FileUnit) {
-            Logger.log("  [DEBUG]: writing content to: " + asmFile);        
-			File dir = this.asmFile.getParentFile();
+            Logger.debug("writing content to: " + cmaFile);        
+			File dir = this.cmaFile.getParentFile();
 
+			Logger.debug("Dir: " + dir);
 			if (dir != null) {
 				dir.mkdirs();
 			}
 
 			try {
-				this.asmFile.createNewFile();
+				this.cmaFile.createNewFile();
 			
-				BufferedWriter asmWriter = new BufferedWriter(new FileWriter(this.asmFile));
+				BufferedWriter asmWriter = new BufferedWriter(new FileWriter(this.cmaFile));
 
-				for (String line : this.texts) {
-					if (!line.startsWith("global") && !line.startsWith("section")) {
-						line = "\t" + line;
-						if (!line.endsWith(":")) {
-							line = "\t" + line;
-						}
+				for (int i = 0; i < texts.size(); i++) {
+					String line = texts.get(i);
+					
+					if (line.endsWith(":")) {
+						line += " " + texts.get(++i);	
 					}
-					asmWriter.write(line);
-					asmWriter.newLine();
-				}
-
-				for (String line : this.data) {
+					
 					asmWriter.write(line);
 					asmWriter.newLine();
 				}
@@ -202,35 +183,12 @@ public class CodeGenerator extends SemanticsVisitor {
 			}
 
 		} else if (node instanceof FunctionDefinition) {
-			
-            /*
-            pop registers
-
-            // Postamble
-            this.texts.add(this.methodLabel + "_END:");
-            // Pop registers
-            this.texts.add("pop edx\t\t\t\t; Postamble");
-            this.texts.add("pop ecx");
-            this.texts.add("pop ebx");
-            // this.texts.add("pop eax"); // Leave eax as return value
-
-            // Deallocate space for local variables
-            this.texts.add("add esp, " + (((MethodDeclaration) node).totalLocalVariables * 4));
-
-            // Restore frame pointer
-            this.texts.add("pop ebp");
-
-            if (this.methodLabel.equals("_start")) {
-                this.texts.add("call __debexit");
-            } else {
-                this.texts.add("ret");
-            }
+			this.texts.add("return");
             this.texts.add("");
-            
-            */
+
 		} else if (node instanceof ReturnStatement) {
 			// return to call function
-             this.texts.add("jmp " + this.methodLabel + "_END");
+             //this.texts.add("jmp " + this.methodLabel + "_END");
 		} else if (node instanceof StructDefinition) {
             // ...
         }
@@ -278,52 +236,56 @@ public class CodeGenerator extends SemanticsVisitor {
 		// ToDo
 	}
 
+    // Currently WhileStatement does not contain the inner-Block statement?
     private void generateWhileStatement(WhileStatement whileStatement) throws Exception {
 		Integer loopCount = this.loopCount++;
-		this.texts.add("__LOOP_CONDITION_" + loopCount + ":");
+		String loopName = "__LOOP_Name_" + loopCount;
+		String jumpMark = "__LOOP_END_" + loopCount;
 
+		this.texts.add(loopName + ":");
 		if(whileStatement.getWhileCondition() != null) {
 			whileStatement.getWhileCondition().accept(this);
 		} else {
-			this.texts.add("mov eax, " + BOOLEAN_TRUE);
+			this.texts.add("loadc " + BOOLEAN_TRUE);
 		}
 
-		this.texts.add("cmp eax, " + BOOLEAN_FALSE);
-		this.texts.add("je __LOOP_END_" + loopCount);
-        /* Currently WhileStatement does not contain the inner-Block statement?
+		this.texts.add("jumpz " + jumpMark);
 
-		this.texts.add("__LOOP_STATEMENT_" + loopCount + ":");
-		whileStatement.getWhileStatement().accept(this);
-		this.texts.add("jmp __LOOP_CONDITION_" + loopCount);
-        
-        */ 
-		this.texts.add("__LOOP_END_" + loopCount + ":");
+		//whileStatement.getWhileStatement().accept(this);
+		
+		this.texts.add("jump" + loopName);
+		this.texts.add(jumpMark + ":");
 	}
 
-    // Only the registers have to be changed
+    // Only the registers have to be changed <- LOL what a wrong comment
+	// Current Problem: the next instruction after ":" has to be in the same row
+	// maybe fix this problem for any method when wie print out the ArrayList
+	// like "if previous ends with ":", write next one in the same line (with space)"..
 	private void generateIfStatement(IfStatement ifStatement) throws Exception {
 		Integer conditionCount = this.conditionCount++;
+		String jumpMark = "";
 
-		this.texts.add("__IF_CONDITION_" + conditionCount + ":");
-		
+		if (ifStatement.getElseStatement() != null) {
+			jumpMark = "__ELSE_STATEMENT_" + conditionCount;
+		} else {
+			jumpMark = "__IF_END_" + conditionCount;
+		}
+
 		if(ifStatement.getIfCondition() != null) {
 			ifStatement.getIfCondition().accept(this);
 		} else {
-			this.texts.add("mov eax, " + BOOLEAN_TRUE);
+			this.texts.add("loadc" + BOOLEAN_TRUE);
 		}
 
-		this.texts.add("cmp eax, " + BOOLEAN_FALSE);
-		this.texts.add("je __ELSE_STATEMENT_" + conditionCount);
+		this.texts.add("jumpz " + jumpMark);
 
-		this.texts.add("__IF_STATEMENT_" + conditionCount + ":");
 		ifStatement.getIfStatement().accept(this);
-		this.texts.add("jmp __IF_END_" + conditionCount);
 
-		this.texts.add("__ELSE_STATEMENT_" + conditionCount + ":");
+		this.texts.add(jumpMark + ":");
+
 		if (ifStatement.getElseStatement() != null) {
 			ifStatement.getElseStatement().accept(this);
 		}
-		this.texts.add("__IF_END_" + conditionCount + ":");
     }
 
     private void generateFieldAccess(FieldAccess fieldAccess) throws Exception {

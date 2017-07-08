@@ -26,6 +26,12 @@ void main(){
         b +=1;
     }
 
+    if (a > b) {
+        int i = 0;
+    } else {
+        int i = 10;
+    }
+
     int funcRes = calculate();
 
     return;

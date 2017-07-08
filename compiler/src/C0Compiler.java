@@ -37,7 +37,7 @@ public class C0Compiler {
       nameLinking(ast, table);
       typeChecking(ast, table);
       indexing(ast);       // no error but unfinished
-      //generateCode(ast, table); // currently error
+      generateCode(ast, table); // currently error
 
         
     } catch (ParseException e) {
