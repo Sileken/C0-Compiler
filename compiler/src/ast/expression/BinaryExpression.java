@@ -10,7 +10,9 @@ public class BinaryExpression extends Expression {
 	}
 
     public Operator getOperator(){ return operator; }
-
+    public Expression getLeftOperand() { return leftOperand; }
+    public Expression getRightOperand() { return rightOperand; }
+    
     public BinaryExpression(Expression leftOperand, Operator operator, Expression rightOperand){
         super();
         

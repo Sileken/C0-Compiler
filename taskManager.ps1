@@ -4,7 +4,7 @@ Param(
 );
 
 $mainFileName = "C0Compiler.class";
-$userTestFile = "C0Code/codegen_test.c0";
+$userTestFile = "C0Code/codegen_simple.c0";
 $allTestFileFolder = "C0Code";
 
 Write-Host "Start running task $($task)" -foreground "green";

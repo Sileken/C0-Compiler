@@ -15,4 +15,7 @@ public class ReturnStatement extends Statement {
     }
 
     public boolean hasExpression(){ return this.expression != null; }
+    public Expression getExpression() {
+        return this.expression;
+    }
 }

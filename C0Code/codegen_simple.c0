@@ -1,0 +1,18 @@
+
+void main(){
+    
+    int a;
+    a = 1;
+
+    int b = 5 + a;
+
+    int i;
+
+    if (a > (b + 5)) {
+        i = 42;
+    } else {
+        i = 1337;
+    }
+
+    return;
+}

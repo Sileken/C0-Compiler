@@ -8,10 +8,12 @@ import symboltable.semanticsvisitor.*;
 import utils.*;
 
 public class C0Compiler {
+
   public static void main(String args[]) {
+
     C0Parser parser;
 
-    if (args.length == 1) {
+    if (args.length >= 1) {
       System.out.println("C0 Compiler: Reading from file " + args[0] + " . . .");
       try {
         parser = new C0Parser(args[0]);
@@ -36,8 +38,8 @@ public class C0Compiler {
       //table.listScopes(); 
       nameLinking(ast, table);
       typeChecking(ast, table);
-      indexing(ast);       // no error but unfinished
-      generateCode(ast, table); // currently error
+      indexing(ast);
+      generateCode(ast, table);
 
         
     } catch (ParseException e) {

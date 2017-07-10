@@ -36,4 +36,8 @@ public class LiteralPrimary extends Primary {
         return new PrimitiveType(primitive);
 	}
 
+    public String getValue() {
+        return value;
+    }
+
 }

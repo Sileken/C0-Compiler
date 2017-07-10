@@ -766,10 +766,13 @@ IfStatement IfStatement() :
 }
 
 WhileStatement WhileStatement() :
-{ Expression condition; }
+{ 
+  Expression condition;
+  Statement statement; 
+}
 {
-  <WHILE> <LPAREN> condition = Expression() <RPAREN> Statement()
-  { return new WhileStatement(condition); }
+  <WHILE> <LPAREN> condition = Expression() <RPAREN> statement = Statement()
+  { return new WhileStatement(condition, statement); }
 }
 
 ForStatement ForStatement() :

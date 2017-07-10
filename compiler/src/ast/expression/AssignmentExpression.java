@@ -15,6 +15,7 @@ public class AssignmentExpression extends Expression {
 	}
 
     public VariableDeclaration getVariableDeclaration(){ return variableDeclaration; }
+    public Expression getRightValue() { return rightExpression; }
     public Expression getLeftValue(){ return leftvalue; }
     public Operator getOperator() { return operator; }
 

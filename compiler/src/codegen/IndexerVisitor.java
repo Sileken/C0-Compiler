@@ -33,7 +33,7 @@ public class IndexerVisitor extends ASTVisitor {
 	public IndexerVisitor() {
 		this.globals = -1;			/* global index begins at zero (will be incremented before used) */
 		this.fields = 0;			/* fields begin at index 1 (because of the addition with the register pointer) */
-		this.parameters = 0;		/* parameters begin at index -1 (will be decremented), same reason as fields */
+		this.parameters = -2;		/* parameters begin at index -3 (will be decremented), previous EP and SP are stored */
 		this.locals = 0;			/* like fields */
     }
 
@@ -88,7 +88,7 @@ public class IndexerVisitor extends ASTVisitor {
 	public void didVisit(ASTNode node) throws Exception {
 
 		if (node instanceof FunctionDefinition) {
-            Logger.debug("FunctionDefinition " + node.getIdentifier() + " contains " + Math.abs(parameters) + " parameters and " + locals + " local variables");
+            Logger.debug("FunctionDefinition " + node.getIdentifier() + " contains " + (Math.abs(parameters) - 2) + " parameters and " + locals + " local variables");
 			((FunctionDefinition) node).setTotalLocalVariables(locals);
 			locals = 0;
 			parameters = 0;
