@@ -266,14 +266,18 @@ public class CodeGenerator extends SemanticsVisitor {
 			case GEQ:
 				this.texts.add("geq");
 				break;
-			/*case AND:
+			case AND:
 				this.texts.add("and");
 				break;
 			case OR:
 				this.texts.add("or");
 				break;
-			case 
-			BOR, BXOR, BAND, AND VS BAND etc.?  */ 
+			case BOR:
+				break;
+			case BXOR:
+				break;
+			case BAND:
+				break; 
 
 			default: break;
 		}
@@ -314,10 +318,13 @@ public class CodeGenerator extends SemanticsVisitor {
 				this.texts.add("mod");
 				break;
 			case ANDASSIGN:
+				this.texts.add("and");
 				break;
 			case ORASSIGN:
+				this.texts.add("or");
 				break;
 			case XORASSIGN:
+				this.texts.add("xor");
 				break;
 			default:
 				// Throw UnsupportedOperationException
@@ -397,7 +404,7 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		whileStatement.getWhileStatement().accept(this);
 		
-		this.texts.add("jump" + loopName);
+		this.texts.add("jump " + loopName);
 		this.texts.add(jumpMark + ":");
 	}
 

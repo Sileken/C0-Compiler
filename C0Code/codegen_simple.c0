@@ -8,7 +8,11 @@ void main(){
 
     int i;
 
-    if (a > (b + 5)) {
+    while (a < b) {
+        a = a + 2;
+    }
+
+    if (a > b) {
         i = 42;
     } else {
         i = 1337;
