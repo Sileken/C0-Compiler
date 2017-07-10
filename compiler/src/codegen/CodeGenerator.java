@@ -345,7 +345,9 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateReturnStatement(ReturnStatement returnStatement) throws Exception {
-		returnStatement.getExpression().accept(this);
+		if (returnStatement.getExpression() != null) {
+			returnStatement.getExpression().accept(this);
+		}
 		texts.add("storer -3"); // always -3 ??
 	}
 
