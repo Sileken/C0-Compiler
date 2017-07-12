@@ -2,14 +2,13 @@ package symboltable.semanticsvisitor;
 
 import java.util.Stack;
 
-import utils.*;
-
 import ast.*;
 import ast.declaration.*;
 import ast.definition.*;
 import ast.statement.*;
 import ast.visitor.*;
 import symboltable.*;
+import utils.*;
 
 public abstract class SemanticsVisitor extends ASTVisitor {
 	protected SymbolTable table;
@@ -27,13 +26,13 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 	}
 
 	protected void pushScope(Scope scope) {
-		Logger.debug("Pushing scope " + scope.toString());
+		Logger.trace("Pushing scope " + scope.toString());
 		this.viewStack.push(scope);
 	}
 
 	protected Scope popScope() {
 		Scope scope = this.viewStack.pop();
-		Logger.debug("Popping scope " + scope);
+		Logger.trace("Popping scope " + scope);
 		return scope;
 	}
 
@@ -55,9 +54,9 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 
 			Scope scope = this.table.getStructTypeScope(structTypeScopeName);
 			this.pushScope(scope);
-		}  else if ((node instanceof Block || node instanceof ForStatement)
+		} else if ((node instanceof Block || node instanceof ForStatement)
 				&& !((node instanceof Block && ((Block) node).getParent() instanceof FunctionDefinition)
-					|| (node instanceof Block && ((Block) node).getParent() instanceof ForStatement))) {
+						|| (node instanceof Block && ((Block) node).getParent() instanceof ForStatement))) {
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			String blockName = this.table.getBlockScopeName(currentScope, this.blockCount);
 			Scope scope = this.table.getBlockScope(blockName);
@@ -79,8 +78,8 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 			if (this.getCurrentScope() instanceof StructTypeScope) {
 				this.popScope();
 			}
-		} else if ((node instanceof Block || node instanceof ForStatement) 
-			&& !(node instanceof Block && ((Block) node).getParent() instanceof ForStatement)) {
+		} else if ((node instanceof Block || node instanceof ForStatement)
+				&& !(node instanceof Block && ((Block) node).getParent() instanceof ForStatement)) {
 			// leaving Block or Struct Type Scope or For Statemenet
 			this.popScope();
 		}

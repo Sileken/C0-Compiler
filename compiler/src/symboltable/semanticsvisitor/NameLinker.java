@@ -50,12 +50,14 @@ public class NameLinker extends SemanticsVisitor {
 
 			if (resolvedDeclaration != null) {
 				((Name) node).setOriginalDeclaration(resolvedDeclaration);
-				Logger.debug("Resolved " + name + " => " + resolvedDeclaration.getName() + "\tParent: " + node.getParent());
+				Logger.debug(
+						"Resolved " + name + " => " + resolvedDeclaration.getName() + "\tParent: " + node.getParent());
 			} else {
-				Logger.error("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
-				throw new SymbolTableException("Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"");
+				String errorMsg = "Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"";
+				Logger.error(errorMsg);
+				throw new SymbolTableException(errorMsg);
 			}
-		} 
+		}
 		return true;
 	}
 }

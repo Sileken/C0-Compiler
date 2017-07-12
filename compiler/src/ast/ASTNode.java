@@ -74,7 +74,7 @@ public abstract class ASTNode {
 			name += ": " + this.getIdentifier();
 		}
 
-		out += "\n" + name;
+		out += name;
 
 		for (int i = 0; i < this.childrenList.size(); i++) {
 			out += this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);

@@ -42,7 +42,8 @@ public class IndexerVisitor extends ASTVisitor {
 	public void willVisit(ASTNode node) throws Exception {
 		if (node instanceof FunctionDefinition || node instanceof StructDefinition) {
 			globals++;
-			Logger.debug("Set global index of " + node.getClass().getSimpleName() + " " + node.getIdentifier() + " to " + globals);
+			Logger.debug("Set global index of " + node.getClass().getSimpleName() + " " + node.getIdentifier() + " to "
+					+ globals);
 			((FunctionDefinition) node).setIndex(globals);
 		}
 	}

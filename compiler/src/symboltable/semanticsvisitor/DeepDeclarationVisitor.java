@@ -22,7 +22,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			String blockName = currentScope.getSignatureOfFunction((FunctionDefinition) node);
 			Scope scope = this.table.addBlockScope(blockName, currentScope, node);
-			
+
 			this.blockCount = 0;
 			this.pushScope(scope);
 		} else if (node instanceof StructDefinition) { // Add struct type scope to symboltable
@@ -34,7 +34,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			this.pushScope(scope);
 		} else if ((node instanceof Block || node instanceof ForStatement)
 				&& !((node instanceof Block && ((Block) node).getParent() instanceof FunctionDefinition)
-					|| (node instanceof Block && ((Block) node).getParent() instanceof ForStatement))) {
+						|| (node instanceof Block && ((Block) node).getParent() instanceof ForStatement))) {
 			// Add block scope to symboltable
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			String blockName = this.table.getBlockScopeName(currentScope, this.blockCount);
@@ -42,8 +42,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 
 			this.blockCount++;
 			this.pushScope(scope);
-		}
-		else {
+		} else {
 			super.willVisit(node);
 		}
 	}
@@ -53,21 +52,21 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			VariableDeclaration varDecl = (VariableDeclaration) node;
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 			currentScope.addVariableDeclaration(varDecl);
-		}
-		else if (node instanceof FieldDefinition) { // Add field definition as symbol to struct type scope
+		} else if (node instanceof FieldDefinition) { // Add field definition as symbol to struct type scope
 			FieldDefinition fieldDefinition = (FieldDefinition) node;
 			StructTypeScope currentScope = (StructTypeScope) this.getCurrentScope();
 			currentScope.addFieldDefinition(fieldDefinition);
 		}
 
-		return !(node instanceof VariableDeclaration || node instanceof FieldDefinition || node instanceof FunctionDeclaration); // Prevent child node processing
+		return !(node instanceof VariableDeclaration || node instanceof FieldDefinition
+				|| node instanceof FunctionDeclaration); // Prevent child node processing
 	}
 
 	@Override
 	public void didVisit(ASTNode node) throws SymbolTableException {
 		super.didVisit(node);
-	
-		if (node instanceof VariableDeclaration) { 	// Add type to vairable declaration
+
+		if (node instanceof VariableDeclaration) { // Add type to vairable declaration
 			Type type = ((VariableDeclaration) node).getType();
 			if (type == null) {
 				return;
@@ -75,8 +74,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 			BlockScope enclosingScope = (BlockScope) this.getCurrentScope();
 			Symbol symbol = enclosingScope.getVariableDeclaration((VariableDeclaration) node);
 			symbol.setType(type);
-		}
-		else if (node instanceof FieldDefinition){ 	// Add type to field declaration
+		} else if (node instanceof FieldDefinition) { // Add type to field declaration
 			Type type = ((FieldDefinition) node).getType();
 			if (type == null) {
 				return;

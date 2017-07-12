@@ -24,7 +24,7 @@ public class GlobalDeclarationAndDefinitionVisitor extends SemanticsVisitor {
 	}
 
 	public boolean visit(ASTNode node) throws SymbolTableException {
-		if (node instanceof StructDeclaration) {  // Add struct declaration as symbol to file unit scope
+		if (node instanceof StructDeclaration) { // Add struct declaration as symbol to file unit scope
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			currentScope.addStructDeclaration((StructDeclaration) node);
 		} else if (node instanceof FunctionDeclaration) { // Add function declaration as symbol to file unit scope
@@ -43,50 +43,47 @@ public class GlobalDeclarationAndDefinitionVisitor extends SemanticsVisitor {
 	}
 
 	public void didVisit(ASTNode node) throws SymbolTableException {
-		super.didVisit(node); 
+		super.didVisit(node);
 
-		if(node instanceof StructDeclaration){ // Add type to struct declaration
+		if (node instanceof StructDeclaration) { // Add type to struct declaration
 			Type type = ((StructDeclaration) node).getType();
 			if (type == null) {
 				return;
 			}
 
 			FileUnitScope enclosingScope = (FileUnitScope) this.getCurrentScope();
-			Symbol symbol = enclosingScope.resolveStructSymbol(enclosingScope.getDeclarationPrefix() 
-				+ ((StructDeclaration) node).getName().getName());    
+			Symbol symbol = enclosingScope.resolveStructSymbol(
+					enclosingScope.getDeclarationPrefix() + ((StructDeclaration) node).getName().getName());
 			symbol.setType(type);
-		}	
-		else if(node instanceof FunctionDeclaration){ // Add type to function declaration
+		} else if (node instanceof FunctionDeclaration) { // Add type to function declaration
 			Type type = ((FunctionDeclaration) node).getType();
 			if (type == null) {
 				return;
 			}
 
 			FileUnitScope enclosingScope = (FileUnitScope) this.getCurrentScope();
-			Symbol symbol = enclosingScope.resolveFunctionSymbol(enclosingScope.getDeclarationPrefix() 
-				+  enclosingScope.getSignatureOfFunction((FunctionDeclaration) node));
+			Symbol symbol = enclosingScope.resolveFunctionSymbol(enclosingScope.getDeclarationPrefix()
+					+ enclosingScope.getSignatureOfFunction((FunctionDeclaration) node));
 			symbol.setType(type);
-		}	
-		else if(node instanceof FunctionDefinition){ // Add type to function definition
+		} else if (node instanceof FunctionDefinition) { // Add type to function definition
 			Type type = ((FunctionDefinition) node).getType();
 			if (type == null) {
 				return;
 			}
 
 			FileUnitScope enclosingScope = (FileUnitScope) this.getCurrentScope();
-			Symbol symbol = enclosingScope.resolveFunctionSymbol(enclosingScope.getDefinitionPrefix() + 
-				enclosingScope.getSignatureOfFunction((FunctionDefinition) node));
+			Symbol symbol = enclosingScope.resolveFunctionSymbol(enclosingScope.getDefinitionPrefix()
+					+ enclosingScope.getSignatureOfFunction((FunctionDefinition) node));
 			symbol.setType(type);
-		}
-		else if(node instanceof StructDefinition){ // Add type to struct definition
+		} else if (node instanceof StructDefinition) { // Add type to struct definition
 			Type type = ((StructDefinition) node).getType();
 			if (type == null) {
 				return;
 			}
 
 			FileUnitScope enclosingScope = (FileUnitScope) this.getCurrentScope();
-			Symbol symbol = enclosingScope.resolveStructSymbol(enclosingScope.getDefinitionPrefix() 
-				+ ((StructDefinition) node).getName().getName());
+			Symbol symbol = enclosingScope.resolveStructSymbol(
+					enclosingScope.getDefinitionPrefix() + ((StructDefinition) node).getName().getName());
 			symbol.setType(type);
 		}
 	}

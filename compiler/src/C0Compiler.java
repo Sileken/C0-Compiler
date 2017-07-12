@@ -23,22 +23,24 @@ public class C0Compiler {
       AST ast = parser.parseTree();
 
       if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
-        Logger.log("Listing AST:");
+        Logger.log("\nListing AST:");
         Logger.log(ast.PrintPretty());
+        Logger.log("\nFinished listing AST");
       }
 
       final SymbolTable table = new SymbolTable();
       typeLinking(ast, table);
 
       if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
-        Logger.log("Listing Scopes:");
+        Logger.log("\nListing Scopes:");
         Logger.log(table.listScopes());
+        Logger.log("\nFinished listing Scopes");
       }
 
       nameLinking(ast, table);
       typeChecking(ast, table);
       indexing(ast);
-      generateCode(ast, table);
+      generateCode(ast, table);  
     } catch (ParseException parseException) {
       Logger.log(compilerName + ": Encountered errors during parse.");
       parseException.printStackTrace();
@@ -76,6 +78,7 @@ public class C0Compiler {
     ast.getRoot().accept(new GlobalDeclarationAndDefinitionVisitor(symbolTable));
     Logger.debug(compilerName + ": Typ Linking for Global Declarations finished");
 
+    Logger.log("");
     Logger.debug(compilerName + ": Typ Linking for Deep Declarations startet");
     ast.getRoot().accept(new DeepDeclarationVisitor(symbolTable));
     Logger.debug(compilerName + ": Typ Linking for Deep Declarations finished");
