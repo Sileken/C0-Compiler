@@ -8,16 +8,10 @@ public class ForStatement extends Statement {
     private Expression increment;
     private Statement statement;
 
-    public boolean hasInitializer(){ return initialization != null; }
-
-    public Expression getInitialization(){ return initialization; }
-    public Expression getCondition(){ return condition; }
-    public Expression getIncrement(){ return increment; }
-
-    public ForStatement(Expression initialization, Expression condition, Expression increment, Statement statement){
+    public ForStatement(Expression initialization, Expression condition, Expression increment, Statement statement) {
         super();
 
-        if(initialization != null){
+        if (initialization != null) {
             this.initialization = initialization;
             this.addChild(this.initialization);
         }
@@ -25,7 +19,7 @@ public class ForStatement extends Statement {
         this.condition = condition;
         this.addChild(this.condition);
 
-        if(increment != null){
+        if (increment != null) {
             this.increment = increment;
             this.addChild(this.increment);
         }
@@ -33,4 +27,21 @@ public class ForStatement extends Statement {
         this.statement = statement;
         this.addChild(this.statement);
     }
+
+    public boolean hasInitializer() {
+        return initialization != null;
+    }
+
+    public Expression getInitialization() {
+        return initialization;
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public Expression getIncrement() {
+        return increment;
+    }
+
 }

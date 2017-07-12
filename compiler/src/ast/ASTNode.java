@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ast.visitor.ASTVisitor;
+import utils.*;
 
 public abstract class ASTNode {
 	protected ASTNode parent = null;
@@ -43,9 +44,10 @@ public abstract class ASTNode {
 	}
 
 	public final void accept(ASTVisitor visitor) throws Exception {
+		Logger.trace("Will visit <" + this.getClass().getSimpleName() + ">");
 		visitor.willVisit(this);
-		//System.out.println("Visiting <" + this.getClass().getSimpleName() + ">");
 
+		Logger.trace("Visiting <" + this.getClass().getSimpleName() + ">");
 		if (visitor.visit(this)) {
 			for (ASTNode childNode : this.childrenList) {
 				childNode.accept(visitor);
@@ -53,28 +55,32 @@ public abstract class ASTNode {
 		}
 
 		visitor.didVisit(this);
+		Logger.trace("Did visit <" + this.getClass().getSimpleName() + ">");
 	}
 
-	public void PrintPretty(String indent, boolean last) {
-		System.out.print(indent);
+	public String PrintPretty(String indent, boolean last) {
+		String out = "\n" + indent;
+
 		if (last) {
-			System.out.print("\\-");
+			out += "\\-";
 			indent += "  ";
 		} else {
-			System.out.print("|-");
+			out += "|-";
 			indent += "| ";
 		}
 
 		String name = this.getClass().getSimpleName();
-		if(this.getIdentifier() != null && !this.getIdentifier().trim().isEmpty()){
+		if (this.getIdentifier() != null && !this.getIdentifier().trim().isEmpty()) {
 			name += ": " + this.getIdentifier();
 		}
 
-		System.out.println(name);
+		out += "\n" + name;
 
 		for (int i = 0; i < this.childrenList.size(); i++) {
-			this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);
+			out += this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);
 		}
+
+		return out;
 	}
 
 	public List<ASTNode> getChildren() {

@@ -6,16 +6,12 @@ public class BinaryExpression extends Expression {
     private Expression rightOperand;
 
     public static enum Operator {
-		OR, AND, BOR, BXOR, BAND, EQ, NEQ, LT, GT, LEQ, GEQ, PLUS, MINUS, STAR, SLASH, REM  
-	}
+        OR, AND, BOR, BXOR, BAND, EQ, NEQ, LT, GT, LEQ, GEQ, PLUS, MINUS, STAR, SLASH, REM
+    }
 
-    public Operator getOperator(){ return operator; }
-    public Expression getLeftOperand() { return leftOperand; }
-    public Expression getRightOperand() { return rightOperand; }
-    
-    public BinaryExpression(Expression leftOperand, Operator operator, Expression rightOperand){
+    public BinaryExpression(Expression leftOperand, Operator operator, Expression rightOperand) {
         super();
-        
+
         this.leftOperand = leftOperand;
         this.addChild(this.leftOperand);
 
@@ -23,5 +19,17 @@ public class BinaryExpression extends Expression {
 
         this.rightOperand = rightOperand;
         this.addChild(this.rightOperand);
+    }
+    
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public Expression getLeftOperand() {
+        return leftOperand;
+    }
+
+    public Expression getRightOperand() {
+        return rightOperand;
     }
 }

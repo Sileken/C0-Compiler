@@ -5,6 +5,7 @@ import ast.definition.*;
 import ast.declaration.*;
 import ast.type.*;
 import ast.expression.primary.name.*;
+import utils.*;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class FileUnitScope extends Scope {
     public String getDeclarationPrefix() {
         return this.declarationPrefix;
     }
-    
+
     public String getDefinitionPrefix() {
         return this.definitionPrefix;
     }
@@ -28,11 +29,15 @@ public class FileUnitScope extends Scope {
         String symbolName = structDecl.getName().getName();
         String symbolNameWithDeclPrefix = this.getDeclarationPrefix() + symbolName;
         String symbolNameWithDefPrefix = this.getDefinitionPrefix() + symbolName;
-        
+
         if (this.symbols.containsKey(symbolNameWithDeclPrefix)) {
-            throw new SymbolTableException("Duplicate Struct Declaration: " + symbolNameWithDeclPrefix);
-        } else if(this.symbols.containsKey(symbolNameWithDefPrefix)){
-            throw new SymbolTableException("Struct Definition already exists: " + symbolNameWithDefPrefix);
+            String errorMsg = "Duplicate Struct Declaration: " + symbolNameWithDeclPrefix;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
+        } else if (this.symbols.containsKey(symbolNameWithDefPrefix)) {
+            String errorMsg = "Struct Definition already exists: " + symbolNameWithDefPrefix;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
         }
 
         Symbol symbol = new Symbol(symbolNameWithDeclPrefix, structDecl, this);
@@ -42,14 +47,18 @@ public class FileUnitScope extends Scope {
     public void addFunctionDeclaration(FunctionDeclaration functionDecl) throws SymbolTableException {
         String symbolName = getSignatureOfFunction(functionDecl.getName().getName(), functionDecl.getParameterTypes());
         String symbolNameWithDeclPrefix = this.getDeclarationPrefix() + symbolName;
-        String symbolNameWithDefPrefix = this.getDefinitionPrefix() + symbolName;
+        String symbolNameWithDefPrefix = this.getDefinitionPrefix()  + symbolName;
 
         if (this.symbols.containsKey(symbolNameWithDeclPrefix)) {
-            throw new SymbolTableException("Duplicate Function Declaration: " + symbolNameWithDeclPrefix);
-        } else if(this.symbols.containsKey(symbolNameWithDefPrefix)){
-            throw new SymbolTableException("Function Definition already exists: " + symbolNameWithDefPrefix);
+            String errorMsg = "Duplicate Function Declaration: " + symbolNameWithDeclPrefix;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
+        } else if (this.symbols.containsKey(symbolNameWithDefPrefix)) {
+            String errorMsg = "Function Definition already exists: " + symbolNameWithDefPrefix;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
         }
-        
+
         Symbol symbol = new Symbol(symbolNameWithDeclPrefix, functionDecl, this);
         this.putSymbol(symbolNameWithDeclPrefix, symbol);
     }
@@ -59,19 +68,23 @@ public class FileUnitScope extends Scope {
         String symbolNameWithDefPrefix = this.getDefinitionPrefix() + symbolName;
 
         if (this.symbols.containsKey(symbolName)) {
-            throw new SymbolTableException("Duplicate Struct Definition: " + symbolNameWithDefPrefix);
+            String errorMsg = "Duplicate Struct Definition: " + symbolNameWithDefPrefix;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
         }
 
         Symbol symbol = new Symbol(symbolNameWithDefPrefix, structDef, this);
         this.putSymbol(symbolNameWithDefPrefix, symbol);
     }
-    
+
     public void addFunctionDefinition(FunctionDefinition functionDef) throws SymbolTableException {
         String symbolName = getSignatureOfFunction(functionDef);
         String symbolNameWithDefPrefix = this.getDefinitionPrefix() + symbolName;
-    
+
         if (this.symbols.containsKey(symbolNameWithDefPrefix)) {
-            throw new SymbolTableException("Duplicate Function Definition: " + symbolNameWithDefPrefix);
+            String errorMsg = "Duplicate Function Definition: " + symbolNameWithDefPrefix;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
         }
 
         Symbol symbol = new Symbol(symbolNameWithDefPrefix, functionDef, this);
@@ -109,7 +122,7 @@ public class FileUnitScope extends Scope {
         return symbol;
     }
 
-    public Symbol resolveStructSymbol(String structName)  throws SymbolTableException {
+    public Symbol resolveStructSymbol(String structName) throws SymbolTableException {
         Symbol symbol = null;
         // suffix to find definition or declaration
         List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), structName);

@@ -1,6 +1,5 @@
 package ast.type;
 
-
 public class ReferenceType extends Type {
     private Type innerType;
 

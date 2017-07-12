@@ -11,30 +11,36 @@ public class LiteralPrimary extends Primary {
         BOOLLIT, INTLIT, NULL
     }
 
-    public LiteralPrimary(LiteralType literalType, Token token){
+    public LiteralPrimary(LiteralType literalType, Token token) {
         super();
 
         this.literalType = literalType;
         this.value = token.image;
     }
 
-    public LiteralType getLiteralType()
-    {
+    public LiteralType getLiteralType() {
         return literalType;
     }
 
-	@Override
+    @Override
     public Type getType() {
         PrimitiveType.Primitive primitive = null;
-        switch(this.getLiteralType()) {
-            case BOOLLIT: primitive = PrimitiveType.Primitive.BOOL; break;
-            case INTLIT:  primitive = PrimitiveType.Primitive.INT;  break;
-            case NULL:    return new NullType(); 
-            default:      
-                break;
+        
+        switch (this.getLiteralType()) {
+        case BOOLLIT:
+            primitive = PrimitiveType.Primitive.BOOL;
+            break;
+        case INTLIT:
+            primitive = PrimitiveType.Primitive.INT;
+            break;
+        case NULL:
+            return new NullType();
+        default:
+            break;
         }
+
         return new PrimitiveType(primitive);
-	}
+    }
 
     public String getValue() {
         return value;

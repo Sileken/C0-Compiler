@@ -35,9 +35,11 @@ import ast.expression.primary.name.*;
 import ast.identifier.*;
 import ast.statement.*;
 import ast.type.*;
+import utils.*;
 
 public class C0Parser {
   private static String parsingFileName = "System.in";
+  private static String compilerName = "C0 Compiler";
 
   public C0Parser(String filePath) throws java.io.FileNotFoundException {
     this(new java.io.FileInputStream(filePath), null);
@@ -198,12 +200,16 @@ AST parseTree() :
   FileUnit rootNode;
 }
 {
+  {
+    Logger.log("\n" + compilerName + ": Parsing startet");
+    Logger.log(compilerName + ": Abstract syntax tree constructing");  
+  }
   rootNode = prog() <EOF> 
   {
     AST ast = new AST();
     ast.setRoot(rootNode);
-    System.out.println("C0 Compiler: Parsing finished");
-    System.out.println("C0 Compiler: Abstract syntax tree constructed");  
+    Logger.log(compilerName + ": Abstract syntax tree constructed");  
+    Logger.log(compilerName + ": Parsing finished");
     return ast;
   }
 }

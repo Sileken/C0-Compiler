@@ -28,19 +28,23 @@ public class Scope {
 		this.symbols.put(key, symbol);
 	}
 
-	public void listSymbols() {
+	public String listSymbols() {
+		String out = "";
+
 		if (this instanceof BlockScope) {
-			Logger.log("\tParent Scope: " + ((BlockScope) this).parent.getName());
+			out += "\n\tParent Scope: " + ((BlockScope) this).parent.getName();
 		} else if (this instanceof StructTypeScope) {
-			Logger.log("\tParent Scope: " + ((StructTypeScope) this).parent.getName());
+			out += "\n\tParent Scope: " + ((StructTypeScope) this).parent.getName();
 		}
-		Logger.log("\tReferences to: " + this.referenceNode);
-		Logger.log("\tSymbols:");
+		out += "\n\tReferences to: " + this.referenceNode;
+		out += "\n\tSymbols:";
 		List<String> keys = new ArrayList<String>(this.symbols.keySet());
 		for (String key : keys) {
-			Logger.log("\t\t" + this.symbols.get(key));
+			out += "\n\t\t" + this.symbols.get(key);
 		}
-		Logger.log("");
+		out += "\n";
+
+		return out;
 	}
 
 	public String getName() {
@@ -54,6 +58,7 @@ public class Scope {
 				matchedSymbols.add(entry);
 			}
 		}
+		
 		return matchedSymbols;
 	}
 

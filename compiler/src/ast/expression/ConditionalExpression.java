@@ -5,9 +5,9 @@ public class ConditionalExpression extends Expression {
     private Expression trueExpression;
     private Expression falseExpression;
 
-    public ConditionalExpression(Expression condition, Expression trueExpression, Expression falseExpression ){
+    public ConditionalExpression(Expression condition, Expression trueExpression, Expression falseExpression) {
         super();
-        
+
         this.condition = condition;
         this.addChild(this.condition);
 

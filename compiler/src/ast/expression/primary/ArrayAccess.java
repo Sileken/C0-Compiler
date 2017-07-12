@@ -5,7 +5,7 @@ import ast.expression.Expression;
 public class ArrayAccess extends Primary {
     Expression indexExpression;
 
-    public ArrayAccess(Expression indexExpression){
+    public ArrayAccess(Expression indexExpression) {
         super();
 
         this.indexExpression = indexExpression;
@@ -13,8 +13,8 @@ public class ArrayAccess extends Primary {
     }
 
     // Override method to return the prefix name (which is the array-name)
-    @Override public String getIdentifier()
-    {
+    @Override
+    public String getIdentifier() {
         Primary prefix = getPrefix();
         return prefix.getIdentifier();
     }

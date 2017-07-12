@@ -5,6 +5,7 @@ import ast.definition.*;
 import ast.identifier.*;
 import ast.type.*;
 import symboltable.*;
+import utils.*;
 
 import java.util.List;
 
@@ -29,7 +30,9 @@ public class StructTypeScope extends Scope {
         Symbol symbol = new Symbol(symbolName, fieldDef, this);
 
         if (this.symbols.containsKey(symbolName)) {
-            throw new SymbolTableException("Duplicate Field Definition: " + symbolName);
+            String errorMsg = "Duplicate Field Definition: " + symbolName;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
         }
 
         this.putSymbol(symbolName, symbol);

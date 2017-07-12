@@ -1,6 +1,7 @@
 package ast.type;
 
 import parser.*;
+import utils.*;
 
 public class PrimitiveType extends Type {
 	public static enum Primitive {
@@ -17,7 +18,7 @@ public class PrimitiveType extends Type {
 
 	public PrimitiveType(Primitive type) {
 		super();
-		
+
 		this.type = type;
 	}
 
@@ -26,6 +27,9 @@ public class PrimitiveType extends Type {
 			if (type.name().equals(name))
 				return type;
 		}
+
+		String errorMsg = "Unknown primitive type " + name;
+		Logger.error(errorMsg);
 		throw new ParseException("Unknown primitive type " + name);
 	}
 

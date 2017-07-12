@@ -44,8 +44,8 @@ public class FunctionDefinition extends Definition {
   }
 
   public Type getType() {
-		return returnType;
-	}
+    return returnType;
+  }
 
   public Block getFunctionBlock() {
     return block;

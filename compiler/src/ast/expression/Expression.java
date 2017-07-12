@@ -11,15 +11,11 @@ public abstract class Expression extends ASTNode {
         exprType = null;
     }
 
-
-    public Type getType()
-    {
+    public Type getType() {
         return exprType;
     }
 
-    public void setType(Type type)
-    {
+    public void setType(Type type) {
         exprType = type;
     }
-
 }

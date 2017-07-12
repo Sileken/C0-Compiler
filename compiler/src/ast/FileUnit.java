@@ -14,7 +14,7 @@ public class FileUnit extends ASTNode {
 
         this.setIdentifier(fileName);
 
-        if(globalDeclAndDef != null && !globalDeclAndDef.isEmpty()){
+        if (globalDeclAndDef != null && !globalDeclAndDef.isEmpty()) {
             this.globalDeclAndDef = globalDeclAndDef;
             this.addChilds(this.globalDeclAndDef);
         }

@@ -1,10 +1,9 @@
 
 package ast.type;
 
-public class NullType extends Type{
+public class NullType extends Type {
 
-    public NullType()
-    {
+    public NullType() {
         super();
     }
 

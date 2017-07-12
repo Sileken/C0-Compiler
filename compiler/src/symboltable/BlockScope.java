@@ -7,6 +7,7 @@ import ast.declaration.*;
 import ast.statement.*;
 import ast.expression.primary.name.*;
 import symboltable.*;
+import utils.*;
 
 public class BlockScope extends Scope {
     protected Scope parent;
@@ -25,7 +26,9 @@ public class BlockScope extends Scope {
 
         Symbol duplicatedSymbol = this.getVariableDeclaration(variableDecl);
         if (duplicatedSymbol != null && !(duplicatedSymbol.getNode().getParent() instanceof ForStatement)) {
-            throw new SymbolTableException("Duplicate Variable Declaration of " + symbolName);
+            String errorMsg = "Duplicate Variable Declaration of " + symbolName;
+            Logger.error(errorMsg);
+            throw new SymbolTableException(errorMsg);
         }
 
         Symbol symbol = new Symbol(symbolName, variableDecl, this);
@@ -44,6 +47,7 @@ public class BlockScope extends Scope {
         if (result == null && this.parent instanceof BlockScope) {
             result = ((BlockScope) this.parent).resolveVariableDeclaration(name);
         }
+
         return result;
     }
 
@@ -51,12 +55,14 @@ public class BlockScope extends Scope {
         if (name instanceof SimpleName) {
             List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), "." + name.getName());
             if (matchedSymbols.size() > 1) {
-                throw new SymbolTableException(
-                        "Resolved variable " + name.getName() + " to multiple definition " + matchedSymbols);
+                String errorMsg = "Resolved variable " + name.getName() + " to multiple definition " + matchedSymbols;
+                Logger.error(errorMsg);
+                throw new SymbolTableException(errorMsg);
             } else if (matchedSymbols.size() == 1) {
                 return matchedSymbols.get(0);
             }
         }
+
         return null;
     }
 }

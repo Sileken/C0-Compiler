@@ -6,9 +6,9 @@ public class WhileStatement extends Statement {
     private Expression condition;
     private Statement statement;
 
-    public WhileStatement(Expression condition, Statement statement){
+    public WhileStatement(Expression condition, Statement statement) {
         super();
-        
+
         this.condition = condition;
         this.statement = statement;
         this.addChild(this.condition);

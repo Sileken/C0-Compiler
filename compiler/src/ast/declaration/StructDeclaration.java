@@ -3,17 +3,17 @@ package ast.declaration;
 import ast.identifier.*;
 import ast.type.*;
 
-public class StructDeclaration extends Declaration {   
+public class StructDeclaration extends Declaration {
     private StructType structType;
 
-    public StructDeclaration(StructType structType, StructIdentifier structId){
+    public StructDeclaration(StructType structType, StructIdentifier structId) {
         super(structId);
-        
+
         this.structType = structType;
         this.addChild(this.structType);
     }
 
     public Type getType() {
-		return structType;
-	}
+        return structType;
+    }
 }

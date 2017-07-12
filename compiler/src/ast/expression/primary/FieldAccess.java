@@ -12,5 +12,7 @@ public class FieldAccess extends Primary {
         this.addChild(fieldIdentifier);
     }
 
-    public FieldIdentifier getFieldIdentifier(){ return fieldIdentifier; }
+    public FieldIdentifier getFieldIdentifier() {
+        return fieldIdentifier;
+    }
 }

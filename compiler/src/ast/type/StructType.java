@@ -22,8 +22,7 @@ public class StructType extends Type {
         return "struct " + this.structTypeIdentifier.getName();
     }
 
-    public String getScopeName()
-    {
+    public String getScopeName() {
         return "struct." + structTypeIdentifier.getName();
     }
 }

@@ -11,13 +11,13 @@ public abstract class Name extends Primary {
     }
 
     public abstract String getName();
-    
-    public Symbol getOriginalDeclaration() {
-		return originalDeclaration;
-	}
 
-	public void setOriginalDeclaration(Symbol originalDeclaration) {
-		this.originalDeclaration = originalDeclaration;
-	}
+    public Symbol getOriginalDeclaration() {
+        return originalDeclaration;
+    }
+
+    public void setOriginalDeclaration(Symbol originalDeclaration) {
+        this.originalDeclaration = originalDeclaration;
+    }
 
 }

@@ -3,23 +3,19 @@ package ast.expression;
 import parser.*;
 import ast.declaration.*;
 import ast.expression.primary.Primary;
+import utils.*;
 
 public class AssignmentExpression extends Expression {
     private Expression leftvalue;
     private VariableDeclaration variableDeclaration;
     private Operator operator;
     private Expression rightExpression;
-    
+
     public static enum Operator {
-		ASSIGN, PLUSASSIGN, MINUSASSIGN, STARASSIGN, SLASHASSIGN, REMASSIGN, ANDASSIGN, XORASSIGN, ORASSIGN
-	}
+        ASSIGN, PLUSASSIGN, MINUSASSIGN, STARASSIGN, SLASHASSIGN, REMASSIGN, ANDASSIGN, XORASSIGN, ORASSIGN
+    }
 
-    public VariableDeclaration getVariableDeclaration(){ return variableDeclaration; }
-    public Expression getRightValue() { return rightExpression; }
-    public Expression getLeftValue(){ return leftvalue; }
-    public Operator getOperator() { return operator; }
-
-    public AssignmentExpression(Expression leftvalue, Operator operator, Expression rightExpression){
+    public AssignmentExpression(Expression leftvalue, Operator operator, Expression rightExpression) {
         super();
 
         this.leftvalue = leftvalue;
@@ -31,7 +27,7 @@ public class AssignmentExpression extends Expression {
         this.addChild(this.rightExpression);
     }
 
-    public AssignmentExpression(VariableDeclaration variableDeclaration, Expression rightExpression){
+    public AssignmentExpression(VariableDeclaration variableDeclaration, Expression rightExpression) {
         super();
 
         this.variableDeclaration = variableDeclaration;
@@ -43,39 +39,57 @@ public class AssignmentExpression extends Expression {
         this.addChild(this.rightExpression);
     }
 
-    public static Operator parseOperator(Token token) throws ParseException{
+    public VariableDeclaration getVariableDeclaration() {
+        return variableDeclaration;
+    }
+
+    public Expression getRightValue() {
+        return rightExpression;
+    }
+
+    public Expression getLeftValue() {
+        return leftvalue;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public static Operator parseOperator(Token token) throws ParseException {
         Operator parsedOperator;
 
-        switch(token.image){
-            case "=":
-                parsedOperator = Operator.ASSIGN;
+        switch (token.image) {
+        case "=":
+            parsedOperator = Operator.ASSIGN;
             break;
-            case "+=":
-                parsedOperator = Operator.PLUSASSIGN;
+        case "+=":
+            parsedOperator = Operator.PLUSASSIGN;
             break;
-            case "-=":
-                parsedOperator = Operator.MINUSASSIGN;
+        case "-=":
+            parsedOperator = Operator.MINUSASSIGN;
             break;
-            case "*=":
-                parsedOperator = Operator.STARASSIGN;
+        case "*=":
+            parsedOperator = Operator.STARASSIGN;
             break;
-            case "/=":
-                parsedOperator = Operator.SLASHASSIGN;
+        case "/=":
+            parsedOperator = Operator.SLASHASSIGN;
             break;
-            case "%=":
-                parsedOperator = Operator.REMASSIGN;
+        case "%=":
+            parsedOperator = Operator.REMASSIGN;
             break;
-            case "&=":
-                parsedOperator = Operator.ANDASSIGN;
+        case "&=":
+            parsedOperator = Operator.ANDASSIGN;
             break;
-            case "^=":
-                parsedOperator = Operator.XORASSIGN;
+        case "^=":
+            parsedOperator = Operator.XORASSIGN;
             break;
-            case "|=":
-             parsedOperator = Operator.ORASSIGN;
+        case "|=":
+            parsedOperator = Operator.ORASSIGN;
             break;
-            default:
-                throw new ParseException("Can't parse assignment Operator: " + token.kind);
+        default:
+            String errorMsg = "Can't parse assignment Operator: " + token.kind;
+            Logger.error(errorMsg);
+            throw new ParseException(errorMsg);
         }
 
         return parsedOperator;
