@@ -274,12 +274,14 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.texts.add("or");
 			break;
 		case BOR:
+			this.texts.add("bor");
 			break;
 		case BXOR:
+			this.texts.add("bxor");
 			break;
 		case BAND:
+			this.texts.add("band");
 			break;
-
 		default:
 			break;
 		}
@@ -351,13 +353,13 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		ASTNode decNode = name.getOriginalDeclaration().getNode();
 		String functionLabel;
-		if(decNode instanceof FunctionDeclaration){
+		if (decNode instanceof FunctionDeclaration) {
 			functionLabel = "_" + table.getFileUnitScope().getSignatureOfFunction((FunctionDeclaration) decNode);
 		} else {
 			functionLabel = "_" + table.getFileUnitScope().getSignatureOfFunction((FunctionDefinition) decNode);
 		}
 		this.texts.add("loadc " + functionLabel);
-		
+
 		this.texts.add("call");
 		this.texts.add("slide " + (args.size() - 1));
 	}
