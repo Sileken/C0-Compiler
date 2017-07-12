@@ -1,0 +1,14 @@
+loadc 6
+loadc 1
+loada 0
+A: jumpz F
+loada 0
+mul
+loada 0
+loadc 1
+sub
+storea 0
+jump A
+F: storea 0
+pop
+halt

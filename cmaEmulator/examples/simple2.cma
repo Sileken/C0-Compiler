@@ -1,0 +1,9 @@
+loadc 7
+loadc 5
+loadc 0
+jumpz _A
+loada 0
+loada 1
+add
+_A: mul
+halt

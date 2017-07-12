@@ -1,0 +1,38 @@
+enter 4
+alloc 1
+mark
+loadc _main
+call
+halt
+
+_main:enter 2
+loadc 4
+mark
+loadc _fac
+call
+slide 0
+storer -3
+return
+
+_fac: enter 4
+loadr -3 
+loadc 0 
+leq 
+jumpz A
+loadc 1
+storer -3
+return
+jump B
+A: loadr -3
+loadr -3
+loadc 1
+sub
+mark
+loadc _fac
+call
+slide 0
+mul
+storer -3
+return
+B: return
+

@@ -1,0 +1,10 @@
+
+
+loadc 7
+
+loadc 6
+
+mul
+
+
+halt
