@@ -101,7 +101,6 @@ public class SymbolTable {
     public void listScopes() {
         Logger.log("Listing Scopes:");
         List<String> keys = new ArrayList<String>(this.scopes.keySet());
-        //Collections.sort(keys);
         for (String key : keys) {
             Logger.log(this.scopes.get(key).getName());
             this.scopes.get(key).listSymbols();

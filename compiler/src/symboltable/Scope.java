@@ -24,7 +24,7 @@ public class Scope {
 	}
 
 	public void putSymbol(String key, Symbol symbol) {
-		Logger.log("Put symbol \"" + symbol.getName() + "\" to scope: " + this.getName());
+		Logger.debug("Put symbol \"" + symbol.getName() + "\" to scope: " + this.getName());
 		this.symbols.put(key, symbol);
 	}
 
@@ -37,7 +37,6 @@ public class Scope {
 		Logger.log("\tReferences to: " + this.referenceNode);
 		Logger.log("\tSymbols:");
 		List<String> keys = new ArrayList<String>(this.symbols.keySet());
-		//Collections.sort(keys);
 		for (String key : keys) {
 			Logger.log("\t\t" + this.symbols.get(key));
 		}

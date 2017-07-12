@@ -92,21 +92,21 @@ public class TypeChecker extends SemanticsVisitor {
 		}
 	    else if(node instanceof PrimitiveType)
 		{
-			Logger.logNoNewline("@PrimitiveType ");
+			Logger.logNoNewline("@PrimitiveType ", Logger.LogLevel.DEBUG);
 			pushType((PrimitiveType)node);
 		}	
 		else if(node instanceof ArrayType)
 		{
 			// Pop the primitive-type and push the corresponding array-type
 			Type arrType = popType();
-			Logger.logNoNewline("@ArrayType ");
+			Logger.logNoNewline("@ArrayType ", Logger.LogLevel.DEBUG);
 			pushType((ArrayType)node);
 		}
 		else if(node instanceof ReferenceType)
 		{
-			// pop primitive type and push corresponding reference-type
+			// pop primitive type and push corresponding reference-typeLoggger
 			Type primType = popType();
-			Logger.logNoNewline("@ReferenceType ");
+			Logger.logNoNewline("@ReferenceType ", Logger.LogLevel.DEBUG);
 			pushType((ReferenceType)node);
 		}	
 		else if(node instanceof ExpressionStatement)
@@ -154,7 +154,7 @@ public class TypeChecker extends SemanticsVisitor {
 			if(structDeclaration == null)
 				throw new TypeException("@StructType: Encountered unknown struct type '" + structTypeName + "'");
 
-			Logger.logNoNewline("@StructType ");
+			Logger.logNoNewline("@StructType ", Logger.LogLevel.DEBUG);
 			pushType((StructType)node);
 		}
 		else if(node instanceof FieldAccess)
@@ -178,7 +178,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type fieldType = symbol.getType();
 
-			Logger.logNoNewline("@FieldAccess ");
+			Logger.logNoNewline("@FieldAccess ", Logger.LogLevel.DEBUG);
 			pushType(fieldType);
 
 			// Add information to the AST
@@ -211,7 +211,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type fieldType = symbol.getType();
 
-			Logger.logNoNewline("@FieldDereferenceAccess ");
+			Logger.logNoNewline("@FieldDereferenceAccess ", Logger.LogLevel.DEBUG);
 			pushType(fieldType);
 
 			// Add information to the AST
@@ -290,7 +290,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			if(symbol != null)
 			{
-				Logger.logNoNewline("@Name: " + symbol.getName() + " ");
+				Logger.logNoNewline("@Name: " + symbol.getName() + " ", Logger.LogLevel.DEBUG);
 				pushType(symbol.getType());
 			}
 		}
@@ -330,7 +330,7 @@ public class TypeChecker extends SemanticsVisitor {
 			}
 
 			// Push function type on stack
-			Logger.logNoNewline("@MethodInvokeExpression: ");
+			Logger.logNoNewline("@MethodInvokeExpression: ", Logger.LogLevel.DEBUG);
 			Type functionType = symbol.getType();
 			pushType(functionType);	
 
@@ -348,7 +348,7 @@ public class TypeChecker extends SemanticsVisitor {
 			try
 			{
 				Type type = ((LiteralPrimary)node).getType();
-				Logger.logNoNewline("@LiteralPrimary ");
+				Logger.logNoNewline("@LiteralPrimary ", Logger.LogLevel.DEBUG);
 				pushType(type);
 			} catch(Exception e){ e.printStackTrace(); }
 		}
@@ -362,7 +362,7 @@ public class TypeChecker extends SemanticsVisitor {
 			if(!(type instanceof ArrayType))
 				throw new TypeException("@ArrayAccess: Expected array as type but got '" + type + "'");
 
-			Logger.logNoNewline("@ArrayAccess ");
+			Logger.logNoNewline("@ArrayAccess ", Logger.LogLevel.DEBUG);
 			pushType(((ArrayType)type).getType());
 		}
 		else if(node instanceof AssignmentExpression)
@@ -396,7 +396,7 @@ public class TypeChecker extends SemanticsVisitor {
 			}
 
 			// add var-type to the stack because assignments can be further processed e.g. (a = 5) * 10;
-			Logger.logNoNewline("@AssignmentExpression ");
+			Logger.logNoNewline("@AssignmentExpression ", Logger.LogLevel.DEBUG);
 			pushType(varType);
 
 			// Add type information to AST
@@ -416,7 +416,7 @@ public class TypeChecker extends SemanticsVisitor {
 				                        "' does not match with operator '" + op + "'");
 			}
 
-			Logger.logNoNewline("@BinaryExpression ");
+			Logger.logNoNewline("@BinaryExpression ", Logger.LogLevel.DEBUG);
 			pushType(resultType);
 
 			// Add type information to AST
@@ -434,7 +434,7 @@ public class TypeChecker extends SemanticsVisitor {
 				throw new TypeException("Unary operator '" + op + "' is not compatible with type '" + exprType + "'");
 			}
 
-			Logger.logNoNewline("@UnaryExpression ");
+			Logger.logNoNewline("@UnaryExpression ", Logger.LogLevel.DEBUG);
 			pushType(resultType);
 
 			// Add type information to AST
@@ -489,14 +489,14 @@ public class TypeChecker extends SemanticsVisitor {
 					throw new TypeException("2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
 				
 				// push a new array type to the stack
-				Logger.logNoNewline("@AllocExpression ");
+				Logger.logNoNewline("@AllocExpression ", Logger.LogLevel.DEBUG);
 				pushType(new ArrayType(allocType));
 			}else{
 				// alloc(type)
 				Type allocType = popType();
 
 				// push a new pointer type to the stack
-				Logger.logNoNewline("@AllocExpression ");
+				Logger.logNoNewline("@AllocExpression ", Logger.LogLevel.DEBUG);
 				pushType(new ReferenceType(allocType));
 			}
 		}

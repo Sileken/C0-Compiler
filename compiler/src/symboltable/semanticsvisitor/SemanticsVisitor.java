@@ -27,13 +27,13 @@ public abstract class SemanticsVisitor extends ASTVisitor {
 	}
 
 	protected void pushScope(Scope scope) {
-		Logger.log("Pushing scope " + scope.toString());
+		Logger.debug("Pushing scope " + scope.toString());
 		this.viewStack.push(scope);
 	}
 
 	protected Scope popScope() {
 		Scope scope = this.viewStack.pop();
-		Logger.log("Popping scope " + scope);
+		Logger.debug("Popping scope " + scope);
 		return scope;
 	}
 
