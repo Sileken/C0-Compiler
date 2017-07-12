@@ -8,7 +8,7 @@ import ast.definition.*;
 import ast.statement.*;
 import ast.visitor.*;
 import symboltable.*;
-import utils.*;
+import logger.*;
 
 public abstract class SemanticsVisitor extends ASTVisitor {
 	protected SymbolTable table;

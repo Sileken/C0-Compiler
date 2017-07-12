@@ -3,7 +3,7 @@ package symboltable;
 import ast.*;
 import ast.expression.primary.name.*;
 
-import utils.*;
+import logger.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

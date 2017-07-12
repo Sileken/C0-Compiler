@@ -7,16 +7,17 @@ import ast.statement.*;
 import codegen.*;
 import symboltable.*;
 import symboltable.semanticsvisitor.*;
-import utils.*;
-import utils.Logger.LogLevel;
+import logger.*;
+import logger.Logger.LogLevel;
 
 public class C0Compiler {
   private static String compilerName = "C0 Compiler";
+  private static String defaultLogFileName = "C0Compiler";
+  private static LogLevel defaultLogLevel = LogLevel.DEBUG;
 
   public static void main(String args[]) {
-    Logger.enableLogging();
-    Logger.setLogLevel(LogLevel.DEBUG);
-
+    initializeLogger();
+    
     C0Parser parser = getC0ParserByArguments(args);
 
     try {
@@ -40,7 +41,7 @@ public class C0Compiler {
       nameLinking(ast, table);
       typeChecking(ast, table);
       indexing(ast);
-      generateCode(ast, table);  
+      generateCode(ast, table);
     } catch (ParseException parseException) {
       Logger.log(compilerName + ": Encountered errors during parse.");
       parseException.printStackTrace();
@@ -54,7 +55,7 @@ public class C0Compiler {
     C0Parser parser = null;
 
     if (args.length >= 1) {
-      Logger.log("\n" + compilerName + ": Reading from file " + args[0]);
+      Logger.log(compilerName + ": Reading from file " + args[0]);
       try {
         parser = new C0Parser(args[0]);
         Logger.log(compilerName + ": Finished reading from file " + args[0]);
@@ -108,5 +109,12 @@ public class C0Compiler {
     Logger.log("\n" + compilerName + ": Code Generation started");
     ast.getRoot().accept(new CodeGenerator(symbolTable));
     Logger.log(compilerName + ": Code Generation finished");
+  }
+
+  private static void initializeLogger() {
+    Logger.enableLogging();
+    Logger.setLogLevel(defaultLogLevel);
+    Logger.addLogDestination(new ConsoleLogDestionation());
+    Logger.addLogDestination(new FileLogDestination(defaultLogFileName));
   }
 }

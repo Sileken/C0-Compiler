@@ -1,7 +1,7 @@
 package ast.type;
 
 import parser.*;
-import utils.*;
+import logger.*;
 
 public class PrimitiveType extends Type {
 	public static enum Primitive {

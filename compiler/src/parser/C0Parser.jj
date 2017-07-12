@@ -35,7 +35,7 @@ import ast.expression.primary.name.*;
 import ast.identifier.*;
 import ast.statement.*;
 import ast.type.*;
-import utils.*;
+import logger.*;
 
 public class C0Parser {
   private static String parsingFileName = "System.in";

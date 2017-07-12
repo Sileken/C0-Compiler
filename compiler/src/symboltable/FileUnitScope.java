@@ -5,7 +5,7 @@ import ast.definition.*;
 import ast.declaration.*;
 import ast.type.*;
 import ast.expression.primary.name.*;
-import utils.*;
+import logger.*;
 
 import java.util.List;
 

@@ -1,14 +1,18 @@
 
-package utils;
+package logger;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 public class Logger {
-
     public static enum LogLevel {
         TRACE, DEBUG, INFO, WARN, ERROR
     }
 
     private static LogLevel loglevel = LogLevel.INFO;
     private static boolean isEnabled = false;
+    private static ArrayList<ILogDestination> logDestinations = new ArrayList<ILogDestination>();
 
     public static boolean isEnabled() {
         return isEnabled;
@@ -28,6 +32,18 @@ public class Logger {
 
     public static void setLogLevel(LogLevel level) {
         loglevel = level;
+    }
+
+    public static void addLogDestination(ILogDestination dest) {
+        if (!logDestinations.contains(dest)) {
+            logDestinations.add(dest);
+        }
+    }
+
+    public static void removeLogDestination(ILogDestination dest) {
+        if (logDestinations.contains(dest)) {
+            logDestinations.remove(dest);
+        }
     }
 
     public static void error(String s) {
@@ -90,19 +106,24 @@ public class Logger {
     }
 
     public static void logNoNewline(String s) {
-        writeLog(s);
-
+        writeLogNoNewLine(s);
     }
 
-    private static void writeLog(String s) {
-        if (isEnabled) {
-            System.out.println(s);
+    private static void writeLog(String log) {
+        if (isEnabled && logDestinations.size() > 0) {
+            ListIterator<ILogDestination> interator = logDestinations.listIterator();
+            while (interator.hasNext()) {
+                interator.next().writeLog(log);
+            }
         }
     }
 
-    private static void writeLogNoNewLine(String s) {
-        if (isEnabled) {
-            System.out.print(s);
+    private static void writeLogNoNewLine(String log) {
+        if (isEnabled && logDestinations.size() > 0) {
+            ListIterator<ILogDestination> interator = logDestinations.listIterator();
+            while (interator.hasNext()) {
+                interator.next().writeLogNoNewLine(log);
+            }
         }
     }
 }

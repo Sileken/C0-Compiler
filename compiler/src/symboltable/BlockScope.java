@@ -7,7 +7,7 @@ import ast.declaration.*;
 import ast.statement.*;
 import ast.expression.primary.name.*;
 import symboltable.*;
-import utils.*;
+import logger.*;
 
 public class BlockScope extends Scope {
     protected Scope parent;

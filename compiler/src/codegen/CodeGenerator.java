@@ -11,7 +11,7 @@ import ast.statement.*;
 import ast.type.*;
 import symboltable.*;
 import symboltable.semanticsvisitor.*;
-import utils.*;
+import logger.*;
 
 import java.io.BufferedWriter;
 import java.io.File;

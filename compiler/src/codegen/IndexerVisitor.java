@@ -5,7 +5,7 @@ import ast.declaration.*;
 import ast.definition.*;
 import ast.statement.*;
 import ast.visitor.ASTVisitor;
-import utils.Logger;
+import logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

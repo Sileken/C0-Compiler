@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ast.visitor.ASTVisitor;
-import utils.*;
+import logger.*;
 
 public abstract class ASTNode {
 	protected ASTNode parent = null;

@@ -2,7 +2,7 @@ package symboltable.semanticsvisitor;
 
 import java.util.HashSet;
 import java.util.Set;
-import utils.*;
+import logger.*;
 
 import ast.*;
 import ast.statement.*;

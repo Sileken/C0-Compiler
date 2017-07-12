@@ -5,7 +5,7 @@ import ast.definition.*;
 import ast.identifier.*;
 import ast.type.*;
 import symboltable.*;
-import utils.*;
+import logger.*;
 
 import java.util.List;
 

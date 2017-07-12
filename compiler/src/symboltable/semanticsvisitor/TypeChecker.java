@@ -11,8 +11,8 @@ import ast.expression.primary.name.*;
 import ast.statement.*;
 import ast.definition.*;
 import ast.identifier.*;
-import utils.*;
-import utils.Logger.LogLevel;;
+import logger.*;
+import logger.Logger.LogLevel;;
 
 import java.util.Stack;
 import java.util.ArrayList;
