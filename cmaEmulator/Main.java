@@ -49,7 +49,7 @@ public class Main {
 		    Integer j = addr.get(jump.arg);
 		    if (j!=null) jump.A = j;
 		    else {
-			System.out.println("Error: unknown label at line number " + i);
+			System.out.println("Error: unknown label " + jump.arg + " at line number " + i);
 			return;
 		    }
 		} else {
@@ -57,7 +57,7 @@ public class Main {
 		    Integer j = addr.get(jump.arg);
 		    if (j!=null) jump.A = j;
 		    else {
-			System.out.println("Error: unknown label at line number " + i);
+			System.out.println("Error: unknown label " + jump.arg + " at line number " + i);
 			return;
 		    }
 		}
@@ -68,7 +68,7 @@ public class Main {
 		    Integer j = addr.get(l.arg);
 		    if (j!=null) l.q = j;
 		    else {
-			System.out.println("Error: unknown label at line number " + i);
+			System.out.println("Error: unknown label " + l.arg + " at line number " + i);
 			return;
 		    }
 		}

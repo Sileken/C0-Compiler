@@ -31,16 +31,16 @@ public class CodeGenerator extends SemanticsVisitor {
 	protected static final String NULL = "0";
 
 	protected File cmaFile;
-	
-	protected List<String> texts;            /* list containing the final commands of the executable */
+
+	protected List<String> texts; /* list containing the final commands of the executable */
 
 	private String methodLabel;
 	private Integer loopCount;
 	private Integer conditionCount;
 
-    public CodeGenerator(SymbolTable symbolTable) {
-        super(symbolTable);
-    }
+	public CodeGenerator(SymbolTable symbolTable) {
+		super(symbolTable);
+	}
 
 	private void initialize() {
 		this.cmaFile = null;
@@ -48,14 +48,14 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.methodLabel = null;
 		this.loopCount = 0;
 		this.conditionCount = 0;
-    }
-    
+	}
+
 	@Override
 	public void willVisit(ASTNode node) throws SymbolTableException {
 		super.willVisit(node);
 
 		if (node instanceof FileUnit) {
-            Logger.debug("Initialize CodeGenerator");
+			Logger.debug("Initialize CodeGenerator");
 			this.initialize();
 			String fileName = node.getIdentifier();
 			fileName = fileName.substring(0, fileName.indexOf('.'));
@@ -71,28 +71,27 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.texts.add("halt");
 			this.texts.add("");
 
-		} else if (node instanceof FunctionDefinition) {           
-            this.methodLabel = this.getCurrentScope().getName();
-            Logger.debug("Preparing Function " + methodLabel);
-			
+		} else if (node instanceof FunctionDefinition) {
+			this.methodLabel = this.getCurrentScope().getName();
+			Logger.debug("Preparing Function " + methodLabel);
+
 			int k = ((FunctionDefinition) node).getTotalLocalVariables();
-			int max = 150; 		// ToDo: calculate max (simple version: count arithmetic operations in body..)
+			int max = 150; // ToDo: calculate max (simple version: count arithmetic operations in body..)
 			int q = max + k;
 
-            this.texts.add("_" + this.methodLabel + ":" + " enter " + q);
-            this.texts.add("alloc " + k);
-			
+			this.texts.add("_" + this.methodLabel + ":" + " enter " + q);
+			this.texts.add("alloc " + k);
+
 		} else if (node instanceof StructDefinition) {
-            Logger.debug("Preparing Struct");
-            // like FunctionDeclaration
-        }
-    }
+			Logger.debug("Preparing Struct");
+			// like FunctionDeclaration
+		}
+	}
 
 	// not all listed
-    @Override
+	@Override
 	public boolean visit(ASTNode node) throws Exception {
-
-  		if (node instanceof VariableDeclarationExpression) {
+		if (node instanceof VariableDeclarationExpression) {
 			// do nothing, prevent the generation of the VariableDeclaration
 			return false;
 		} else if (node instanceof VariableDeclaration) {
@@ -113,10 +112,13 @@ public class CodeGenerator extends SemanticsVisitor {
 		} else if (node instanceof BinaryExpression) {
 			this.generateBinaryExpression((BinaryExpression) node);
 			return false;
-		} else if (node instanceof MethodInvokeExpression) {
-			this.generateMethodInvoke((MethodInvokeExpression) node);
-			return false;
-        } else if (node instanceof ReturnStatement) {
+		} else if (node instanceof ExpressionPrimary) {
+			ExpressionPrimary expPrimary = (ExpressionPrimary) node;
+			if (expPrimary.getExpression() instanceof MethodInvokeExpression) {
+				this.generateMethodInvoke(expPrimary);
+				return false;
+			}
+		} else if (node instanceof ReturnStatement) {
 			this.generateReturnStatement((ReturnStatement) node);
 			return false;
 		} else if (node instanceof IfStatement) {
@@ -145,12 +147,11 @@ public class CodeGenerator extends SemanticsVisitor {
 		return true;
 	}
 
-
 	@Override
 	public void didVisit(ASTNode node) throws SymbolTableException {
-        // leaving FileUnit, write content on disk
+		// leaving FileUnit, write content on disk
 		if (node instanceof FileUnit) {
-            Logger.debug("writing content to: " + cmaFile);        
+			Logger.debug("writing content to: " + cmaFile);
 			File dir = this.cmaFile.getParentFile();
 
 			Logger.debug("Dir: " + dir);
@@ -160,16 +161,16 @@ public class CodeGenerator extends SemanticsVisitor {
 
 			try {
 				this.cmaFile.createNewFile();
-			
+
 				BufferedWriter asmWriter = new BufferedWriter(new FileWriter(this.cmaFile));
 
 				for (int i = 0; i < texts.size(); i++) {
 					String line = texts.get(i);
-					
+
 					if (line.endsWith(":")) {
-						line += " " + texts.get(++i);	
+						line += " " + texts.get(++i);
 					}
-					
+
 					asmWriter.write(line);
 					asmWriter.newLine();
 				}
@@ -181,25 +182,25 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		} else if (node instanceof FunctionDefinition) {
 			this.texts.add("return");
-            this.texts.add("");
+			this.texts.add("");
 
 		} else if (node instanceof ReturnStatement) {
 			// return to call function
-             //this.texts.add("jmp " + this.methodLabel + "_END");
+			//this.texts.add("jmp " + this.methodLabel + "_END");
 		} else if (node instanceof StructDefinition) {
-            // ...
-        }
+			// ...
+		}
 		super.didVisit(node);
-    }
+	}
 
 	private void generateVariableDeclaration(VariableDeclaration variableDeclaration) throws Exception {
 		Logger.debug("VariableDeclarationExpression of " + variableDeclaration.getIdentifier());
-        this.texts.add("loadrc " + variableDeclaration.getIndex());
-    }
+		this.texts.add("loadrc " + variableDeclaration.getIndex());
+	}
 
-    private void generateVariableAccessRightValue(Name name) throws Exception {
+	private void generateVariableAccessRightValue(Name name) throws Exception {
 		Logger.debug("VariableAccessRightValue of " + name.getIdentifier());
-        this.texts.add("loadr " + ((Declaration) name.getOriginalDeclaration().getNode()).getIndex());
+		this.texts.add("loadr " + ((Declaration) name.getOriginalDeclaration().getNode()).getIndex());
 	}
 
 	private void generateVariableAccessLeftValue(Name name) throws Exception {
@@ -222,73 +223,74 @@ public class CodeGenerator extends SemanticsVisitor {
 				this.texts.add("loadc " + BOOLEAN_FALSE);
 			}
 		}
-    }
+	}
 
 	private void generateUnaryExpression(UnaryExpression unaryExpr) throws Exception {
-        // ToDo
-    }
+		// ToDo
+	}
 
 	private void generateBinaryExpression(BinaryExpression binaryExpression) throws Exception {
 		binaryExpression.getLeftOperand().accept(this);
 		binaryExpression.getRightOperand().accept(this);
 
 		switch (binaryExpression.getOperator()) {
-			case PLUS:
-				this.texts.add("add");
-				break;
-			case MINUS:
-				this.texts.add("sub");
-				break;
-			case STAR:
-				this.texts.add("mul");
-				break;
-			case SLASH:
-				this.texts.add("div");
-				break;
-			case REM:
-				this.texts.add("mod");
-				break;
-			case EQ:
-				this.texts.add("eq");
-				break;
-			case NEQ:
-				this.texts.add("neq");
-				break;
-			case LT:
-				this.texts.add("le");
-				break;
-			case LEQ:
-				this.texts.add("leq");
-				break;
-			case GT:
-				this.texts.add("gr");
-				break;
-			case GEQ:
-				this.texts.add("geq");
-				break;
-			case AND:
-				this.texts.add("and");
-				break;
-			case OR:
-				this.texts.add("or");
-				break;
-			case BOR:
-				break;
-			case BXOR:
-				break;
-			case BAND:
-				break; 
+		case PLUS:
+			this.texts.add("add");
+			break;
+		case MINUS:
+			this.texts.add("sub");
+			break;
+		case STAR:
+			this.texts.add("mul");
+			break;
+		case SLASH:
+			this.texts.add("div");
+			break;
+		case REM:
+			this.texts.add("mod");
+			break;
+		case EQ:
+			this.texts.add("eq");
+			break;
+		case NEQ:
+			this.texts.add("neq");
+			break;
+		case LT:
+			this.texts.add("le");
+			break;
+		case LEQ:
+			this.texts.add("leq");
+			break;
+		case GT:
+			this.texts.add("gr");
+			break;
+		case GEQ:
+			this.texts.add("geq");
+			break;
+		case AND:
+			this.texts.add("and");
+			break;
+		case OR:
+			this.texts.add("or");
+			break;
+		case BOR:
+			break;
+		case BXOR:
+			break;
+		case BAND:
+			break;
 
-			default: break;
+		default:
+			break;
 		}
-    }
+	}
 
-    private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws Exception {
+	private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws Exception {
 		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
 
-		assignmentExpression.getRightValue().accept(this); 
+		assignmentExpression.getRightValue().accept(this);
 
-		if ( variableDeclaration == null) {
+		if (variableDeclaration == null) {
 
 			if (assignmentExpression.getLeftValue() instanceof Name) {
 				this.generateVariableAccessLeftValue((Name) assignmentExpression.getLeftValue());
@@ -300,55 +302,64 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		switch (assignmentExpression.getOperator()) {
-			case ASSIGN:
-				break;
-			case PLUSASSIGN:
-				this.texts.add("add");
-				break;
-			case MINUSASSIGN:
-				this.texts.add("sub");
-				break;
-			case STARASSIGN:
-				this.texts.add("mul");
-				break;
-			case SLASHASSIGN:
-				this.texts.add("div");
-				break;
-			case REMASSIGN:
-				this.texts.add("mod");
-				break;
-			case ANDASSIGN:
-				this.texts.add("and");
-				break;
-			case ORASSIGN:
-				this.texts.add("or");
-				break;
-			case XORASSIGN:
-				this.texts.add("xor");
-				break;
-			default:
-				// Throw UnsupportedOperationException
-				break;
+		case ASSIGN:
+			break;
+		case PLUSASSIGN:
+			this.texts.add("add");
+			break;
+		case MINUSASSIGN:
+			this.texts.add("sub");
+			break;
+		case STARASSIGN:
+			this.texts.add("mul");
+			break;
+		case SLASHASSIGN:
+			this.texts.add("div");
+			break;
+		case REMASSIGN:
+			this.texts.add("mod");
+			break;
+		case ANDASSIGN:
+			this.texts.add("and");
+			break;
+		case ORASSIGN:
+			this.texts.add("or");
+			break;
+		case XORASSIGN:
+			this.texts.add("xor");
+			break;
+		default:
+			// Throw UnsupportedOperationException
+			break;
 		}
 
 		this.texts.add("store");
 		this.texts.add("pop");
 	}
 
-    private void generateMethodInvoke(MethodInvokeExpression methodInvoke) throws Exception {
+	private void generateMethodInvoke(ExpressionPrimary expressionPrimary) throws Exception {
+		MethodInvokeExpression methodInvoke = (MethodInvokeExpression) expressionPrimary.getExpression();
+		Name name = (Name) expressionPrimary.getPrefix();
 
-		// Push parameters to stack
 		List<Expression> args = methodInvoke.getArguments();
-		
 		for (int i = args.size() - 1; i >= 0; i--) {
 			Expression arg = args.get(i);
-			// Generate code for arg
 			arg.accept(this);
-            // push parameter
-			//this.texts.add("push eax\t\t\t; Push parameter #" + (i + 1) + " to stack");
 		}
 
-        // ... snipped (check joose-compiler)
+		this.texts.add("mark");
+
+		ASTNode decNode = name.getOriginalDeclaration().getNode();
+		String functionLabel;
+		if(decNode instanceof FunctionDeclaration){
+			functionLabel = "_" + table.getFileUnitScope().getSignatureOfFunction((FunctionDeclaration) decNode);
+		} else {
+			functionLabel = "_" + table.getFileUnitScope().getSignatureOfFunction((FunctionDefinition) decNode);
+		}
+		this.texts.add("loadc " + functionLabel);
+		
+		this.texts.add("call");
+		this.texts.add("slide " + (args.size() - 1));
 	}
 
 	private void generateReturnStatement(ReturnStatement returnStatement) throws Exception {
@@ -358,13 +369,13 @@ public class CodeGenerator extends SemanticsVisitor {
 		texts.add("storer -3"); // always -3 ??
 	}
 
-    // Only the registers have to be changed <- LOL what a wrong comment
+	// Only the registers have to be changed <- LOL what a wrong comment
 	private void generateIfStatement(IfStatement ifStatement) throws Exception {
 		Integer conditionCount = this.conditionCount++;
 		String elseMark = "__ELSE_STATEMENT_" + conditionCount;
 		String endMark = "__IF_END_" + conditionCount;
 
-		if(ifStatement.getIfCondition() != null) {
+		if (ifStatement.getIfCondition() != null) {
 			ifStatement.getIfCondition().accept(this);
 		} else {
 			this.texts.add("loadc" + BOOLEAN_TRUE);
@@ -385,16 +396,16 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		this.texts.add(endMark + ":");
-    }
+	}
 
-    // Currently WhileStatement does not contain the inner-Block statement?
-    private void generateWhileStatement(WhileStatement whileStatement) throws Exception {
+	// Currently WhileStatement does not contain the inner-Block statement?
+	private void generateWhileStatement(WhileStatement whileStatement) throws Exception {
 		Integer loopCount = this.loopCount++;
 		String loopName = "__LOOP_Name_" + loopCount;
 		String jumpMark = "__LOOP_END_" + loopCount;
 
 		this.texts.add(loopName + ":");
-		if(whileStatement.getWhileCondition() != null) {
+		if (whileStatement.getWhileCondition() != null) {
 			whileStatement.getWhileCondition().accept(this);
 		} else {
 			this.texts.add("loadc " + BOOLEAN_TRUE);
@@ -403,7 +414,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.texts.add("jumpz " + jumpMark);
 
 		whileStatement.getWhileStatement().accept(this);
-		
+
 		this.texts.add("jump " + loopName);
 		this.texts.add(jumpMark + ":");
 	}
@@ -419,11 +430,11 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private void generateArrayAccess(ArrayAccess arrayAccess) throws Exception {
 		// ToDo
-    }
+	}
 
-    private void generateFieldAccess(FieldAccess fieldAccess) throws Exception {
+	private void generateFieldAccess(FieldAccess fieldAccess) throws Exception {
 		// ToDo
-    }
+	}
 
 	private void generateFieldDereferenceAccess(FieldDereferenceAccess fieldDereference) throws Exception {
 		// ToDo

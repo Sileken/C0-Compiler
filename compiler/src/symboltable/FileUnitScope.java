@@ -102,10 +102,10 @@ public class FileUnitScope extends Scope {
     public String getSignatureOfFunction(String methodName, List<Type> parameterTypes) {
         String signature = methodName + "(";
         for (Type parameterType : parameterTypes) {
-            signature += parameterType.getFullyQualifiedName() + ", ";
+            signature += parameterType.getFullyQualifiedName() + ",";
         }
-        if (signature.endsWith(", ")) {
-            signature = signature.substring(0, signature.length() - 2);
+        if (signature.endsWith(",")) {
+            signature = signature.substring(0, signature.length() - 1);
         }
         signature += ")";
         return signature;

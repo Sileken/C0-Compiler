@@ -1,5 +1,9 @@
 
-void main(){
+void test(int a, int b){
+    int k = a + b;
+}
+
+int main(){
     
     int a;
     a = 1;
@@ -18,5 +22,7 @@ void main(){
         i = 1337;
     }
 
-    return;
+    test(1, 2);
+
+    return i;
 }
