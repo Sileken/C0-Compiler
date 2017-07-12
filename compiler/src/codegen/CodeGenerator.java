@@ -226,7 +226,34 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateUnaryExpression(UnaryExpression unaryExpr) throws Exception {
-		// ToDo
+		unaryExpr.getOperand().accept(this);
+
+		switch (unaryExpr.getOperator()) {
+		case BANG:
+			this.texts.add("not");
+			break;
+		case TILDE:
+			this.texts.add("bnot");
+			break;
+		case MINUS:
+			this.texts.add("neg");
+			break;
+		case STAR:
+			//codel *e p = coder e p
+			this.texts.add("load"); //todo: test dereference
+			break;
+		case INCR:
+			this.texts.add("loadc 1");
+			this.texts.add("add");
+			break;
+		case DECR:
+			this.texts.add("loadc 1");
+			this.texts.add("sub");
+			break;
+		default:
+			// todo: Throw UnsupportedOperationException
+			break;
+		}
 	}
 
 	private void generateBinaryExpression(BinaryExpression binaryExpression) throws Exception {
@@ -283,6 +310,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.texts.add("band");
 			break;
 		default:
+			// todo: Throw UnsupportedOperationException
 			break;
 		}
 	}
@@ -331,7 +359,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.texts.add("xor");
 			break;
 		default:
-			// Throw UnsupportedOperationException
+			// todo: Throw UnsupportedOperationException
 			break;
 		}
 

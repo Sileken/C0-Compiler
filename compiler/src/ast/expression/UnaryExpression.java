@@ -20,4 +20,8 @@ public class UnaryExpression extends Expression {
     public Operator getOperator() {
         return this.operator;
     }
+
+     public Expression getOperand() {
+        return this.operand;
+    }
 }
