@@ -190,6 +190,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		} else if (node instanceof StructDefinition) {
 			// ...
 		}
+
 		super.didVisit(node);
 	}
 
@@ -320,17 +321,6 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		assignmentExpression.getRightValue().accept(this);
 
-		if (variableDeclaration == null) {
-
-			if (assignmentExpression.getLeftValue() instanceof Name) {
-				this.generateVariableAccessLeftValue((Name) assignmentExpression.getLeftValue());
-			} else {
-				assignmentExpression.getLeftValue().accept(this);
-			}
-		} else {
-			variableDeclaration.accept(this);
-		}
-
 		switch (assignmentExpression.getOperator()) {
 		case ASSIGN:
 			break;
@@ -361,6 +351,17 @@ public class CodeGenerator extends SemanticsVisitor {
 		default:
 			// todo: Throw UnsupportedOperationException
 			break;
+		}
+
+		if (variableDeclaration == null) {
+
+			if (assignmentExpression.getLeftValue() instanceof Name) {
+				this.generateVariableAccessLeftValue((Name) assignmentExpression.getLeftValue());
+			} else {
+				assignmentExpression.getLeftValue().accept(this);
+			}
+		} else {
+			variableDeclaration.accept(this);
 		}
 
 		this.texts.add("store");
