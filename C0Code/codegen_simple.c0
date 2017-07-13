@@ -19,15 +19,15 @@ int main(){
         t += 1;
     }// after t = 105
 
-    t = dd6(t); // t = 111
+    t = add6(t); // t = 111
 
     t += 1; // t = 112
-    // t -= 7; // t = 105 //- still buggy
-    t *= k; // t = 1120
+    t -= 7; // t = 105
+    t *= k; // t = 1050
     
     return t;
 }
 
-// 1120 weil loadr 2 (t); 1120 weil t; 10 weil k; 5 PCold @call zu main; 0 FPold @call; 3 EPold @mark; 0 ist Zelle für result von Main;
-//last-2 Stack [1120, 1120, 10, 5, 0, 3, 0]
+// 1050 because loadr 2 (t); 1120 because t; 10 because k; 5 PCold @call to main; 0 FPold @call; 3 EPold @mark; 0 is the last Cell for the main result;
+//last-2 Stack [1050, 1050, 10, 5, 0, 3, 1050]
 // storer -3 saves in the first Cell because current FP is 3 and 3-3 is 0

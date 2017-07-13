@@ -320,8 +320,6 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws Exception {
-		assignmentExpression.getRightValue().accept(this);
-
 		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
 
 		if (variableDeclaration == null) {
@@ -332,6 +330,8 @@ public class CodeGenerator extends SemanticsVisitor {
 					assignmentExpression.getLeftValue().accept(this);
 				}
 
+				assignmentExpression.getRightValue().accept(this);
+				
 				switch (assignmentExpression.getOperator()) {
 				case PLUSASSIGN:
 					this.texts.add("add");
@@ -361,6 +361,8 @@ public class CodeGenerator extends SemanticsVisitor {
 					// todo: Throw UnsupportedOperationException
 					break;
 				}
+			} else {
+				assignmentExpression.getRightValue().accept(this);
 			}
 
 			if (assignmentExpression.getLeftValue() instanceof Name) {
@@ -369,6 +371,7 @@ public class CodeGenerator extends SemanticsVisitor {
 				assignmentExpression.getLeftValue().accept(this);
 			}
 		} else {
+			assignmentExpression.getRightValue().accept(this);
 			variableDeclaration.accept(this);
 		}
 
@@ -409,10 +412,9 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (returnStatement.getExpression() != null) {
 			returnStatement.getExpression().accept(this);
 		}
-		texts.add("storer -3"); // always -3 ??
+		texts.add("storer -3");
 	}
 
-	// Only the registers have to be changed <- LOL what a wrong comment
 	private void generateIfStatement(IfStatement ifStatement) throws Exception {
 		Integer conditionCount = this.conditionCount++;
 		String elseMark = "__ELSE_STATEMENT_" + conditionCount;
