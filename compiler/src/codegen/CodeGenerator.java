@@ -438,7 +438,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (whileStatement.getWhileCondition() != null) {
 			whileStatement.getWhileCondition().accept(this);
 		} else {
-			this.texts.add("loadc " + BOOLEAN_TRUE);
+			this.texts.add("loadc " + BOOLEAN_TRUE); // should be never null
 		}
 
 		this.texts.add("jumpz " + jumpMark);
@@ -450,7 +450,27 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateForLoop(ForStatement forStatement) throws Exception {
-		// ToDo
+		if (forStatement.hasInitializer()) {
+			forStatement.getInitialization().accept(this);
+		}
+
+		this.texts.add("pop");
+
+		Integer loopCount = this.loopCount++;
+		String loopStart = "__LOOP_Name_" + loopCount;
+		String jumpEnd = "__LOOP_END_" + loopCount;
+
+		this.texts.add(loopStart + ":");
+		forStatement.getCondition().accept(this);
+
+		this.texts.add("jumpz " + jumpEnd);
+		forStatement.getStatement().accept(this);
+		forStatement.getIncrement().accept(this);
+
+		this.texts.add("pop");
+
+		this.texts.add("jump " + loopStart);
+		this.texts.add(jumpEnd + ":");
 	}
 
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {

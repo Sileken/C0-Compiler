@@ -44,4 +44,8 @@ public class ForStatement extends Statement {
         return increment;
     }
 
+    public Statement getStatement() {
+        return statement;
+    }
+
 }
