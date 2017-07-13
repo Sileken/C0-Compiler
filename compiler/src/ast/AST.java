@@ -11,7 +11,7 @@ public class AST {
     this.root = node;
   }
 
-  public String PrintPretty() {
-    return this.root.PrintPretty("", true);
+  public String printPretty() {
+    return this.root.printPretty("", true);
   }
 }

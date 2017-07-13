@@ -69,7 +69,6 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.texts.add("loadc _main()");
 			this.texts.add("call");
 			this.texts.add("halt");
-			this.texts.add("");
 
 		} else if (node instanceof FunctionDefinition) {
 			this.methodLabel = this.getCurrentScope().getName();
@@ -182,8 +181,6 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		} else if (node instanceof FunctionDefinition) {
 			this.texts.add("return");
-			this.texts.add("");
-
 		} else if (node instanceof ReturnStatement) {
 			// return to call function
 			//this.texts.add("jmp " + this.methodLabel + "_END");
@@ -254,6 +251,12 @@ public class CodeGenerator extends SemanticsVisitor {
 		default:
 			// todo: Throw UnsupportedOperationException
 			break;
+		}
+
+		if (unaryExpr.getOperand() instanceof Name) {
+			this.generateVariableAccessLeftValue((Name) unaryExpr.getOperand());
+			this.texts.add("store");
+			this.texts.add("pop");
 		}
 	}
 
@@ -391,6 +394,10 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		this.texts.add("call");
 		this.texts.add("slide " + (args.size() - 1));
+
+		if (expressionPrimary.getParent() instanceof ExpressionStatement) {
+			this.texts.add("pop"); // method call without assignment
+		}
 	}
 
 	private void generateReturnStatement(ReturnStatement returnStatement) throws Exception {
@@ -455,21 +462,15 @@ public class CodeGenerator extends SemanticsVisitor {
 			forStatement.getInitialization().accept(this);
 		}
 
-		this.texts.add("pop");
-
 		Integer loopCount = this.loopCount++;
 		String loopStart = "__LOOP_Name_" + loopCount;
 		String jumpEnd = "__LOOP_END_" + loopCount;
 
 		this.texts.add(loopStart + ":");
 		forStatement.getCondition().accept(this);
-
 		this.texts.add("jumpz " + jumpEnd);
 		forStatement.getStatement().accept(this);
 		forStatement.getIncrement().accept(this);
-
-		this.texts.add("pop");
-
 		this.texts.add("jump " + loopStart);
 		this.texts.add(jumpEnd + ":");
 	}

@@ -25,7 +25,7 @@ public class C0Compiler {
 
       if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
         Logger.log("\nListing AST:");
-        Logger.log(ast.PrintPretty());
+        Logger.log(ast.printPretty());
         Logger.log("\nFinished listing AST");
       }
 

@@ -58,7 +58,7 @@ public abstract class ASTNode {
 		Logger.trace("Did visit <" + this.getClass().getSimpleName() + ">");
 	}
 
-	public String PrintPretty(String indent, boolean last) {
+	public String printPretty(String indent, boolean last) {
 		String out = "\n" + indent;
 
 		if (last) {
@@ -77,7 +77,7 @@ public abstract class ASTNode {
 		out += name;
 
 		for (int i = 0; i < this.childrenList.size(); i++) {
-			out += this.childrenList.get(i).PrintPretty(indent, i == this.childrenList.size() - 1);
+			out += this.childrenList.get(i).printPretty(indent, i == this.childrenList.size() - 1);
 		}
 
 		return out;
