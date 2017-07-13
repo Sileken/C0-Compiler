@@ -245,8 +245,9 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("sub");
 			break;
 		default:
-			// todo: Throw UnsupportedOperationException
-			break;
+			String msg = "Unsupported Operation while generating unary expression code.";
+			Logger.error(msg);
+			throw new CodeGenerationException(msg);
 		}
 
 		if (unaryExpr.getOperand() instanceof Name) {
@@ -310,8 +311,9 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("band");
 			break;
 		default:
-			// todo: Throw UnsupportedOperationException
-			break;
+			String msg = "Unsupported Operation while generating binary expression code.";
+			Logger.error(msg);
+			throw new CodeGenerationException(msg);
 		}
 	}
 
@@ -327,7 +329,7 @@ public class CodeGenerator extends SemanticsVisitor {
 				}
 
 				assignmentExpression.getRightValue().accept(this);
-				
+
 				switch (assignmentExpression.getOperator()) {
 				case PLUSASSIGN:
 					this.code.add("add");
@@ -354,8 +356,9 @@ public class CodeGenerator extends SemanticsVisitor {
 					this.code.add("xor");
 					break;
 				default:
-					// todo: Throw UnsupportedOperationException
-					break;
+					String msg = "Unsupported Operation while generating assignment operator expression code.";
+					Logger.error(msg);
+					throw new CodeGenerationException(msg);
 				}
 			} else {
 				assignmentExpression.getRightValue().accept(this);

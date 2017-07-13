@@ -1,6 +1,8 @@
-package symboltable;
+package codegen;
 
-public class CodeGenerationException extends Exception {
+import symboltable.*;
+
+public class CodeGenerationException extends SymbolTableException {
 
     public CodeGenerationException() {
         super();
