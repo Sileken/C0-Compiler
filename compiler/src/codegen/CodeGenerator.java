@@ -473,6 +473,10 @@ public class CodeGenerator extends SemanticsVisitor {
 		forStatement.getIncrement().accept(this);
 		this.texts.add("jump " + loopStart);
 		this.texts.add(jumpEnd + ":");
+
+		if (forStatement.hasInitializer()) {
+			this.texts.add("pop"); // pop only one possible initializer		
+		}
 	}
 
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {

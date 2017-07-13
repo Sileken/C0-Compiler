@@ -1,28 +1,26 @@
 
-void test(int a, int b){
-    int k = a + b;
+int add6(int k){
+    return k + 6;
 }
 
 int main(){
+    int k = 0;
+
+    k++;
+    k++;
+    k++;
+    k++;
+    k++;
+
+    for(int i = 0; i < 5; i++){
+        k++;
+    }// after k = 10
+
+    //dd6(k); //16
+
+   // k += 1;
+   // k -= 7;
+    //k *= k; //100
     
-    int a;
-    a = 1;
-
-    int b = 5 + a;
-
-    int i;
-
-    while (a < b) {
-        a = a + 2;
-    }
-
-    if (a > b) {
-        i = 42;
-    } else {
-        i = 1337;
-    }
-
-    test(1, 2);
-
-    return i;
+    return k;
 }
