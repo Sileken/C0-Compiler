@@ -320,43 +320,48 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws Exception {
-		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
-
 		assignmentExpression.getRightValue().accept(this);
 
-		switch (assignmentExpression.getOperator()) {
-		case ASSIGN:
-			break;
-		case PLUSASSIGN:
-			this.texts.add("add");
-			break;
-		case MINUSASSIGN:
-			this.texts.add("sub");
-			break;
-		case STARASSIGN:
-			this.texts.add("mul");
-			break;
-		case SLASHASSIGN:
-			this.texts.add("div");
-			break;
-		case REMASSIGN:
-			this.texts.add("mod");
-			break;
-		case ANDASSIGN:
-			this.texts.add("and");
-			break;
-		case ORASSIGN:
-			this.texts.add("or");
-			break;
-		case XORASSIGN:
-			this.texts.add("xor");
-			break;
-		default:
-			// todo: Throw UnsupportedOperationException
-			break;
-		}
+		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
 
 		if (variableDeclaration == null) {
+			if (assignmentExpression.getOperator().ordinal() != AssignmentExpression.Operator.ASSIGN.ordinal()) {
+				if (assignmentExpression.getLeftValue() instanceof Name) {
+					this.generateVariableAccessRightValue((Name) assignmentExpression.getLeftValue());
+				} else {
+					assignmentExpression.getLeftValue().accept(this);
+				}
+
+				switch (assignmentExpression.getOperator()) {
+				case PLUSASSIGN:
+					this.texts.add("add");
+					break;
+				case MINUSASSIGN:
+					this.texts.add("sub");
+					break;
+				case STARASSIGN:
+					this.texts.add("mul");
+					break;
+				case SLASHASSIGN:
+					this.texts.add("div");
+					break;
+				case REMASSIGN:
+					this.texts.add("mod");
+					break;
+				case ANDASSIGN:
+					this.texts.add("and");
+					break;
+				case ORASSIGN:
+					this.texts.add("or");
+					break;
+				case XORASSIGN:
+					this.texts.add("xor");
+					break;
+				default:
+					// todo: Throw UnsupportedOperationException
+					break;
+				}
+			}
 
 			if (assignmentExpression.getLeftValue() instanceof Name) {
 				this.generateVariableAccessLeftValue((Name) assignmentExpression.getLeftValue());

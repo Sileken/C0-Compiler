@@ -11,16 +11,23 @@ int main(){
     k++;
     k++;
     k++;
+    k += k;
+
+    int t = k * k;
 
     for(int i = 0; i < 5; i++){
-        k++;
-    }// after k = 10
+        t += 1;
+    }// after t = 105
 
-    //dd6(k); //16
+    t = dd6(t); // t = 111
 
-   // k += 1;
-   // k -= 7;
-    //k *= k; //100
+    t += 1; // t = 112
+    // t -= 7; // t = 105 //- still buggy
+    t *= k; // t = 1120
     
-    return k;
+    return t;
 }
+
+// 1120 weil loadr 2 (t); 1120 weil t; 10 weil k; 5 PCold @call zu main; 0 FPold @call; 3 EPold @mark; 0 ist Zelle für result von Main;
+//last-2 Stack [1120, 1120, 10, 5, 0, 3, 0]
+// storer -3 saves in the first Cell because current FP is 3 and 3-3 is 0
