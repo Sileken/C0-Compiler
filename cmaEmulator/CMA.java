@@ -53,9 +53,9 @@ public class CMA {
       if(printInstructions) 
       {
         if(currInstr != null)
-            System.out.format("<%-10s ", currInstr+">");
+            System.out.format("<%-10s | ", currInstr+">");
         else
-            System.out.format(" %-10s ", "");
+            System.out.format(" %-10s | ", "");
       }
    
         
@@ -77,7 +77,11 @@ public class CMA {
         String stackString = "";
         for (int i=SP; i>0; i--)
             stackString += stack[i] +", ";
-        System.out.println(stackString + stack[0]+"]");
+        
+        if (SP >= 0) //add first element
+            stackString += stack[0];
+        
+        System.out.println(stackString + "]");
     }
      
 }
