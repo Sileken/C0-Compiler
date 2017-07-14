@@ -18,9 +18,6 @@ import java.util.Stack;
 import java.util.ArrayList;
 import java.util.List;
 
-// Some Notes:
-// - infinite function recursion check?
-// - added member "Type exprType" in Expression-Class => MIGHT NOT BE SET HERE ALWAYS
 // -------------------------------------------------------------------
 // Examples:
 // x + y  		| "x" and "y" must have numeric types
@@ -71,7 +68,6 @@ public class TypeChecker extends SemanticsVisitor {
 		if (node instanceof FunctionDefinition) {
 			currentFunctionReturnType = ((FunctionDefinition) node).getType();
 		}
-
 		super.willVisit(node);
 	}
 
@@ -144,7 +140,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type poppedType = popType();
 			if (!(poppedType instanceof StructType))
-				throw new TypeException("FieldAccess: Expected 'Struct' but got '" + poppedType + "'");
+				throw new TypeException("@FieldAccess: Expected 'Struct' but got '" + poppedType + "'");
 			((FieldAccess)node).getPrefix().setType(poppedType);
 
 			// Get the struct-scope from the symbol-table
@@ -154,7 +150,7 @@ public class TypeChecker extends SemanticsVisitor {
 			// Get the symbol from the struct-scope
 			Symbol symbol = structScope.getFieldDefinition(identifier);
 
-			// If the symbol is null, the field does not exist in the struct-scope (TODO: move this in name-linker?)
+			// If the symbol is null, the field does not exist in the struct-scope
 			if (symbol == null)
 				throw new SymbolTableException("@FieldAccess: Could not find struct field '" + identifier.getName()
 						+ "' for struct type '" + structType + "'");
@@ -171,14 +167,14 @@ public class TypeChecker extends SemanticsVisitor {
 			Type poppedType = popType();
 
 			if (!(poppedType instanceof ReferenceType))
-				throw new TypeException("FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
+				throw new TypeException("@FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
 
 			ReferenceType structRefType = (ReferenceType) poppedType;
 
 			// Get the struct-scope from the symbol-table
 			Type innerType = structRefType.getInnerType();
 			if (!(innerType instanceof StructType))
-				throw new TypeException("FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
+				throw new TypeException("@FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
 
 			StructType structType = (StructType) innerType;
 			StructTypeScope structScope = table.getStructTypeScope(structType.getScopeName());
@@ -186,7 +182,7 @@ public class TypeChecker extends SemanticsVisitor {
 			// Get the symbol from the struct-scope
 			Symbol symbol = structScope.getFieldDefinition(identifier);
 
-			// If the symbol is null, the field does not exist in the struct-scope (TODO: move this in name-linker?)
+			// If the symbol is null, the field does not exist in the struct-scope
 			if (symbol == null)
 				throw new SymbolTableException("@FieldDereferenceAccess: Could not find struct field '"
 						+ identifier.getName() + "' for struct type '" + structType + "'");
@@ -198,13 +194,10 @@ public class TypeChecker extends SemanticsVisitor {
 
 			// Add information to the AST
 			identifier.setType(fieldType);
-		} else if (node instanceof VariableDeclarationExpression) {
-			// TODO: SOMETHING TO DO HERE??
 		} else if (node instanceof VariableDeclaration) {
 			// Throw an error if "void" is used as type
 			checkIsVoidType((VariableDeclaration) node);
 
-			// TODO: is there a better way?
 			// This pop is for function parameters (normal variable decl. get popped through ExpressionStatement)
 			if (node.getParent() instanceof FunctionDefinition)
 				popType();
@@ -265,7 +258,7 @@ public class TypeChecker extends SemanticsVisitor {
 			MethodInvokeExpression method = (MethodInvokeExpression) node;
 
 			Primary prefix = method.getPrefix();
-			String funcName = prefix.getIdentifier(); // TODO: IS THIS ALWAYS THE FUNCTION NAME?
+			String funcName = prefix.getIdentifier(); // ID from prefix is the function name
 
 			List<Expression> args = method.getArguments();
 
@@ -318,7 +311,7 @@ public class TypeChecker extends SemanticsVisitor {
 		} else if (node instanceof ArrayAccess) {
 			Type indexType = popType();
 			if (indexType.getFullyQualifiedName() != "INT")
-				throw new TypeException("Type error: Array index type must be 'INT' but is '" + indexType + "'");
+				throw new TypeException("@ArrayAccess: Index type must be 'INT' but is '" + indexType + "'");
 
 			Type type = popType();
 			if (!(type instanceof ArrayType))
@@ -341,16 +334,16 @@ public class TypeChecker extends SemanticsVisitor {
 				if (var != null) {
 					String lValueString = varType + " " + var.getIdentifier();
 
-					throw new TypeException("AssignmentExpression: Can not " + op + " type '" + assignType
+					throw new TypeException("@AssignmentExpression: Can not " + op + " type '" + assignType
 							+ "' to variable '" + lValueString + "'");
 				} else {
 					Expression exp = ((AssignmentExpression) node).getLeftValue();
 					String lValueString = varType.getFullyQualifiedName();
-					// TODO: There might be a better way for this
+
 					if (!exp.getIdentifier().isEmpty())
 						lValueString += " " + exp.getIdentifier();
 
-					throw new TypeException("AssignmentExpression: Can not " + op + " type '" + assignType
+					throw new TypeException("@AssignmentExpression: Can not " + op + " type '" + assignType
 							+ "' to lValue type '" + lValueString + "'");
 				}
 
@@ -370,7 +363,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type resultType = checkBinaryExpression(leftType, op, rightType);
 			if (resultType == null) {
-				throw new TypeException("Type error: '" + leftType + "' and '" + rightType
+				throw new TypeException("@BinaryExpression: '" + leftType + "' and '" + rightType
 						+ "' does not match with operator '" + op + "'");
 			}
 
@@ -386,7 +379,7 @@ public class TypeChecker extends SemanticsVisitor {
 			// The resultType is only different from the exprType if its a pointer
 			Type resultType = checkUnaryExpression(exprType, op);
 			if (resultType == null) {
-				throw new TypeException("Unary operator '" + op + "' is not compatible with type '" + exprType + "'");
+				throw new TypeException("@UnaryExpression: '" + op + "' is not compatible with type '" + exprType + "'");
 			}
 
 			Logger.traceNoNewline("@UnaryExpression ");
@@ -398,13 +391,13 @@ public class TypeChecker extends SemanticsVisitor {
 			Type exprType = popType();
 
 			if (exprType.getFullyQualifiedName() != "BOOL") {
-				throw new TypeException("Type error in if-statement: Expected 'BOOL' but type was: " + exprType);
+				throw new TypeException("@IfStatement: Expected 'BOOL' but type was: " + exprType);
 			}
 		} else if (node instanceof WhileStatement) {
 			Type exprType = popType();
 
 			if (exprType.getFullyQualifiedName() != "BOOL") {
-				throw new TypeException("Type error in while-statement: Expected 'BOOL' but type was: " + exprType);
+				throw new TypeException("@WhileStatement: Expected 'BOOL' but type was: " + exprType);
 			}
 		} else if (node instanceof ForStatement) {
 			ForStatement forStmt = (ForStatement) node;
@@ -415,8 +408,7 @@ public class TypeChecker extends SemanticsVisitor {
 
 			Type conditionType = popType();
 			if (conditionType.getFullyQualifiedName() != "BOOL") {
-				throw new TypeException("Type error in for-statement: "
-						+ "Expected 'BOOL' from condition but type was '" + conditionType + "'");
+				throw new TypeException("@ForStatement: Expected 'BOOL' from condition but type was '" + conditionType + "'");
 			}
 
 			Expression init = forStmt.getInitialization();
@@ -429,7 +421,7 @@ public class TypeChecker extends SemanticsVisitor {
 				Type allocType = popType();
 
 				if (amtType.getFullyQualifiedName() != "INT")
-					throw new TypeException("2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
+					throw new TypeException("@AllocExpression: 2. argument of alloc_array must be 'INT' but is '" + amtType + "'");
 
 				// push a new array type to the stack
 				Logger.traceNoNewline("@AllocExpression ");
@@ -447,8 +439,7 @@ public class TypeChecker extends SemanticsVisitor {
 		super.didVisit(node);
 	}
 
-	// Return the type for a given type and unary operator
-	// TODO: Not 100% sure if every valid case is included
+	// Return the type for a given type and unary operator (some cases might be missing though)
 	private Type checkUnaryExpression(Type type, UnaryExpression.Operator op) {
 		String typeName = type.getFullyQualifiedName();
 		switch (op) {
@@ -506,7 +497,7 @@ public class TypeChecker extends SemanticsVisitor {
 		case NEQ:
 			return new PrimitiveType(PrimitiveType.Primitive.BOOL);
 
-		// "<", ">", "<=", ">=" => types must be [INT], result is [BOOL] (TODO: check if types MUST BE INT???)
+		// "<", ">", "<=", ">=" => types must be [INT], result is [BOOL]
 		case LT:
 		case GT:
 		case LEQ:
@@ -524,7 +515,7 @@ public class TypeChecker extends SemanticsVisitor {
 		return null;
 	}
 
-	// TODO: Not 100% sure if every valid case is included
+	// Some cases might be missing, but in general it is better to allow less than more
 	private boolean checkAssignmentExpression(Type varType, Type assignType, AssignmentExpression.Operator op) {
 		String varTypeName = varType.getFullyQualifiedName();
 		String assignTypeName = assignType.getFullyQualifiedName();
