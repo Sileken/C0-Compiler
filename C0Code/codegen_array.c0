@@ -1,3 +1,14 @@
 int main(){
     int[] ar = alloc_array(int, 10);
+
+    for(int i = 0; i < 10; i++){
+        ar[i] = i;
+    }
+
+    int sum = 0;
+    for(int k = 0; k < 10; k++){
+        sum += ar[k];
+    }
+
+    return sum;
 }

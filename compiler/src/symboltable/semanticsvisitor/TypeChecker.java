@@ -324,6 +324,8 @@ public class TypeChecker extends SemanticsVisitor {
 				throw new TypeException("@ArrayAccess: Expected array as type but got '" + type + "'");
 
 			Logger.traceNoNewline("@ArrayAccess ");
+			((ArrayAccess)node).getPrefix().setType(type);
+			((ArrayAccess)node).setType(((ArrayType) type).getType());
 			pushType(((ArrayType) type).getType());
 		} else if (node instanceof AssignmentExpression) {
 			Type assignType = popType();

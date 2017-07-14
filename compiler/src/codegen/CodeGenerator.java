@@ -129,7 +129,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.generateAllocExpression((AllocExpression) node);
 			return false;
 		} else if (node instanceof ArrayAccess) {
-			this.generateArrayAccess((ArrayAccess) node);
+			this.generateArrayAccessRightValue((ArrayAccess) node);
 			return false;
 		} else if (node instanceof FieldAccess) {
 			this.generateFieldAccess((FieldAccess) node);
@@ -364,7 +364,9 @@ public class CodeGenerator extends SemanticsVisitor {
 				assignmentExpression.getRightValue().accept(this);
 			}
 
-			if (assignmentExpression.getLeftValue() instanceof Name) {
+			if (assignmentExpression.getLeftValue() instanceof ArrayAccess) {
+				this.generateArrayAccessLeftValue((ArrayAccess) assignmentExpression.getLeftValue());
+			} else if (assignmentExpression.getLeftValue() instanceof Name) {
 				this.generateVariableAccessLeftValue((Name) assignmentExpression.getLeftValue());
 			} else {
 				assignmentExpression.getLeftValue().accept(this);
@@ -479,10 +481,6 @@ public class CodeGenerator extends SemanticsVisitor {
 		forStatement.getIncrement().accept(this);
 		this.code.add("jump " + loopStart);
 		this.code.add(jumpEnd + ":");
-
-		if (forStatement.hasInitializer()) {
-			this.code.add("pop"); // pop only one possible initializer		
-		}
 	}
 
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {
@@ -497,13 +495,29 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("new");
 		}
 
-		if (allocExpression.getParent() instanceof Statement) {
-			this.code.add("pop"); // not assigned allocation address;
+		if (allocExpression.getParent() instanceof Statement
+				&& !(allocExpression.getParent() instanceof ReturnStatement)) {
+			this.code.add("pop"); // not assigned allocation address or returned
 		}
 	}
 
-	private void generateArrayAccess(ArrayAccess arrayAccess) throws Exception {
-		// ToDo
+	private void generateArrayAccessRightValue(ArrayAccess arrayAccess) throws Exception {
+		this.generateArrayAccessLeftValue(arrayAccess);
+		this.code.add("load");
+
+		if (arrayAccess.getParent() instanceof Statement && !(arrayAccess.getParent() instanceof ReturnStatement)) {
+			this.code.add("pop"); // not assigned allocation address or returned
+		}
+	}
+
+	private void generateArrayAccessLeftValue(ArrayAccess arrayAccess) throws Exception {
+		Logger.log(arrayAccess.getParent().printPretty("", true));
+
+		arrayAccess.getPrefix().accept(this);
+		arrayAccess.getIndexExpression().accept(this);
+		this.code.add("loadc " + getSizeOfType(arrayAccess.getType()));
+		this.code.add("mul");
+		this.code.add("add");
 	}
 
 	private void generateFieldAccess(FieldAccess fieldAccess) throws Exception {
@@ -514,20 +528,20 @@ public class CodeGenerator extends SemanticsVisitor {
 		// ToDo
 	}
 
-	private int getSizeOfType(Type type) throws Exception  {
+	private int getSizeOfType(Type type) throws Exception {
 		int typeSize = 1;
 
 		if (type instanceof StructType) {
 			typeSize = 0;
 			StructType structType = (StructType) type;
 			StructTypeScope structScope = this.table.getStructTypeScope(structType.getScopeName());
-			for(Symbol symbol : structScope.getSymbols()){
+			for (Symbol symbol : structScope.getSymbols()) {
 				Logger.debug("Field " + symbol.getName() + " has size " + getSizeOfType(symbol.getType()));
 				typeSize += getSizeOfType(symbol.getType());
 			}
 		}
 
-		Logger.debug("Type " + type.getFullyQualifiedName() + " has size: " + typeSize);
+		Logger.debug("Type " + (type.getFullyQualifiedName() == null ? "yes" : "no") + " has size: " + typeSize);
 		return typeSize;
 	}
 }
