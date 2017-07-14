@@ -15,6 +15,7 @@ import logger.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class CodeGenerator extends SemanticsVisitor {
 	protected static final String BOOLEAN_TRUE = "1";
@@ -54,7 +55,25 @@ public class CodeGenerator extends SemanticsVisitor {
 			Logger.debug("Preparing Function " + methodLabel);
 
 			int k = ((FunctionDefinition) node).getTotalLocalVariables();
-			int max = 150; // ToDo: calculate max (simple version: count arithmetic operations in body..)
+			
+			int max = 100;
+
+			// Traverse all children of this node iteratively using a stack
+			//Stack<ASTNode> nodes = new Stack<ASTNode>();
+			//nodes.push(node);		
+			//while(!nodes.empty())
+			//{	
+			//	ASTNode n = nodes.pop();
+			//	for(ASTNode child : n.getChildren()){
+			//		nodes.push(child);
+			//	}
+//
+			//	// ToDo: calculate max (simple version: count arithmetic operations in body..)
+			//	if(n instanceof AssignmentExpression ||
+			//	   n instanceof BinaryExpression)
+			//		max++;
+			//}
+
 			int q = max + k;
 
 			this.code.add("_" + methodLabel + ":" + " enter " + q);
