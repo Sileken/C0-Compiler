@@ -9,6 +9,12 @@ public class Enter extends Instruction {
 	if (state.EP >= state.NP)
 	    throw new StackOverflow();
     }
+    
+    @Override
+    public String toString()
+    {
+        return "enter " + q;
+    }
 
     
 }

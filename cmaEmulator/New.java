@@ -10,5 +10,10 @@ public class New extends Instruction {
 	}
     }
 
+      @Override
+    public String toString()
+    {
+        return "new";
+    }
     
 }

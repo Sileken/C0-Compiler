@@ -5,5 +5,11 @@ public class Band extends Instruction {
 	state.SP--;
 	state.stack[state.SP] = state.stack[state.SP] & state.stack[state.SP+1];
     }
+    
+    @Override
+    public String toString()
+    {
+        return "band";
+    }
 
 }

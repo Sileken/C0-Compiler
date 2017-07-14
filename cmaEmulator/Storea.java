@@ -9,5 +9,9 @@ public class Storea extends Instruction {
 	state.stack[q] = state.stack[state.SP];
     }
 
-    
+      @Override
+    public String toString()
+    {
+        return "storea " + q;
+    }
 }

@@ -10,5 +10,9 @@ public class Slide extends Instruction {
 	state.stack[state.SP] = tmp;
     }
 
-    
+      @Override
+    public String toString()
+    {
+        return "slide " + k;
+    }
 }

@@ -8,5 +8,10 @@ public class Alloc extends Instruction {
 	state.SP = state.SP + k;
     }
 
+   @Override
+    public String toString()
+    {
+        return "alloc " + k;
+    }
     
 }

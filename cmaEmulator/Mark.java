@@ -7,5 +7,9 @@ public class Mark extends Instruction {
 	state.SP = state.SP+2;
     }
 
-    
+      @Override
+    public String toString()
+    {
+        return "mark";
+    }
 }

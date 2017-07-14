@@ -7,6 +7,11 @@ public class Call extends Instruction {
 	state.FP = state.SP;
 	state.PC = tmp;
     }
-
+ 
+    @Override
+    public String toString()
+    {
+        return "call";
+    }
     
 }

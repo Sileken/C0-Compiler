@@ -5,4 +5,9 @@ public class Neg extends Instruction {
 	state.stack[state.SP] = -state.stack[state.SP];
     }
 
+      @Override
+    public String toString()
+    {
+        return "neg";
+    }
 }

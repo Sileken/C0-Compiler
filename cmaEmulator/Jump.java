@@ -14,5 +14,11 @@ public class Jump extends Instruction {
     public void exec(CMA state) {
 	state.PC = A;
     }
+    
+      @Override
+    public String toString()
+    {
+        return "jump " + A;
+    }
 
 }
