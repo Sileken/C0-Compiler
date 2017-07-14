@@ -489,7 +489,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (allocExpression.isArrayAlloc()) {
 			allocExpression.getArrayAllocationSize().accept(this);
 			this.code.add("loadc " + getSizeOfType(allocExpression.getType()));
-			this.code.add("add");
+			this.code.add("mul");
 			this.code.add("new");
 
 			Logger.log(allocExpression.getParent().printPretty("", true));
