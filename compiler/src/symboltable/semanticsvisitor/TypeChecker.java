@@ -41,6 +41,9 @@ public class TypeChecker extends SemanticsVisitor {
 	// Used to check if a "return" statement matches the function return type
 	private Type currentFunctionReturnType = null;
 
+	// Set to true for a function where the return statement is not nested, e.g. within an if statement
+	private boolean hasNotNestedReturn = false;
+
 	public TypeChecker(SymbolTable table) {
 		super(table);
 	}
@@ -212,11 +215,20 @@ public class TypeChecker extends SemanticsVisitor {
 		} else if (node instanceof FunctionDefinition) {
 			// just pop the return type and set the current function return type to null
 			Type returnType = popType();
+
+			if(!hasNotNestedReturn)
+				throw new TypeException("@FunctionDefinition: Function '" + node.getIdentifier() + "' has only nested returns."
+				                        + " Please add an non nested return statement of type '" + returnType + "'");
+
 			currentFunctionReturnType = null;
+			hasNotNestedReturn = false;
 		} else if (node instanceof ReturnStatement) {
 			// Check if return type match function type
 			if (((ReturnStatement) node).hasExpression()) {
 				Type returnType = popType();
+
+				if(node.getParent() instanceof Block)
+					hasNotNestedReturn = true;
 
 				if (currentFunctionReturnType instanceof ReferenceType && returnType instanceof NullType) {
 					/* NULL can be returned for pointers */ } else if (!returnType.getFullyQualifiedName()
