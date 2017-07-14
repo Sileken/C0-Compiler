@@ -13,11 +13,6 @@ import symboltable.*;
 import symboltable.semanticsvisitor.*;
 import logger.*;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -69,7 +64,7 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	// todo: find other positible code generation nodes
 	@Override
-	public boolean visit(ASTNode node) throws SymbolTableException, GeneralSecurityException, Exception {
+	public boolean visit(ASTNode node) throws SymbolTableException, CodeGenerationException, Exception {
 		if (node instanceof VariableDeclarationExpression) {
 			// do nothing, prevent the generation of the VariableDeclaration
 			return false;
@@ -129,7 +124,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	@Override
 	public void didVisit(ASTNode node) throws SymbolTableException {
 		if (node instanceof FileUnit) {
-			this.writeCodeIntoFile((FileUnit) node);
+			((FileUnit) node).setGeneratedCode(code);
 		} else if (node instanceof FunctionDefinition) {
 			this.code.add("return");
 		}
@@ -263,7 +258,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateAssignmentExpression(AssignmentExpression assignmentExpression)
-			throws SymbolTableException, GeneralSecurityException, Exception {
+			throws SymbolTableException, CodeGenerationException, Exception {
 		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
 
 		if (variableDeclaration == null) {
@@ -579,42 +574,5 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		return fieldIndex;
-	}
-
-	private void writeCodeIntoFile(FileUnit fileUnit) {
-		String fileName = fileUnit.getIdentifier();
-		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
-		fileName += ".cma";
-
-		File cmaFile = new File(fileName);
-
-		Logger.debug("Writing content to: " + cmaFile.getAbsoluteFile());
-
-		File dir = cmaFile.getAbsoluteFile().getParentFile();
-		if (dir != null) {
-			dir.mkdirs();
-		}
-
-		try {
-			cmaFile.createNewFile();
-			try (FileWriter fw = new FileWriter(cmaFile); BufferedWriter bw = new BufferedWriter(fw);) {
-				for (int i = 0; i < code.size(); i++) {
-					String line = code.get(i);
-
-					if (line.endsWith(":")) {
-						line += " " + code.get(++i);
-					}
-
-					bw.write(line);
-					bw.newLine();
-				}
-
-				bw.close();
-			} catch (IOException exception) {
-				exception.printStackTrace();
-			}
-		} catch (IOException exception) {
-			exception.printStackTrace();
-		}
 	}
 }

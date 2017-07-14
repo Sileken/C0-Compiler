@@ -17,7 +17,7 @@ public class C0Compiler {
 
   public static void main(String args[]) {
     initializeLogger();
-    
+
     C0Parser parser = getC0ParserByArguments(args);
 
     try {
@@ -42,6 +42,7 @@ public class C0Compiler {
       typeChecking(ast, table);
       indexing(ast);
       generateCode(ast, table);
+      writeCode(ast, table);
     } catch (ParseException parseException) {
       Logger.log(compilerName + ": Encountered errors during parse.");
       parseException.printStackTrace();
@@ -106,9 +107,20 @@ public class C0Compiler {
   }
 
   private static void generateCode(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + compilerName + ": Code Generation started");
+    Logger.log("\n" + compilerName + ": Code generation started");
     ast.getRoot().accept(new CodeGenerator(symbolTable));
-    Logger.log(compilerName + ": Code Generation finished");
+
+    Logger.log("\n" + compilerName + ": Peep Hole optimization started");
+    ast.getRoot().accept(new PeepHoleOptimizer(symbolTable));
+    Logger.log(compilerName + ": Peep Hole optimization finished");
+
+    Logger.log("\n" + compilerName + ": Code generation finished");
+  }
+
+  private static void writeCode(AST ast, SymbolTable symbolTable) throws Exception {
+    Logger.log("\n" + compilerName + ": Writing code started");
+    ast.getRoot().accept(new FileUnitWriter(symbolTable));
+    Logger.log(compilerName + ": Writing code finished");
   }
 
   private static void initializeLogger() {
