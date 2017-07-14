@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class CodeGenerator extends SemanticsVisitor {
-	protected static final String BOOLEAN_TRUE = "1"; // CMa returns Bool 0 or 1
+	protected static final String BOOLEAN_TRUE = "1";
 	protected static final String BOOLEAN_FALSE = "0";
 	protected static final String NULL = "0";
 
@@ -137,29 +137,24 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateVariableDeclaration(VariableDeclaration variableDeclaration) throws Exception {
-		Logger.debug("VariableDeclarationExpression of " + variableDeclaration.getIdentifier());
 		this.code.add("loadrc " + variableDeclaration.getIndex());
 	}
 
 	private void generateVariableAccessRightValue(Name name) throws Exception {
-		Logger.debug("VariableAccessRightValue of " + name.getIdentifier());
 		this.code.add("loadr " + ((Declaration) name.getOriginalDeclaration().getNode()).getIndex());
 	}
 
 	private void generateVariableAccessLeftValue(Name name) throws Exception {
-		Logger.debug("VariableAccessLeftValue of " + name.getIdentifier());
 		this.code.add("loadrc " + ((Declaration) name.getOriginalDeclaration().getNode()).getIndex());
 	}
 
-	private void generateLiteral(LiteralPrimary literal) throws Exception {
+	private void generateLiteral(LiteralPrimary literal) {
 		if (literal.getLiteralType() == LiteralPrimary.LiteralType.NULL) {
-			// Throw compile error ?
+			this.code.add("loadc " + NULL);
 		} else if (literal.getLiteralType() == LiteralPrimary.LiteralType.INTLIT) {
-			Logger.debug("Literal " + Integer.parseInt(literal.getValue()));
 			this.code.add("loadc " + Integer.parseInt(literal.getValue()));
 		} else if (literal.getLiteralType() == LiteralPrimary.LiteralType.BOOLLIT) {
 			if (literal.getValue().equals("true")) {
-				Logger.debug("Literal true");
 				this.code.add("loadc " + BOOLEAN_TRUE);
 			} else {
 				this.code.add("loadc " + BOOLEAN_FALSE);
@@ -167,7 +162,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateUnaryExpression(UnaryExpression unaryExpr) throws Exception {
+	private void generateUnaryExpression(UnaryExpression unaryExpr)
+			throws SymbolTableException, CodeGenerationException {
 		unaryExpr.getOperand().accept(this);
 
 		switch (unaryExpr.getOperator()) {
@@ -204,7 +200,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateBinaryExpression(BinaryExpression binaryExpression) throws Exception {
+	private void generateBinaryExpression(BinaryExpression binaryExpression)
+			throws SymbolTableException, CodeGenerationException {
 		binaryExpression.getLeftOperand().accept(this);
 		binaryExpression.getRightOperand().accept(this);
 
@@ -351,7 +348,9 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.code.add("loadc " + functionLabel);
 
 		this.code.add("call");
-		this.code.add("slide " + (args.size() - 1));
+		if((args.size() - 1) > 0){
+			this.code.add("slide " + (args.size() - 1));
+		}
 
 		if (expressionPrimary.getParent() instanceof ExpressionStatement) {
 			this.code.add("pop"); // method call without assignment
@@ -362,6 +361,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (returnStatement.getExpression() != null) {
 			returnStatement.getExpression().accept(this);
 		}
+
 		code.add("storer -3");
 	}
 
@@ -403,7 +403,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (whileStatement.getWhileCondition() != null) {
 			whileStatement.getWhileCondition().accept(this);
 		} else {
-			this.code.add("loadc " + BOOLEAN_TRUE); // should be never null
+			this.code.add("loadc " + BOOLEAN_TRUE);
 		}
 
 		this.code.add("jumpz " + jumpMark);
