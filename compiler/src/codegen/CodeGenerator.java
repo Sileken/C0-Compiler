@@ -125,10 +125,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	public void didVisit(ASTNode node) throws SymbolTableException {
 		if (node instanceof FileUnit) {
 			((FileUnit) node).setGeneratedCode(code);
-		} else if (node instanceof FunctionDefinition) {
-			this.code.add("return");
 		}
-
 		super.didVisit(node);
 	}
 
@@ -368,6 +365,7 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		code.add("storer -3");
 		code.add("pop");
+		code.add("return");
 	}
 
 	private void generateIfStatement(IfStatement ifStatement) throws Exception {
