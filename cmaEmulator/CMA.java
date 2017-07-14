@@ -41,23 +41,22 @@ public class CMA {
       this.print(null);
 	  while (true) {
 	      instr = program[PC];
-	      if (instr.halt()) break;
+          PC = PC + 1;
+	      if (instr.halt()){ this.print(instr); break; }
 	      instr.exec(this);
           this.print(instr);
-          PC = PC + 1;
 	  }
 	  return stack[SP];
     }
 
     public void print(Instruction currInstr) {
-      if(printInstructions) 
-      {
-        if(currInstr != null)
-            System.out.format("<%-10s | ", currInstr+">");
-        else
-            System.out.format(" %-10s | ", "");
-      }
-   
+        if(printInstructions) 
+        {
+            if(currInstr != null)
+                System.out.format("<%-10s | ", currInstr+">");
+            else
+                System.out.format(" %-10s | ", "");
+        }   
         
         System.out.print("PC: ");
         System.out.format("%3d | ", PC);
