@@ -15,11 +15,10 @@ import java.util.Map;
 /**
  * Set indexes for Definitions and Declarations:
  *  - FunctionDefinition
- *  - StructDefinition
  *  - FieldDefinition
  *  - VariableDeclaration
  * 
- * Based on the indexes the CodeGenerator will place and handle the StackPointer
+ * Based on the indexes the Code Generator will place and handle the StackPointer
  *
  * Currently inefficiente local variables (declarations within a Block will be persistent)
  */
@@ -37,9 +36,9 @@ public class IndexerVisitor extends ASTVisitor {
 		this.locals = 0; /* like fields */
 	}
 
-	/* Ignore function and struct declarations, the important parts are the definitions */
 	@Override
 	public void willVisit(ASTNode node) throws Exception {
+		/* Ignore function and struct declarations, the important parts are the definitions */
 		if (node instanceof FunctionDefinition || node instanceof StructDefinition) {
 			globals++;
 			Logger.debug("Set global index of " + node.getClass().getSimpleName() + " " + node.getIdentifier() + " to "
@@ -51,16 +50,12 @@ public class IndexerVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(ASTNode node) throws Exception {
 		if (node instanceof FunctionDefinition) {
-			// Set indexes for parameters
 			for (VariableDeclaration param : ((FunctionDefinition) node).getParameters()) {
 				parameters--;
 				param.setIndex(parameters);
-				Logger.debug("FunctionDefinition " + node.getIdentifier() + " param " + param.getIdentifier()
+				Logger.debug("Set FunctionDefinition " + node.getIdentifier() + " param " + param.getIdentifier()
 						+ " index: " + parameters);
 			}
-		} else if (node instanceof StructDefinition) {
-			Logger.debug("StructDefinition " + node.getIdentifier() + " visit");
-			// nothing to do ? yes first field has index 0
 		} else if (node instanceof FieldDefinition) {
 			fields++;
 			((FieldDefinition) node).setIndex(fields);
