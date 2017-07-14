@@ -53,9 +53,9 @@ public class CMA {
       if(printInstructions) 
       {
         if(currInstr != null)
-            System.out.format("<%-10s ", currInstr+">");
+            System.out.format("<%-10s | ", currInstr+">");
         else
-            System.out.format(" %-10s ", "");
+            System.out.format(" %-10s | ", "");
       }
    
         

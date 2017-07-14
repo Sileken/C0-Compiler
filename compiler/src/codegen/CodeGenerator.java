@@ -162,8 +162,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateUnaryExpression(UnaryExpression unaryExpr)
-			throws SymbolTableException, CodeGenerationException {
+	private void generateUnaryExpression(UnaryExpression unaryExpr)	throws Exception {
 		unaryExpr.getOperand().accept(this);
 
 		switch (unaryExpr.getOperator()) {
@@ -200,8 +199,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateBinaryExpression(BinaryExpression binaryExpression)
-			throws SymbolTableException, CodeGenerationException {
+	private void generateBinaryExpression(BinaryExpression binaryExpression) throws Exception {
 		binaryExpression.getLeftOperand().accept(this);
 		binaryExpression.getRightOperand().accept(this);
 
