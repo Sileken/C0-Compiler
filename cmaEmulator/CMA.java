@@ -37,12 +37,14 @@ public class CMA {
 	  Instruction instr = null;
       if(printInstructions) 
           System.out.println("INSTRUCTION --------- STATE AFTER INSTRUCTION ---------");
+      
+      this.print(null);
 	  while (true) {
-	      this.print(instr);
 	      instr = program[PC];
-	      PC = PC + 1;
 	      if (instr.halt()) break;
 	      instr.exec(this);
+          this.print(instr);
+          PC = PC + 1;
 	  }
 	  return stack[SP];
     }
@@ -53,7 +55,7 @@ public class CMA {
         if(currInstr != null)
             System.out.format("<%-10s ", currInstr+">");
         else
-            System.out.format("<%-10s ", "NOTHING>");
+            System.out.format(" %-10s ", "");
       }
    
         
