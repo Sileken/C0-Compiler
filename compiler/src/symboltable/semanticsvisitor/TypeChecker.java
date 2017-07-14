@@ -145,6 +145,7 @@ public class TypeChecker extends SemanticsVisitor {
 			Type poppedType = popType();
 			if (!(poppedType instanceof StructType))
 				throw new TypeException("FieldAccess: Expected 'Struct' but got '" + poppedType + "'");
+			((FieldAccess)node).getPrefix().setType(poppedType);
 
 			// Get the struct-scope from the symbol-table
 			StructType structType = (StructType) poppedType;

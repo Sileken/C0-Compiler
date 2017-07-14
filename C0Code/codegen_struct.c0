@@ -5,4 +5,11 @@ struct person {
 
 int main(){
      struct person* p = alloc(struct person);
+
+     (*p).id = 1;
+     (*p).age = 25;
+
+     (*p).age -= 2;
+
+     return (*p).age;
 }

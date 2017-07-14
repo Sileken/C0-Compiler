@@ -132,7 +132,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.generateArrayAccessRightValue((ArrayAccess) node);
 			return false;
 		} else if (node instanceof FieldAccess) {
-			this.generateFieldAccess((FieldAccess) node);
+			this.generateFieldAccessRightValue((FieldAccess) node);
 			return false;
 		} else if (node instanceof FieldDereferenceAccess) {
 			this.generateFieldDereferenceAccess((FieldDereferenceAccess) node);
@@ -233,8 +233,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("neg");
 			break;
 		case STAR:
-			//codel *e p = coder e p
-			this.code.add("load"); //todo: test dereference
+			this.code.add("load");
 			break;
 		case INCR:
 			this.code.add("loadc 1");
@@ -366,6 +365,8 @@ public class CodeGenerator extends SemanticsVisitor {
 
 			if (assignmentExpression.getLeftValue() instanceof ArrayAccess) {
 				this.generateArrayAccessLeftValue((ArrayAccess) assignmentExpression.getLeftValue());
+			} else if (assignmentExpression.getLeftValue() instanceof FieldAccess) {
+				this.generateFieldAccessLeftValue((FieldAccess) assignmentExpression.getLeftValue());
 			} else if (assignmentExpression.getLeftValue() instanceof Name) {
 				this.generateVariableAccessLeftValue((Name) assignmentExpression.getLeftValue());
 			} else {
@@ -486,12 +487,12 @@ public class CodeGenerator extends SemanticsVisitor {
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {
 		if (allocExpression.isArrayAlloc()) {
 			allocExpression.getArrayAllocationSize().accept(this);
-			this.code.add("loadc " + getSizeOfType(allocExpression.getAllocationType()));
+			this.code.add("loadc " + this.getSizeOfType(allocExpression.getAllocationType()));
 			this.code.add("mul");
 			this.code.add("new");
 
 		} else {
-			this.code.add("loadc " + getSizeOfType(allocExpression.getAllocationType()));
+			this.code.add("loadc " + this.getSizeOfType(allocExpression.getAllocationType()));
 			this.code.add("new");
 		}
 
@@ -511,17 +512,44 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateArrayAccessLeftValue(ArrayAccess arrayAccess) throws Exception {
-		Logger.log(arrayAccess.getParent().printPretty("", true));
-
 		arrayAccess.getPrefix().accept(this);
 		arrayAccess.getIndexExpression().accept(this);
-		this.code.add("loadc " + getSizeOfType(arrayAccess.getType()));
+		this.code.add("loadc " + this.getSizeOfType(arrayAccess.getType()));
 		this.code.add("mul");
 		this.code.add("add");
 	}
 
-	private void generateFieldAccess(FieldAccess fieldAccess) throws Exception {
-		// ToDo
+	private void generateFieldAccessRightValue(FieldAccess fieldAccess) throws Exception {
+		this.generateFieldAccessLeftValue(fieldAccess);
+		this.code.add("load");
+
+		if (fieldAccess.getParent() instanceof Statement && !(fieldAccess.getParent() instanceof ReturnStatement)) {
+			this.code.add("pop"); // not assigned allocation address or returned
+		}
+	}
+
+	private void generateFieldAccessLeftValue(FieldAccess fieldAccess) throws Exception {
+		boolean isPrefDeref = false;
+		if (fieldAccess.getPrefix() instanceof ExpressionPrimary) {
+			ExpressionPrimary primExp = (ExpressionPrimary) fieldAccess.getPrefix();
+			if (primExp.getExpression() instanceof ExpressionPrimary) {
+				ExpressionPrimary primExp2 = (ExpressionPrimary) primExp.getExpression();
+				if (primExp2.getExpression() instanceof UnaryExpression) {
+					UnaryExpression unExp = (UnaryExpression) primExp2.getExpression();
+					if (unExp.getOperator().ordinal() == UnaryExpression.Operator.STAR.ordinal()) {
+						isPrefDeref = true;
+						unExp.getOperand().accept(this); // (*p).field: prevent dereferencing p
+					}
+				}
+			}
+		}
+
+		if (!isPrefDeref) {
+			fieldAccess.getPrefix().accept(this);
+		}
+
+		this.code.add("loadc " + this.getFieldAccesFieldIndex(fieldAccess));
+		this.code.add("add");
 	}
 
 	private void generateFieldDereferenceAccess(FieldDereferenceAccess fieldDereference) throws Exception {
@@ -541,7 +569,31 @@ public class CodeGenerator extends SemanticsVisitor {
 			}
 		}
 
-		Logger.debug("Type " + (type.getFullyQualifiedName() == null ? "yes" : "no") + " has size: " + typeSize);
 		return typeSize;
+	}
+
+	private int getFieldAccesFieldIndex(FieldAccess fieldAccess) throws CodeGenerationException, SymbolTableException {
+		StructType structType = (StructType) fieldAccess.getPrefix().getType();
+		StructTypeScope structScope = this.table.getStructTypeScope(structType.getScopeName());
+
+		int fieldIndex = -1;
+
+		for (Symbol symbol : structScope.getSymbols()) {
+			FieldDefinition fieldDef = (FieldDefinition) symbol.getNode();
+			if (((FieldDefinition) symbol.getNode()).getName().getName()
+					.equals(fieldAccess.getFieldIdentifier().getName())) {
+				fieldIndex = fieldDef.getIndex();
+				break;
+			}
+		}
+
+		if (fieldIndex == -1) {
+			String msg = "Not exisiting Field \"" + fieldAccess.getFieldIdentifier().getName() + "\" in struct type \""
+					+ structType.getFullyQualifiedName() + "\" while field access code.";
+			Logger.error(msg);
+			throw new CodeGenerationException(msg);
+		}
+
+		return fieldIndex;
 	}
 }

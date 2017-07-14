@@ -32,7 +32,7 @@ public class IndexerVisitor extends ASTVisitor {
 
 	public IndexerVisitor() {
 		this.globals = -1; /* global index begins at zero (will be incremented before used) */
-		this.fields = 0; /* fields begin at index 1 (because of the addition with the register pointer) */
+		this.fields = -1; /* fields begin at index 0 (because of the addition with the register pointer) */
 		this.parameters = -2; /* parameters begin at index -3 (will be decremented), previous EP and SP are stored */
 		this.locals = 0; /* like fields */
 	}
@@ -60,7 +60,7 @@ public class IndexerVisitor extends ASTVisitor {
 			}
 		} else if (node instanceof StructDefinition) {
 			Logger.debug("StructDefinition " + node.getIdentifier() + " visit");
-			// nothing to do ?
+			// nothing to do ? yes first field has index 0
 		} else if (node instanceof FieldDefinition) {
 			fields++;
 			((FieldDefinition) node).setIndex(fields);
@@ -89,7 +89,7 @@ public class IndexerVisitor extends ASTVisitor {
 			Logger.debug("StructDefinition " + node.getIdentifier() + " contains " + fields + " fields");
 			((StructDefinition) node).setTotalFields(fields);
 			// Reset struct field count
-			fields = 0;
+			fields = -1;
 		}
 	}
 }
