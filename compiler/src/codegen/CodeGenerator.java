@@ -21,16 +21,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class CodeGenerator extends SemanticsVisitor {
-
 	protected static final String BOOLEAN_TRUE = "1"; // CMa returns Bool 0 or 1
 	protected static final String BOOLEAN_FALSE = "0";
 	protected static final String NULL = "0";
 
-	protected File cmaFile;
-
-	protected List<String> code; /* list containing the final commands of the executable */
-
-	private String methodLabel;
+	protected List<String> code;
 	private Integer loopCount;
 	private Integer conditionCount;
 
@@ -39,9 +34,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void initialize() {
-		this.cmaFile = null;
 		this.code = new ArrayList<String>();
-		this.methodLabel = null;
 		this.loopCount = 0;
 		this.conditionCount = 0;
 	}
@@ -53,37 +46,27 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (node instanceof FileUnit) {
 			Logger.debug("Initialize CodeGenerator");
 			this.initialize();
-			String fileName = node.getIdentifier();
-			fileName = fileName.substring(0, fileName.indexOf('.'));
-			fileName += ".cma";
 
-			this.cmaFile = new File(fileName);
-
-			this.code.add("enter 4"); // is it always 4 ?
-			this.code.add("alloc 1"); // always 1 (for loadc _main)?
+			this.code.add("enter 4");
+			this.code.add("alloc 1");
 			this.code.add("mark");
 			this.code.add("loadc _main()");
 			this.code.add("call");
 			this.code.add("halt");
-
 		} else if (node instanceof FunctionDefinition) {
-			this.methodLabel = this.getCurrentScope().getName();
+			String methodLabel = this.getCurrentScope().getName();
 			Logger.debug("Preparing Function " + methodLabel);
 
 			int k = ((FunctionDefinition) node).getTotalLocalVariables();
 			int max = 150; // ToDo: calculate max (simple version: count arithmetic operations in body..)
 			int q = max + k;
 
-			this.code.add("_" + this.methodLabel + ":" + " enter " + q);
+			this.code.add("_" + methodLabel + ":" + " enter " + q);
 			this.code.add("alloc " + k);
-
-		} else if (node instanceof StructDefinition) {
-			Logger.debug("Preparing Struct");
-			// like FunctionDeclaration
 		}
 	}
 
-	// not all listed
+	// todo: find other positible code generation nodes
 	@Override
 	public boolean visit(ASTNode node) throws Exception {
 		if (node instanceof VariableDeclarationExpression) {
@@ -144,44 +127,10 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	@Override
 	public void didVisit(ASTNode node) throws SymbolTableException {
-		// leaving FileUnit, write content on disk
 		if (node instanceof FileUnit) {
-			Logger.debug("writing content to: " + cmaFile);
-			File dir = this.cmaFile.getParentFile();
-
-			Logger.debug("Dir: " + dir);
-			if (dir != null) {
-				dir.mkdirs();
-			}
-
-			try {
-				this.cmaFile.createNewFile();
-
-				BufferedWriter asmWriter = new BufferedWriter(new FileWriter(this.cmaFile));
-
-				for (int i = 0; i < code.size(); i++) {
-					String line = code.get(i);
-
-					if (line.endsWith(":")) {
-						line += " " + code.get(++i);
-					}
-
-					asmWriter.write(line);
-					asmWriter.newLine();
-				}
-
-				asmWriter.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
+			this.writeCodeIntoFile((FileUnit) node);
 		} else if (node instanceof FunctionDefinition) {
 			this.code.add("return");
-		} else if (node instanceof ReturnStatement) {
-			// return to call function
-			//this.code.add("jmp " + this.methodLabel + "_END");
-		} else if (node instanceof StructDefinition) {
-			// ...
 		}
 
 		super.didVisit(node);
@@ -203,7 +152,6 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateLiteral(LiteralPrimary literal) throws Exception {
-
 		if (literal.getLiteralType() == LiteralPrimary.LiteralType.NULL) {
 			// Throw compile error ?
 		} else if (literal.getLiteralType() == LiteralPrimary.LiteralType.INTLIT) {
@@ -595,5 +543,42 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		return fieldIndex;
+	}
+
+	private void writeCodeIntoFile(FileUnit fileUnit) {
+		String fileName = fileUnit.getIdentifier();
+		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+		fileName += ".cma";
+
+		File cmaFile = new File(fileName);
+
+		Logger.debug("Writing content to: " + cmaFile.getAbsoluteFile());
+
+		File dir = cmaFile.getAbsoluteFile().getParentFile();
+		if (dir != null) {
+			dir.mkdirs();
+		}
+
+		try {
+			cmaFile.createNewFile();
+			try (FileWriter fw = new FileWriter(cmaFile); BufferedWriter bw = new BufferedWriter(fw);) {
+				for (int i = 0; i < code.size(); i++) {
+					String line = code.get(i);
+
+					if (line.endsWith(":")) {
+						line += " " + code.get(++i);
+					}
+
+					bw.write(line);
+					bw.newLine();
+				}
+
+				bw.close();
+			} catch (IOException exception) {
+				exception.printStackTrace();
+			}
+		} catch (IOException exception) {
+			exception.printStackTrace();
+		}
 	}
 }
