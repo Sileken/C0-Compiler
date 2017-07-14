@@ -135,7 +135,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.generateFieldAccessRightValue((FieldAccess) node);
 			return false;
 		} else if (node instanceof FieldDereferenceAccess) {
-			this.generateFieldDereferenceAccess((FieldDereferenceAccess) node);
+			this.generateFieldDereferenceAccessRightValue((FieldDereferenceAccess) node);
 			return false;
 		}
 
@@ -365,6 +365,9 @@ public class CodeGenerator extends SemanticsVisitor {
 
 			if (assignmentExpression.getLeftValue() instanceof ArrayAccess) {
 				this.generateArrayAccessLeftValue((ArrayAccess) assignmentExpression.getLeftValue());
+			} else if (assignmentExpression.getLeftValue() instanceof FieldDereferenceAccess) {
+				this.generateFieldDereferenceAccessLeftValue(
+						(FieldDereferenceAccess) assignmentExpression.getLeftValue());
 			} else if (assignmentExpression.getLeftValue() instanceof FieldAccess) {
 				this.generateFieldAccessLeftValue((FieldAccess) assignmentExpression.getLeftValue());
 			} else if (assignmentExpression.getLeftValue() instanceof Name) {
@@ -552,8 +555,23 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.code.add("add");
 	}
 
-	private void generateFieldDereferenceAccess(FieldDereferenceAccess fieldDereference) throws Exception {
-		// ToDo
+	private void generateFieldDereferenceAccessRightValue(FieldDereferenceAccess fieldDereferenceAccess)
+			throws Exception {
+		this.generateFieldDereferenceAccessLeftValue(fieldDereferenceAccess);
+		this.code.add("load");
+
+		if (fieldDereferenceAccess.getParent() instanceof Statement
+				&& !(fieldDereferenceAccess.getParent() instanceof ReturnStatement)) {
+			this.code.add("pop"); // not assigned allocation address or returned
+		}
+	}
+
+	private void generateFieldDereferenceAccessLeftValue(FieldDereferenceAccess fieldDereferenceAccess)
+			throws Exception {
+		fieldDereferenceAccess.getPrefix().accept(this);
+
+		this.code.add("loadc " + this.getFieldDereferenceFieldIndex(fieldDereferenceAccess));
+		this.code.add("add");
 	}
 
 	private int getSizeOfType(Type type) throws Exception {
@@ -574,21 +592,31 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private int getFieldAccesFieldIndex(FieldAccess fieldAccess) throws CodeGenerationException, SymbolTableException {
 		StructType structType = (StructType) fieldAccess.getPrefix().getType();
+		return this.getStructFieldIndex(structType, fieldAccess.getFieldIdentifier().getName());
+	}
+
+	private int getFieldDereferenceFieldIndex(FieldDereferenceAccess fieldDereferenceAccess)
+			throws CodeGenerationException, SymbolTableException {
+		StructType structType = (StructType) fieldDereferenceAccess.getPrefix().getType();
+		return this.getStructFieldIndex(structType, fieldDereferenceAccess.getFieldIdentifier().getName());
+	}
+
+	private int getStructFieldIndex(StructType structType, String fieldName)
+			throws CodeGenerationException, SymbolTableException {
 		StructTypeScope structScope = this.table.getStructTypeScope(structType.getScopeName());
 
 		int fieldIndex = -1;
 
 		for (Symbol symbol : structScope.getSymbols()) {
 			FieldDefinition fieldDef = (FieldDefinition) symbol.getNode();
-			if (((FieldDefinition) symbol.getNode()).getName().getName()
-					.equals(fieldAccess.getFieldIdentifier().getName())) {
+			if (((FieldDefinition) symbol.getNode()).getName().getName().equals(fieldName)) {
 				fieldIndex = fieldDef.getIndex();
 				break;
 			}
 		}
 
 		if (fieldIndex == -1) {
-			String msg = "Not exisiting Field \"" + fieldAccess.getFieldIdentifier().getName() + "\" in struct type \""
+			String msg = "Not exisiting Field \"" + fieldName + "\" in struct type \""
 					+ structType.getFullyQualifiedName() + "\" while field access code.";
 			Logger.error(msg);
 			throw new CodeGenerationException(msg);
