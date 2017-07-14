@@ -163,12 +163,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-<<<<<<< HEAD
 	private void generateUnaryExpression(UnaryExpression unaryExpr)
 			throws Exception, SymbolTableException, CodeGenerationException {
-=======
-	private void generateUnaryExpression(UnaryExpression unaryExpr)	throws Exception {
->>>>>>> 7839a87bb4aa3b95d9f08bc0bb97e4d186bcd28e
 		unaryExpr.getOperand().accept(this);
 
 		switch (unaryExpr.getOperator()) {
@@ -204,7 +200,6 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("pop");
 		}
 	}
-
 
 	private void generateBinaryExpression(BinaryExpression binaryExpression)
 			throws SymbolTableException, CodeGenerationException, Exception {
@@ -267,7 +262,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws SymbolTableException, GeneralSecurityException, Exception {
+	private void generateAssignmentExpression(AssignmentExpression assignmentExpression)
+			throws SymbolTableException, GeneralSecurityException, Exception {
 		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
 
 		if (variableDeclaration == null) {
