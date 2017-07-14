@@ -175,6 +175,7 @@ public class TypeChecker extends SemanticsVisitor {
 			Type innerType = structRefType.getInnerType();
 			if (!(innerType instanceof StructType))
 				throw new TypeException("@FieldDereferenceAccess: Expected 'Struct*' but got '" + poppedType + "'");
+			((FieldDereferenceAccess)node).getPrefix().setType(innerType);
 
 			StructType structType = (StructType) innerType;
 			StructTypeScope structScope = table.getStructTypeScope(structType.getScopeName());
