@@ -44,7 +44,7 @@ public class IndexerVisitor extends ASTVisitor {
 			globals++;
 			Logger.debug("Set global index of " + node.getClass().getSimpleName() + " " + node.getIdentifier() + " to "
 					+ globals);
-			((FunctionDefinition) node).setIndex(globals);
+			((Definition) node).setIndex(globals);
 		}
 	}
 

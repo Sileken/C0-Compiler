@@ -51,6 +51,10 @@ public class Scope {
 		return name;
 	}
 
+	public ArrayList<Symbol> getSymbols(){
+		return  new ArrayList<Symbol>(this.symbols.values());
+	}
+
 	protected List<Symbol> findEntriesWithSuffix(Collection<Symbol> symbols, String suffix) {
 		List<Symbol> matchedSymbols = new ArrayList<Symbol>();
 		for (Symbol entry : symbols) {

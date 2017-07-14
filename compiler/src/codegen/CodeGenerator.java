@@ -488,18 +488,17 @@ public class CodeGenerator extends SemanticsVisitor {
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {
 		if (allocExpression.isArrayAlloc()) {
 			allocExpression.getArrayAllocationSize().accept(this);
-			this.code.add("loadc " + getSizeOfType(allocExpression.getType()));
+			this.code.add("loadc " + getSizeOfType(allocExpression.getAllocationType()));
 			this.code.add("mul");
 			this.code.add("new");
 
-			Logger.log(allocExpression.getParent().printPretty("", true));
-
-			if (allocExpression.getParent() instanceof Statement) {
-				this.code.add("pop"); // not assigned allocation address;
-			}
 		} else {
-			//get all type size from fields
-			//...
+			this.code.add("loadc " + getSizeOfType(allocExpression.getAllocationType()));
+			this.code.add("new");
+		}
+
+		if (allocExpression.getParent() instanceof Statement) {
+			this.code.add("pop"); // not assigned allocation address;
 		}
 	}
 
@@ -515,7 +514,20 @@ public class CodeGenerator extends SemanticsVisitor {
 		// ToDo
 	}
 
-	private int getSizeOfType(Type type) {
-		return 1;
+	private int getSizeOfType(Type type) throws Exception  {
+		int typeSize = 1;
+
+		if (type instanceof StructType) {
+			typeSize = 0;
+			StructType structType = (StructType) type;
+			StructTypeScope structScope = this.table.getStructTypeScope(structType.getScopeName());
+			for(Symbol symbol : structScope.getSymbols()){
+				Logger.debug("Field " + symbol.getName() + " has size " + getSizeOfType(symbol.getType()));
+				typeSize += getSizeOfType(symbol.getType());
+			}
+		}
+
+		Logger.debug("Type " + type.getFullyQualifiedName() + " has size: " + typeSize);
+		return typeSize;
 	}
 }

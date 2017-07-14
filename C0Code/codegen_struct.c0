@@ -1,0 +1,8 @@
+struct person {
+  int id;
+  int age;
+};
+
+int main(){
+     struct person* p = alloc(struct person);
+}
