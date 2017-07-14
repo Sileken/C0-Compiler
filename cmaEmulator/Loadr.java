@@ -9,6 +9,12 @@ public class Loadr extends Instruction {
 	state.SP++;
 	state.stack[state.SP] = state.stack[state.FP+j];;
     }
+    
+      @Override
+    public String toString()
+    {
+        return "loadr " + j;
+    }
 
     
 }

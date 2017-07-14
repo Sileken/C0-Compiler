@@ -9,5 +9,9 @@ public class Loadrc extends Instruction {
 	state.stack[state.SP] = state.FP + j;
     }
 
-    
+      @Override
+    public String toString()
+    {
+        return "loadrc " + j;
+    }
 }

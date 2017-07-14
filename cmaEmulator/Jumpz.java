@@ -15,5 +15,11 @@ public class Jumpz extends Instruction {
 	if (state.stack[state.SP]==0) state.PC = A;
 	state.SP--;
     }
+    
+       @Override
+    public String toString()
+    {
+        return "jumpz " + A;
+    }
 
 }

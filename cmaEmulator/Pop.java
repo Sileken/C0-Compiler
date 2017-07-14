@@ -5,4 +5,9 @@ public class Pop extends Instruction {
 	state.SP--;
     }
 
+      @Override
+    public String toString()
+    {
+        return "pop";
+    }
 }

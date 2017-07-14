@@ -6,5 +6,10 @@ public class Store extends Instruction {
 	state.SP--;
     }
 
+      @Override
+    public String toString()
+    {
+        return "store";
+    }
     
 }

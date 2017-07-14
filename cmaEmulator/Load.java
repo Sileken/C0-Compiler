@@ -6,5 +6,10 @@ public class Load extends Instruction {
 	state.stack[state.SP] = state.stack[state.stack[state.SP]];
     }
 
+      @Override
+    public String toString()
+    {
+        return "load";
+    }
     
 }

@@ -10,6 +10,8 @@ public class CMA {
      public int max = 1000;
      public int[] stack;
      
+     private final boolean printInstructions = true;
+     
 
      CMA (Instruction[] program) {
 	  this.program = program;
@@ -32,9 +34,11 @@ public class CMA {
      }
      
     public int exec() throws BadInstruction, StackOverflow {
-	  Instruction instr;
+	  Instruction instr = null;
+      if(printInstructions) 
+          System.out.println("INSTRUCTION --------- STATE AFTER INSTRUCTION ---------");
 	  while (true) {
-	      this.print();
+	      this.print(instr);
 	      instr = program[PC];
 	      PC = PC + 1;
 	      if (instr.halt()) break;
@@ -43,7 +47,16 @@ public class CMA {
 	  return stack[SP];
     }
 
-    public void print() {
+    public void print(Instruction currInstr) {
+      if(printInstructions) 
+      {
+        if(currInstr != null)
+            System.out.format("<%-10s ", currInstr+">");
+        else
+            System.out.format("<%-10s ", "NOTHING>");
+      }
+   
+        
         System.out.print("PC: ");
         System.out.format("%3d | ", PC);
           

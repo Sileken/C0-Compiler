@@ -5,4 +5,9 @@ public class Not extends Instruction {
 	state.stack[state.SP] = 1-state.stack[state.SP];
     }
 
+      @Override
+    public String toString()
+    {
+        return "not";
+    }
 }

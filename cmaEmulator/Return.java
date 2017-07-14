@@ -9,5 +9,9 @@ public class Return extends Instruction {
 	state.FP = state.stack[state.SP+2];
     }
 
-    
+      @Override
+    public String toString()
+    {
+        return "return";
+    }
 }

@@ -13,6 +13,12 @@ public class Loadc extends Instruction {
 	state.SP++;
 	state.stack[state.SP] = q;
     }
+    
+      @Override
+    public String toString()
+    {
+        return "loadc " + q;
+    }
 
     
 }
