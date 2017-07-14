@@ -1,0 +1,3 @@
+int main(){
+    alloc_array(int, 10);
+}

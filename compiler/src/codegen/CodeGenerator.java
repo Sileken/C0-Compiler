@@ -486,8 +486,21 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {
-		// ToDo
-		// switch between Alloc Array and alloc Struct 
+		if (allocExpression.isArrayAlloc()) {
+			allocExpression.getArrayAllocationSize().accept(this);
+			this.code.add("loadc " + getSizeOfType(allocExpression.getType()));
+			this.code.add("add");
+			this.code.add("new");
+
+			Logger.log(allocExpression.getParent().printPretty("", true));
+
+			if (allocExpression.getParent() instanceof Statement) {
+				this.code.add("pop"); // not assigned allocation address;
+			}
+		} else {
+			//get all type size from fields
+			//...
+		}
 	}
 
 	private void generateArrayAccess(ArrayAccess arrayAccess) throws Exception {
@@ -500,5 +513,9 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private void generateFieldDereferenceAccess(FieldDereferenceAccess fieldDereference) throws Exception {
 		// ToDo
+	}
+
+	private int getSizeOfType(Type type) {
+		return 1;
 	}
 }
