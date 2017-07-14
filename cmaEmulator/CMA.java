@@ -44,14 +44,25 @@ public class CMA {
     }
 
     public void print() {
-	String s = "PC: " + PC;
-	s = s + " FP: " + FP;
-	s = s + " SP: " + SP;
-	s = s + " NP: " + NP + " Stack: [";	
-	for (int i=SP; i>0; i--)
-	    s = s + stack[i] +", ";
-	System.out.println(s+stack[0]+"]");
-	    
+        System.out.print("PC: ");
+        System.out.format("%3d | ", PC);
+          
+        System.out.print("FP: ");
+        System.out.format("%3d | ", FP);
+          
+        System.out.print("SP: ");
+        System.out.format("%3d | ", SP);
+        
+        System.out.print("EP: ");
+        int length = (int)(Math.log10(max)+1); // Printed length equal to the num digits of MAX
+        System.out.format("%"+length+"d | ", EP);
+        
+        System.out.print("NP: ");
+        System.out.format("%3d | Stack: [", NP);
+        String stackString = "";
+        for (int i=SP; i>0; i--)
+            stackString += stack[i] +", ";
+        System.out.println(stackString + stack[0]+"]");
     }
      
 }
