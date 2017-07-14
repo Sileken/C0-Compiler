@@ -1,7 +1,11 @@
-
 int add6(int k){
     return k + 6;
 }
+
+int get6(){
+    return 6;
+}
+
 
 int main(){
     int k = 0;
@@ -20,6 +24,8 @@ int main(){
     }// after t = 105
 
     t = add6(t); // t = 111
+    t += get6();
+    t -= get6();
 
     t += 1; // t = 112
     t -= 7; // t = 105

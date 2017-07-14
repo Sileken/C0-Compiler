@@ -336,9 +336,13 @@ public class CodeGenerator extends SemanticsVisitor {
 		Name name = (Name) expressionPrimary.getPrefix();
 
 		List<Expression> args = methodInvoke.getArguments();
-		for (int i = args.size() - 1; i >= 0; i--) {
-			Expression arg = args.get(i);
-			arg.accept(this);
+		if (args.size() > 0) {
+			for (int i = args.size() - 1; i >= 0; i--) {
+				Expression arg = args.get(i);
+				arg.accept(this);
+			}
+		} else {
+			this.code.add("alloc 1");
 		}
 
 		this.code.add("mark");
@@ -368,6 +372,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		code.add("storer -3");
+		code.add("pop");
 	}
 
 	private void generateIfStatement(IfStatement ifStatement) throws Exception {
