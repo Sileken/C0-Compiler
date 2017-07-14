@@ -4,12 +4,18 @@ struct person {
 };
 
 int main(){
-     struct person* p = alloc(struct person);
+    struct person* p = alloc(struct person);
+    struct person* p2 = alloc(struct person);
 
-     (*p).id = 1;
-     (*p).age = 25;
+    (*p).id = 1;
+    (*p).age = 25;
 
-     (*p).age -= 2;
+    (*p).age -= 2;
 
-     return (*p).age;
+    p2->id = 1;
+    p2->age = 25;
+
+    p2->age -= 2;
+
+    return p2->age + (*p).age;
 }

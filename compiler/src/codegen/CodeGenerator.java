@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -68,7 +69,7 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	// todo: find other positible code generation nodes
 	@Override
-	public boolean visit(ASTNode node) throws Exception {
+	public boolean visit(ASTNode node) throws SymbolTableException, GeneralSecurityException, Exception {
 		if (node instanceof VariableDeclarationExpression) {
 			// do nothing, prevent the generation of the VariableDeclaration
 			return false;
@@ -118,7 +119,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.generateFieldAccessRightValue((FieldAccess) node);
 			return false;
 		} else if (node instanceof FieldDereferenceAccess) {
-			this.generateFieldDereferenceAccess((FieldDereferenceAccess) node);
+			this.generateFieldDereferenceAccessRightValue((FieldDereferenceAccess) node);
 			return false;
 		}
 
@@ -163,7 +164,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateUnaryExpression(UnaryExpression unaryExpr)
-			throws SymbolTableException, CodeGenerationException {
+			throws Exception, SymbolTableException, CodeGenerationException {
 		unaryExpr.getOperand().accept(this);
 
 		switch (unaryExpr.getOperator()) {
@@ -201,7 +202,7 @@ public class CodeGenerator extends SemanticsVisitor {
 	}
 
 	private void generateBinaryExpression(BinaryExpression binaryExpression)
-			throws SymbolTableException, CodeGenerationException {
+			throws SymbolTableException, CodeGenerationException, Exception {
 		binaryExpression.getLeftOperand().accept(this);
 		binaryExpression.getRightOperand().accept(this);
 
@@ -261,7 +262,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws Exception {
+	private void generateAssignmentExpression(AssignmentExpression assignmentExpression) throws SymbolTableException, GeneralSecurityException, Exception {
 		VariableDeclaration variableDeclaration = assignmentExpression.getVariableDeclaration();
 
 		if (variableDeclaration == null) {
@@ -310,6 +311,9 @@ public class CodeGenerator extends SemanticsVisitor {
 
 			if (assignmentExpression.getLeftValue() instanceof ArrayAccess) {
 				this.generateArrayAccessLeftValue((ArrayAccess) assignmentExpression.getLeftValue());
+			} else if (assignmentExpression.getLeftValue() instanceof FieldDereferenceAccess) {
+				this.generateFieldDereferenceAccessLeftValue(
+						(FieldDereferenceAccess) assignmentExpression.getLeftValue());
 			} else if (assignmentExpression.getLeftValue() instanceof FieldAccess) {
 				this.generateFieldAccessLeftValue((FieldAccess) assignmentExpression.getLeftValue());
 			} else if (assignmentExpression.getLeftValue() instanceof Name) {
@@ -326,7 +330,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.code.add("pop");
 	}
 
-	private void generateMethodInvoke(ExpressionPrimary expressionPrimary) throws Exception {
+	private void generateMethodInvoke(ExpressionPrimary expressionPrimary) throws SymbolTableException, Exception {
 		MethodInvokeExpression methodInvoke = (MethodInvokeExpression) expressionPrimary.getExpression();
 		Name name = (Name) expressionPrimary.getPrefix();
 
@@ -348,7 +352,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.code.add("loadc " + functionLabel);
 
 		this.code.add("call");
-		if((args.size() - 1) > 0){
+		if ((args.size() - 1) > 0) {
 			this.code.add("slide " + (args.size() - 1));
 		}
 
@@ -438,7 +442,6 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("loadc " + this.getSizeOfType(allocExpression.getAllocationType()));
 			this.code.add("mul");
 			this.code.add("new");
-
 		} else {
 			this.code.add("loadc " + this.getSizeOfType(allocExpression.getAllocationType()));
 			this.code.add("new");
@@ -450,7 +453,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateArrayAccessRightValue(ArrayAccess arrayAccess) throws Exception {
+	private void generateArrayAccessRightValue(ArrayAccess arrayAccess) throws SymbolTableException, Exception {
 		this.generateArrayAccessLeftValue(arrayAccess);
 		this.code.add("load");
 
@@ -459,7 +462,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateArrayAccessLeftValue(ArrayAccess arrayAccess) throws Exception {
+	private void generateArrayAccessLeftValue(ArrayAccess arrayAccess) throws SymbolTableException, Exception {
 		arrayAccess.getPrefix().accept(this);
 		arrayAccess.getIndexExpression().accept(this);
 		this.code.add("loadc " + this.getSizeOfType(arrayAccess.getType()));
@@ -467,7 +470,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.code.add("add");
 	}
 
-	private void generateFieldAccessRightValue(FieldAccess fieldAccess) throws Exception {
+	private void generateFieldAccessRightValue(FieldAccess fieldAccess)
+			throws CodeGenerationException, SymbolTableException, Exception {
 		this.generateFieldAccessLeftValue(fieldAccess);
 		this.code.add("load");
 
@@ -476,7 +480,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	private void generateFieldAccessLeftValue(FieldAccess fieldAccess) throws Exception {
+	private void generateFieldAccessLeftValue(FieldAccess fieldAccess)
+			throws CodeGenerationException, SymbolTableException, Exception {
 		boolean isPrefDeref = false;
 		if (fieldAccess.getPrefix() instanceof ExpressionPrimary) {
 			ExpressionPrimary primExp = (ExpressionPrimary) fieldAccess.getPrefix();
@@ -500,11 +505,26 @@ public class CodeGenerator extends SemanticsVisitor {
 		this.code.add("add");
 	}
 
-	private void generateFieldDereferenceAccess(FieldDereferenceAccess fieldDereference) throws Exception {
-		// ToDo
+	private void generateFieldDereferenceAccessRightValue(FieldDereferenceAccess fieldDereferenceAccess)
+			throws CodeGenerationException, SymbolTableException, Exception {
+		this.generateFieldDereferenceAccessLeftValue(fieldDereferenceAccess);
+		this.code.add("load");
+
+		if (fieldDereferenceAccess.getParent() instanceof Statement
+				&& !(fieldDereferenceAccess.getParent() instanceof ReturnStatement)) {
+			this.code.add("pop"); // not assigned allocation address or returned
+		}
 	}
 
-	private int getSizeOfType(Type type) throws Exception {
+	private void generateFieldDereferenceAccessLeftValue(FieldDereferenceAccess fieldDereferenceAccess)
+			throws CodeGenerationException, SymbolTableException, Exception {
+		fieldDereferenceAccess.getPrefix().accept(this);
+
+		this.code.add("loadc " + this.getFieldDereferenceFieldIndex(fieldDereferenceAccess));
+		this.code.add("add");
+	}
+
+	private int getSizeOfType(Type type) throws SymbolTableException {
 		int typeSize = 1;
 
 		if (type instanceof StructType) {
@@ -522,21 +542,31 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private int getFieldAccesFieldIndex(FieldAccess fieldAccess) throws CodeGenerationException, SymbolTableException {
 		StructType structType = (StructType) fieldAccess.getPrefix().getType();
+		return this.getStructFieldIndex(structType, fieldAccess.getFieldIdentifier().getName());
+	}
+
+	private int getFieldDereferenceFieldIndex(FieldDereferenceAccess fieldDereferenceAccess)
+			throws CodeGenerationException, SymbolTableException {
+		StructType structType = (StructType) fieldDereferenceAccess.getPrefix().getType();
+		return this.getStructFieldIndex(structType, fieldDereferenceAccess.getFieldIdentifier().getName());
+	}
+
+	private int getStructFieldIndex(StructType structType, String fieldName)
+			throws CodeGenerationException, SymbolTableException {
 		StructTypeScope structScope = this.table.getStructTypeScope(structType.getScopeName());
 
 		int fieldIndex = -1;
 
 		for (Symbol symbol : structScope.getSymbols()) {
 			FieldDefinition fieldDef = (FieldDefinition) symbol.getNode();
-			if (((FieldDefinition) symbol.getNode()).getName().getName()
-					.equals(fieldAccess.getFieldIdentifier().getName())) {
+			if (((FieldDefinition) symbol.getNode()).getName().getName().equals(fieldName)) {
 				fieldIndex = fieldDef.getIndex();
 				break;
 			}
 		}
 
 		if (fieldIndex == -1) {
-			String msg = "Not exisiting Field \"" + fieldAccess.getFieldIdentifier().getName() + "\" in struct type \""
+			String msg = "Not exisiting Field \"" + fieldName + "\" in struct type \""
 					+ structType.getFullyQualifiedName() + "\" while field access code.";
 			Logger.error(msg);
 			throw new CodeGenerationException(msg);
