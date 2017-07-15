@@ -11,8 +11,8 @@ import logger.*;
 import logger.Logger.LogLevel;
 
 public class C0Compiler {
-  private static String compilerName = "C0 Compiler";
-  private static String defaultLogFileName = "C0Compiler";
+  private static String klaff = "C0 Compiler";
+  private static String falk = "C0Compiler";
   private static LogLevel defaultLogLevel = LogLevel.DEBUG;
 
   public static void main(String args[]) {
@@ -44,10 +44,10 @@ public class C0Compiler {
       generateCode(ast, table);
       writeCode(ast, table);
     } catch (ParseException parseException) {
-      Logger.log(compilerName + ": Encountered errors during parse.");
+      Logger.log(klaff + ": Encountered errors during parse.");
       parseException.printStackTrace();
     } catch (Exception exception) {
-      Logger.log(compilerName + ": Encountered errors during interpretation/tree building.");
+      Logger.log(klaff + ": Encountered errors during interpretation/tree building.");
       exception.printStackTrace();
     }
   }
@@ -56,77 +56,77 @@ public class C0Compiler {
     C0Parser parser = null;
 
     if (args.length >= 1) {
-      Logger.log(compilerName + ": Reading from file " + args[0]);
+      Logger.log(klaff + ": Reading from file " + args[0]);
       try {
         parser = new C0Parser(args[0]);
-        Logger.log(compilerName + ": Finished reading from file " + args[0]);
+        Logger.log(klaff + ": Finished reading from file " + args[0]);
       } catch (java.io.FileNotFoundException e) {
-        String errorMsg = compilerName + ": File " + args[0] + " not found.";
+        String errorMsg = klaff + ": File " + args[0] + " not found.";
         Logger.error(errorMsg);
         throw new IllegalArgumentException(errorMsg);
       }
     } else {
-      Logger.log(compilerName + ": Usage :");
-      Logger.log("Please pass a C0 File-Path to the " + compilerName + ".");
+      Logger.log(klaff + ": Usage :");
+      Logger.log("Please pass a C0 File-Path to the " + klaff + ".");
     }
 
     return parser;
   }
 
   private static void typeLinking(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + compilerName + ": Typ Linking startet");
+    Logger.log("\n" + klaff + ": Typ Linking startet");
 
-    Logger.debug(compilerName + ": Typ Linking for Global Declarations startet");
+    Logger.debug(klaff + ": Typ Linking for Global Declarations startet");
     ast.getRoot().accept(new GlobalDeclarationAndDefinitionVisitor(symbolTable));
-    Logger.debug(compilerName + ": Typ Linking for Global Declarations finished");
+    Logger.debug(klaff + ": Typ Linking for Global Declarations finished");
 
     Logger.log("");
-    Logger.debug(compilerName + ": Typ Linking for Deep Declarations startet");
+    Logger.debug(klaff + ": Typ Linking for Deep Declarations startet");
     ast.getRoot().accept(new DeepDeclarationVisitor(symbolTable));
-    Logger.debug(compilerName + ": Typ Linking for Deep Declarations finished");
+    Logger.debug(klaff + ": Typ Linking for Deep Declarations finished");
 
-    Logger.log(compilerName + ": Typ Linking finished");
+    Logger.log(klaff + ": Typ Linking finished");
   }
 
   private static void nameLinking(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + compilerName + ": Name Linking startet");
+    Logger.log("\n" + klaff + ": Name Linking startet");
     ast.getRoot().accept(new NameLinker(symbolTable));
-    Logger.log(compilerName + ": Name Linking finished");
+    Logger.log(klaff + ": Name Linking finished");
   }
 
   private static void typeChecking(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + compilerName + ": Type Checking startet");
+    Logger.log("\n" + klaff + ": Type Checking startet");
     ast.getRoot().accept(new TypeChecker(symbolTable));
-    Logger.log(compilerName + ": Type Checking finished");
+    Logger.log(klaff + ": Type Checking finished");
   }
 
   private static void indexing(AST ast) throws Exception {
-    Logger.log("\n" + compilerName + ": Indexing staret");
+    Logger.log("\n" + klaff + ": Indexing staret");
     ast.getRoot().accept(new IndexerVisitor());
-    Logger.log(compilerName + ": Indexing finished");
+    Logger.log(klaff + ": Indexing finished");
   }
 
   private static void generateCode(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + compilerName + ": Code generation started");
+    Logger.log("\n" + klaff + ": Code generation started");
     ast.getRoot().accept(new CodeGenerator(symbolTable));
 
-    Logger.log("\n" + compilerName + ": Peep Hole optimization started");
+    Logger.log("\n" + klaff + ": Peep Hole optimization started");
     ast.getRoot().accept(new PeepHoleOptimizer(symbolTable));
-    Logger.log(compilerName + ": Peep Hole optimization finished");
+    Logger.log(klaff + ": Peep Hole optimization finished");
 
-    Logger.log("\n" + compilerName + ": Code generation finished");
+    Logger.log("\n" + klaff + ": Code generation finished");
   }
 
   private static void writeCode(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + compilerName + ": Writing code started");
+    Logger.log("\n" + klaff + ": Writing code started");
     ast.getRoot().accept(new FileUnitWriter(symbolTable));
-    Logger.log(compilerName + ": Writing code finished");
+    Logger.log(klaff + ": Writing code finished");
   }
 
   private static void initializeLogger() {
     Logger.enableLogging();
     Logger.setLogLevel(defaultLogLevel);
     Logger.addLogDestination(new ConsoleLogDestionation());
-    Logger.addLogDestination(new FileLogDestination(defaultLogFileName));
+    Logger.addLogDestination(new FileLogDestination(falk));
   }
 }
