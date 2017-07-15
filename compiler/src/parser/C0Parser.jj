@@ -380,100 +380,114 @@ Expression ConditionalExpression() :
 
 Expression ConditionalOrExpression() :
 {
-  boolean isOr = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = ConditionalAndExpression() 
-  ( <OR> { isOr = true; } rightExp = ConditionalAndExpression() )*
+  expression = ConditionalAndExpression() 
+  ( 
+    <OR> rightExp = ConditionalAndExpression() 
+    {
+      expression = new BinaryExpression(expression, BinaryExpression.Operator.OR, rightExp);
+    }
+  )*
   {
-    return isOr 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.OR, rightExp)
-      : leftExp;
+    return expression;
   }
 }
 
 Expression ConditionalAndExpression() :
 {
-  boolean isAnd = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = InclusiveOrExpression() 
-  ( <AND> { isAnd = true; } rightExp = InclusiveOrExpression() )*
+  expression = InclusiveOrExpression() 
+  ( 
+    <AND> rightExp = InclusiveOrExpression() 
+    {
+      expression = new BinaryExpression(expression, BinaryExpression.Operator.AND, rightExp);
+    }
+  )*
   {
-    return isAnd 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.AND, rightExp)
-      : leftExp;
+    return expression;
   }
 }
 
 Expression InclusiveOrExpression() :
 {  
-  boolean isInOr = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = ExclusiveOrExpression() 
-  ( <BOR> { isInOr = true; } rightExp = ExclusiveOrExpression() )*
+  expression = ExclusiveOrExpression() 
+  ( 
+    <BOR> rightExp = ExclusiveOrExpression() 
+    {
+      expression = new BinaryExpression(expression, BinaryExpression.Operator.BOR, rightExp);
+    }
+  )*
   {
-    return isInOr 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.BOR, rightExp)
-      : leftExp;
+    return expression;
   }
 }
 
 Expression ExclusiveOrExpression() :
 {
-  boolean isExOr = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = AndExpression() 
-  ( <BXOR> { isExOr = true; } rightExp = AndExpression() )*
+  expression = AndExpression() 
+  ( 
+    <BXOR> rightExp = AndExpression() 
+    { 
+      expression = new BinaryExpression(expression, BinaryExpression.Operator.BXOR, rightExp);
+    } 
+  )*
   {
-    return isExOr 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.BXOR, rightExp)
-      : leftExp;
+    return expression;
   }
 }
 
 Expression AndExpression() :
 {
-  boolean isBinAnd = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = EqualityExpression() 
-  ( <BAND> { isBinAnd = true; } rightExp = EqualityExpression() )*
+  expression = EqualityExpression() 
+  ( 
+    <BAND> rightExp = EqualityExpression() 
+    {
+      expression = new BinaryExpression(expression, BinaryExpression.Operator.BAND, rightExp);
+    }
+  )*
   {
-    return isBinAnd 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.BAND, rightExp)
-      : leftExp;
+    return expression;
   }
 }
 
 Expression EqualityExpression() :
 {
   boolean isEQ = false;
-  boolean isNEQ = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = RelationalExpression() 
-  ( ( <EQ> { isEQ = true; } | <NEQ> { isNEQ = true; } ) rightExp = RelationalExpression() )*
+  expression = RelationalExpression() 
+  ( 
+    ( <EQ> { isEQ = true; } | <NEQ> ) rightExp = RelationalExpression() 
+    {
+      expression = isEQ 
+        ? new BinaryExpression(expression, BinaryExpression.Operator.EQ, rightExp)
+        : new BinaryExpression(expression, BinaryExpression.Operator.NEQ, rightExp);
+
+      isEQ = false;
+    }
+  )*
   {
-    return isEQ 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.EQ, rightExp)
-      : isNEQ 
-        ? new BinaryExpression(leftExp, BinaryExpression.Operator.NEQ, rightExp)
-        : leftExp;
+    return expression;
   }
 }
 
@@ -482,43 +496,46 @@ Expression RelationalExpression() :
   boolean isLT = false;
   boolean isGT = false;
   boolean isLEQ = false;
-  boolean isGEQ = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = AdditiveExpression() 
-  ( ( <LT> { isLT = true; } | <GT> { isGT = true; } | <LEQ> { isLEQ = true; } | <GEQ> { isGEQ = true; } ) rightExp = AdditiveExpression() )*
+  expression = AdditiveExpression() 
+  ( 
+    ( <LT> { isLT = true; } | <GT> { isGT = true; } | <LEQ> { isLEQ = true; } | <GEQ> ) rightExp = AdditiveExpression() 
+    {
+      expression = isLT 
+        ? new BinaryExpression(expression, BinaryExpression.Operator.LT, rightExp)
+        : isGT 
+          ? new BinaryExpression(expression, BinaryExpression.Operator.GT, rightExp)
+          : isLEQ 
+            ? new BinaryExpression(expression, BinaryExpression.Operator.LEQ, rightExp)
+            : new BinaryExpression(expression, BinaryExpression.Operator.GEQ, rightExp);
+
+      isLT = isGT = isLEQ = false;
+    }
+  )*
   {
-    return isLT 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.LT, rightExp)
-      : isGT 
-        ? new BinaryExpression(leftExp, BinaryExpression.Operator.GT, rightExp)
-        : isLEQ 
-          ? new BinaryExpression(leftExp, BinaryExpression.Operator.LEQ, rightExp)
-          : isGEQ 
-            ? new BinaryExpression(leftExp, BinaryExpression.Operator.GEQ, rightExp)
-            : leftExp;
+    return expression; 
   }
 }
 
 Expression AdditiveExpression() :
 {
-  boolean isPlus = false;
-  boolean isMinus = false;
-
   Expression rightExp = null;
+  boolean isPlus = false; 
   Expression expression = null;
 }
 {
   expression = MultiplicativeExpression() 
-  ( ( <PLUS> { isPlus = true; } | <MINUS> { isMinus = true; } ) rightExp = MultiplicativeExpression() 
+  ( 
+    ( <PLUS> { isPlus = true; } | <MINUS> ) rightExp = MultiplicativeExpression() 
     {
-        expression = isPlus 
-            ? new BinaryExpression(expression, BinaryExpression.Operator.PLUS, rightExp)
-            : new BinaryExpression(expression, BinaryExpression.Operator.MINUS, rightExp);
+      expression = isPlus 
+          ? new BinaryExpression(expression, BinaryExpression.Operator.PLUS, rightExp)
+          : new BinaryExpression(expression, BinaryExpression.Operator.MINUS, rightExp);
 
-        isPlus = isMinus = false;
+      isPlus = false;
     }
   )*
   {
@@ -530,21 +547,25 @@ Expression MultiplicativeExpression() :
 {
   boolean isMul = false;
   boolean isDiv = false;
-  boolean isRem = false;
-  Expression leftExp = null;
+  Expression expression = null;
   Expression rightExp = null;
 }
 {
-  leftExp = UnaryExpression() 
-  ( ( <STAR> { isMul = true; } | <SLASH> { isDiv = true; } | <REM> { isRem = true; } ) rightExp = UnaryExpression() )*
-  {
-    return isMul 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.STAR, rightExp)
+  expression = UnaryExpression() 
+  ( 
+    ( <STAR> { isMul = true; } | <SLASH> { isDiv = true; } | <REM> ) rightExp = UnaryExpression() 
+    {
+      expression = isMul 
+      ? new BinaryExpression(expression, BinaryExpression.Operator.STAR, rightExp)
       : isDiv 
-        ? new BinaryExpression(leftExp, BinaryExpression.Operator.SLASH, rightExp)
-        : isRem 
-          ? new BinaryExpression(leftExp, BinaryExpression.Operator.REM, rightExp)
-          : leftExp;
+        ? new BinaryExpression(expression, BinaryExpression.Operator.SLASH, rightExp)
+        : new BinaryExpression(expression, BinaryExpression.Operator.REM, rightExp);
+
+      isMul = isDiv= false;
+    }
+  )*
+  {
+    return expression;
   }
 }
 
