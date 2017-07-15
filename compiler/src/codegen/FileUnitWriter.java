@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class FileUnitWriter extends SemanticsVisitor {
+    private static final String NOP = "slide 0";
+
     public FileUnitWriter(SymbolTable table) {
         super(table);
     }
@@ -48,7 +50,13 @@ public class FileUnitWriter extends SemanticsVisitor {
                     String line = code.get(i);
 
                     if (line.endsWith(":")) {
-                        line += " " + code.get(++i);
+                        if (i < code.size()  
+                            && (line.startsWith(CodeGenerator.JUMP_START) || line.startsWith(CodeGenerator.JUMP_END))
+                            && (code.get(i+1).startsWith(CodeGenerator.JUMP_START) || code.get(i+1).startsWith(CodeGenerator.JUMP_END))) {
+                            line += " " + NOP;
+                        } else {
+                            line += " " + code.get(++i);
+                        } 
                     }
 
                     bw.write(line);

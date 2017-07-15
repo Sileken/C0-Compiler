@@ -20,6 +20,8 @@ public class CodeGenerator extends SemanticsVisitor {
 	protected static final String BOOLEAN_TRUE = "1";
 	protected static final String BOOLEAN_FALSE = "0";
 	protected static final String NULL = "0";
+	public static final String JUMP_START = "__START__";
+	public static final String JUMP_END = "__END__";
 
 	protected List<String> code;
 	private Integer loopCount;
@@ -272,16 +274,16 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private void generateConditionalExpression(ConditionalExpression conditionalExpression) throws Exception {
 		Integer conditionCount = this.conditionCount++;
-		String elseMark = "__ELSE_STATEMENT_" + conditionCount;
-		String endMark = "__IF_END_" + conditionCount;
+		String elseMark = JUMP_START + "ELSE_STATEMENT_" + conditionCount;
+		String ifEndMark = JUMP_END + "IF_" + conditionCount;
 
 		conditionalExpression.getCondition().accept(this);
 		this.code.add("jumpz " + elseMark);
 		conditionalExpression.getTrueExpression().accept(this);
-		this.code.add("jump " + endMark);
+		this.code.add("jump " + ifEndMark);
 		this.code.add(elseMark + ":");
 		conditionalExpression.getFalseExpression().accept(this);
-		this.code.add(endMark + ":");
+		this.code.add(ifEndMark + ":");
 	}
 
 	private void generateAssignmentExpression(AssignmentExpression assignmentExpression)
@@ -400,8 +402,8 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private void generateIfStatement(IfStatement ifStatement) throws Exception {
 		Integer conditionCount = this.conditionCount++;
-		String elseMark = "__ELSE_STATEMENT_" + conditionCount;
-		String endMark = "__IF_END_" + conditionCount;
+		String elseMark = JUMP_START + "ELSE_STATEMENT_" + conditionCount;
+		String ifEndMark = JUMP_START + "IF_END_" + conditionCount;
 
 		if (ifStatement.getIfCondition() != null) {
 			ifStatement.getIfCondition().accept(this);
@@ -412,39 +414,39 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (ifStatement.getElseStatement() != null) {
 			this.code.add("jumpz " + elseMark);
 		} else {
-			this.code.add("jumpz " + endMark);
+			this.code.add("jumpz " + ifEndMark);
 		}
 
 		ifStatement.getIfStatement().accept(this);
 
 		if (ifStatement.getElseStatement() != null) {
-			this.code.add("jump " + endMark);
+			this.code.add("jump " + ifEndMark);
 			this.code.add(elseMark + ":");
 			ifStatement.getElseStatement().accept(this);
 		}
 
-		this.code.add(endMark + ":");
+		this.code.add(ifEndMark + ":");
 	}
 
 	// Currently WhileStatement does not contain the inner-Block statement?
 	private void generateWhileStatement(WhileStatement whileStatement) throws Exception {
 		Integer loopCount = this.loopCount++;
-		String loopName = "__LOOP_Name_" + loopCount;
-		String jumpMark = "__LOOP_END_" + loopCount;
+		String loopStartMark = JUMP_START + "WHILE_LOOP_" + loopCount;
+		String loopEndMark = JUMP_END + "WHILE_LOOP_" + loopCount;
 
-		this.code.add(loopName + ":");
+		this.code.add(loopStartMark + ":");
 		if (whileStatement.getWhileCondition() != null) {
 			whileStatement.getWhileCondition().accept(this);
 		} else {
 			this.code.add("loadc " + BOOLEAN_TRUE);
 		}
 
-		this.code.add("jumpz " + jumpMark);
+		this.code.add("jumpz " + loopEndMark);
 
 		whileStatement.getWhileStatement().accept(this);
 
-		this.code.add("jump " + loopName);
-		this.code.add(jumpMark + ":");
+		this.code.add("jump " + loopStartMark);
+		this.code.add(loopEndMark + ":");
 	}
 
 	private void generateForLoop(ForStatement forStatement) throws Exception {
@@ -453,16 +455,16 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		Integer loopCount = this.loopCount++;
-		String loopStart = "__LOOP_Name_" + loopCount;
-		String jumpEnd = "__LOOP_END_" + loopCount;
+		String loopStartMark = JUMP_START + "FOR_LOOP_" + loopCount;
+		String loopEndMark = JUMP_END + "FOR_LOOP_" + loopCount;
 
-		this.code.add(loopStart + ":");
+		this.code.add(loopStartMark + ":");
 		forStatement.getCondition().accept(this);
-		this.code.add("jumpz " + jumpEnd);
+		this.code.add("jumpz " + loopEndMark);
 		forStatement.getStatement().accept(this);
 		forStatement.getIncrement().accept(this);
-		this.code.add("jump " + loopStart);
-		this.code.add(jumpEnd + ":");
+		this.code.add("jump " + loopStartMark);
+		this.code.add(loopEndMark + ":");
 	}
 
 	private void generateAllocExpression(AllocExpression allocExpression) throws Exception {
@@ -512,7 +514,6 @@ public class CodeGenerator extends SemanticsVisitor {
 	private void generateFieldAccessLeftValue(FieldAccess fieldAccess)
 			throws CodeGenerationException, SymbolTableException, Exception {
 		fieldAccess.getPrefix().accept(this);
-		Logger.log("Code:" + String.join("\n", this.code));
 		this.code.add("loadc " + this.getFieldAccesFieldIndex(fieldAccess));
 		this.code.add("add");
 	}
@@ -604,5 +605,5 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		return isDereferenceForLeftValue;
-	}
+	} 
 }
