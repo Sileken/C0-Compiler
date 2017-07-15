@@ -54,11 +54,11 @@ public class CodeGenerator extends SemanticsVisitor {
 			Logger.debug("Preparing Function " + methodLabel);
 
 			int k = ((FunctionDefinition) node).getTotalLocalVariables();
-			
+
 			int max = node.countArithmeticOps();
 			//System.out.println("ARITHM OPS: " + max);
 
-			int q = max + k; 
+			int q = max + k;
 			//System.out.println(">>>> Q: " + q);
 
 			this.code.add("_" + methodLabel + ":" + " enter " + q);
@@ -72,7 +72,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		if (node instanceof ForStatement) {
 			this.generateForLoop((ForStatement) node);
 			return false;
-		} else if (node instanceof IfStatement) {  // if statement generation includes else code generation
+		} else if (node instanceof IfStatement) { // if statement generation includes else code generation
 			this.generateIfStatement((IfStatement) node);
 			return false;
 		} else if (node instanceof ReturnStatement) {
@@ -81,7 +81,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		} else if (node instanceof WhileStatement) {
 			this.generateWhileStatement((WhileStatement) node);
 			return false;
-		} 
+		}
 		// Generate expression statement
 		else if (node instanceof AllocExpression) {
 			this.generateAllocExpression((AllocExpression) node);
@@ -92,7 +92,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		} else if (node instanceof BinaryExpression) {
 			this.generateBinaryExpression((BinaryExpression) node);
 			return false;
-		} else if(node instanceof ConditionalExpression){
+		} else if (node instanceof ConditionalExpression) {
 			this.generateConditionalExpression((ConditionalExpression) node);
 			return false;
 		} else if (node instanceof UnaryExpression) {
@@ -128,7 +128,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		} else if (node instanceof LiteralPrimary) {
 			this.generateLiteral((LiteralPrimary) node);
 			return false;
-		} 
+		}
 
 		return true;
 	}
@@ -182,7 +182,9 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("neg");
 			break;
 		case STAR:
-			this.code.add("load");
+			if (!this.isDereferenceForLeftValue(unaryExpr)) {
+				this.code.add("load");
+			}
 			break;
 		case INCR:
 			this.code.add("loadc 1");
@@ -598,5 +600,24 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		return fieldIndex;
+	}
+
+	private boolean isDereferenceForLeftValue(UnaryExpression unaryExpr) {
+		boolean isDereferenceForLeftValue = false;
+		ASTNode currentParent = unaryExpr.getParent();
+
+		while (!(currentParent instanceof FileUnit)) {
+			if (currentParent instanceof AssignmentExpression) {
+				isDereferenceForLeftValue = true;
+				break;
+			} else if (currentParent instanceof UnaryExpression && ((UnaryExpression) currentParent).getOperator()
+					.ordinal() == UnaryExpression.Operator.STAR.ordinal()) {
+				break;
+			}
+
+			currentParent = currentParent.getParent();
+		}
+
+		return isDereferenceForLeftValue;
 	}
 }
