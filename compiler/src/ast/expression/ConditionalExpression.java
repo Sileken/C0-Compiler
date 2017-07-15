@@ -17,4 +17,16 @@ public class ConditionalExpression extends Expression {
         this.falseExpression = falseExpression;
         this.addChild(this.falseExpression);
     }
+
+    public Expression getCondition(){
+        return condition;
+    }
+
+    public Expression getTrueExpression(){
+        return trueExpression;
+    }
+
+    public Expression getFalseExpression(){
+        return falseExpression;
+    }
 }

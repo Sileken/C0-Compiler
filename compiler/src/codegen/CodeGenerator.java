@@ -107,8 +107,10 @@ public class CodeGenerator extends SemanticsVisitor {
 		} else if (node instanceof BinaryExpression) {
 			this.generateBinaryExpression((BinaryExpression) node);
 			return false;
-		}  // Condtion here
-		else if (node instanceof UnaryExpression) {
+		} else if(node instanceof ConditionalExpression){
+			this.generateConditionalExpression((ConditionalExpression) node);
+			return false;
+		} else if (node instanceof UnaryExpression) {
 			this.generateUnaryExpression((UnaryExpression) node);
 			return false;
 		} else if (node instanceof VariableDeclarationExpression) {
@@ -277,6 +279,20 @@ public class CodeGenerator extends SemanticsVisitor {
 			Logger.error(msg);
 			throw new CodeGenerationException(msg);
 		}
+	}
+
+	private void generateConditionalExpression(ConditionalExpression conditionalExpression) throws Exception {
+		Integer conditionCount = this.conditionCount++;
+		String elseMark = "__ELSE_STATEMENT_" + conditionCount;
+		String endMark = "__IF_END_" + conditionCount;
+
+		conditionalExpression.getCondition().accept(this);
+		this.code.add("jumpz " + elseMark);
+		conditionalExpression.getTrueExpression().accept(this);
+		this.code.add("jump " + endMark);
+		this.code.add(elseMark + ":");
+		conditionalExpression.getFalseExpression().accept(this);
+		this.code.add(endMark + ":");
 	}
 
 	private void generateAssignmentExpression(AssignmentExpression assignmentExpression)
