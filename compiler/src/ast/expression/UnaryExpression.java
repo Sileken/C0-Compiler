@@ -21,9 +21,13 @@ public class UnaryExpression extends Expression {
         return this.operator;
     }
 
-     public Expression getOperand() {
+    public Expression getOperand() {
         return this.operand;
     }
+
+    public String getIdentifier() {
+		return operator.name();
+	}   
 
     @Override
     public int countArithmeticOps()
