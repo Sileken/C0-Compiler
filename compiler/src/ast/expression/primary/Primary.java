@@ -39,4 +39,10 @@ public abstract class Primary extends Expression {
             nextPrefix.addPrefixes(prefixes);
         }
     }
+
+    @Override
+    public int countArithmeticOps()
+    {
+        return super.countArithmeticOps() + 2;
+    }
 }

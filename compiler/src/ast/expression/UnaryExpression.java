@@ -24,4 +24,10 @@ public class UnaryExpression extends Expression {
      public Expression getOperand() {
         return this.operand;
     }
+
+    @Override
+    public int countArithmeticOps()
+    {
+        return super.countArithmeticOps() + 1;
+    }
 }

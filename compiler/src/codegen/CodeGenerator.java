@@ -56,10 +56,10 @@ public class CodeGenerator extends SemanticsVisitor {
 			int k = ((FunctionDefinition) node).getTotalLocalVariables();
 			
 			int max = node.countArithmeticOps();
-			System.out.println("ARITHM OPS: " + max);
+			//System.out.println("ARITHM OPS: " + max);
 
-			int q = max + k;
-			System.out.println(">>>> Q: " + q);
+			int q = max + k; 
+			//System.out.println(">>>> Q: " + q);
 
 			this.code.add("_" + methodLabel + ":" + " enter " + q);
 			this.code.add("alloc " + k);

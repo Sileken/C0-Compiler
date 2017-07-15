@@ -87,16 +87,10 @@ public abstract class ASTNode {
 		return this.childrenList;
 	}
 
+	// Calculates the amount of arithmetic-operations for a node and all of his children
+	// Use-Case: For Code-Generation it is the maximum amount of the stack-frame for a function
 	public int countArithmeticOps()
 	{
-		//int max = 0;
-		//int[] sums  = new int[childrenList.size()];
-		//for (int i = 0; i < this.childrenList.size(); i++) {
-		//	sums[i] = this.childrenList.get(i).countArithmeticOps();
-		//	if(sums[i] > max)
-		//		max = sums[i];
-		//}
-		//return 1 + max;
 		int max = 0;
 		int[] sums  = new int[childrenList.size()];
 		for (int i = 0; i < this.childrenList.size(); i++) {
