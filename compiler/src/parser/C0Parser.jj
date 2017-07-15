@@ -504,19 +504,39 @@ Expression RelationalExpression() :
 
 Expression AdditiveExpression() :
 {
-  boolean isPlus = false;
-  boolean isMinus = false;
   Expression leftExp = null;
-  Expression rightExp = null;
+  boolean firstIsMinus = false;
+  boolean firstIsPlus = false;
+  Expression lastRightExpression = null;
+
+  boolean tempIsPlus = false;
+  boolean tempIsMinus = false;
+
+  Expression tempRightExp = null;
 }
 {
   leftExp = MultiplicativeExpression() 
-  ( ( <PLUS> { isPlus = true; } | <MINUS> { isMinus = true; } ) rightExp = MultiplicativeExpression() )*
+  ( ( <PLUS> { tempIsPlus = true; } | <MINUS> { tempIsMinus = true; } ) tempRightExp = MultiplicativeExpression() 
+    {
+        if(firstIsMinus == false && firstIsPlus == false){
+          firstIsMinus = tempIsMinus;
+          firstIsPlus = tempIsPlus;
+        }
+
+        if(lastRightExpression == null){
+          lastRightExpression = tempRightExp;
+        } else {
+          lastRightExpression = tempIsPlus 
+            ? new BinaryExpression(lastRightExpression, BinaryExpression.Operator.PLUS, tempRightExp)
+            : new BinaryExpression(lastRightExpression, BinaryExpression.Operator.MINUS, tempRightExp);
+        }
+    }
+  )*
   {
-    return isPlus 
-      ? new BinaryExpression(leftExp, BinaryExpression.Operator.PLUS, rightExp)
-      : isMinus 
-        ? new BinaryExpression(leftExp, BinaryExpression.Operator.MINUS, rightExp)
+    return firstIsPlus 
+      ? new BinaryExpression(leftExp, BinaryExpression.Operator.PLUS, lastRightExpression)
+      : firstIsMinus 
+        ? new BinaryExpression(leftExp, BinaryExpression.Operator.MINUS, lastRightExpression)
         : leftExp;
   }
 }

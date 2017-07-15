@@ -32,4 +32,9 @@ public class BinaryExpression extends Expression {
     public Expression getRightOperand() {
         return rightOperand;
     }
+
+    public String getIdentifier() {
+		return operator.name();
+	}
+
 }

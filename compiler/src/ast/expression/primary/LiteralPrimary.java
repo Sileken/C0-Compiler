@@ -46,4 +46,9 @@ public class LiteralPrimary extends Primary {
         return value;
     }
 
+    @Override
+    public String getIdentifier() {
+		return value;
+	}
+
 }
