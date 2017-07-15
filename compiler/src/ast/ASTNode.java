@@ -86,4 +86,24 @@ public abstract class ASTNode {
 	public List<ASTNode> getChildren() {
 		return this.childrenList;
 	}
+
+	public int countArithmeticOps()
+	{
+		//int max = 0;
+		//int[] sums  = new int[childrenList.size()];
+		//for (int i = 0; i < this.childrenList.size(); i++) {
+		//	sums[i] = this.childrenList.get(i).countArithmeticOps();
+		//	if(sums[i] > max)
+		//		max = sums[i];
+		//}
+		//return 1 + max;
+		int max = 0;
+		int[] sums  = new int[childrenList.size()];
+		for (int i = 0; i < this.childrenList.size(); i++) {
+			sums[i] = this.childrenList.get(i).countArithmeticOps();
+			if(sums[i] > max)
+				max = sums[i];
+		}
+		return max;
+	}
 }

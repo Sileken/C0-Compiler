@@ -94,4 +94,14 @@ public class AssignmentExpression extends Expression {
 
         return parsedOperator;
     }
+
+    public String getIdentifier() {
+		return operator.name();
+	}   
+
+    @Override
+    public int countArithmeticOps()
+    {
+        return super.countArithmeticOps() + 1;
+    }
 }
