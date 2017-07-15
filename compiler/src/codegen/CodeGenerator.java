@@ -81,61 +81,67 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 	}
 
-	// todo: find other positible code generation nodes
 	@Override
 	public boolean visit(ASTNode node) throws SymbolTableException, CodeGenerationException, Exception {
-		if (node instanceof VariableDeclarationExpression) {
-			// do nothing, prevent the generation of the VariableDeclaration
+		// Generate "complex" statement
+		if (node instanceof ForStatement) {
+			this.generateForLoop((ForStatement) node);
 			return false;
-		} else if (node instanceof VariableDeclaration) {
-			this.generateVariableDeclaration((VariableDeclaration) node);
+		} else if (node instanceof IfStatement) {  // if statement generation includes else code generation
+			this.generateIfStatement((IfStatement) node);
 			return false;
-		} else if (node instanceof Name) {
-			this.generateVariableAccessRightValue((Name) node);
+		} else if (node instanceof ReturnStatement) {
+			this.generateReturnStatement((ReturnStatement) node);
 			return false;
-		} else if (node instanceof LiteralPrimary) {
-			this.generateLiteral((LiteralPrimary) node);
+		} else if (node instanceof WhileStatement) {
+			this.generateWhileStatement((WhileStatement) node);
+			return false;
+		} 
+		// Generate expression statement
+		else if (node instanceof AllocExpression) {
+			this.generateAllocExpression((AllocExpression) node);
 			return false;
 		} else if (node instanceof AssignmentExpression) {
 			this.generateAssignmentExpression((AssignmentExpression) node);
 			return false;
-		} else if (node instanceof UnaryExpression) {
-			this.generateUnaryExpression((UnaryExpression) node);
-			return false;
 		} else if (node instanceof BinaryExpression) {
 			this.generateBinaryExpression((BinaryExpression) node);
 			return false;
+		}  // Condtion here
+		else if (node instanceof UnaryExpression) {
+			this.generateUnaryExpression((UnaryExpression) node);
+			return false;
+		} else if (node instanceof VariableDeclarationExpression) {
+			/* do nothing, prevent the generation of the VariableDeclaration 
+			*  VariableDeclation will be generated in MethodInvokation */
+			return false;
+		} else if (node instanceof VariableDeclaration) {
+			this.generateVariableDeclaration((VariableDeclaration) node);
+			return false;
+		} // Generate Primary Expressions		 
+		else if (node instanceof Name) {
+			this.generateVariableAccessRightValue((Name) node);
+			return false;
+		} else if (node instanceof ArrayAccess) {
+			this.generateArrayAccessRightValue((ArrayAccess) node);
+			return false;
 		} else if (node instanceof ExpressionPrimary) {
+			// Primary Expressions are method invikation or expression in brace
 			ExpressionPrimary expPrimary = (ExpressionPrimary) node;
 			if (expPrimary.getExpression() instanceof MethodInvokeExpression) {
 				this.generateMethodInvoke(expPrimary);
 				return false;
 			}
-		} else if (node instanceof ReturnStatement) {
-			this.generateReturnStatement((ReturnStatement) node);
-			return false;
-		} else if (node instanceof IfStatement) {
-			this.generateIfStatement((IfStatement) node);
-			return false;
-		} else if (node instanceof WhileStatement) {
-			this.generateWhileStatement((WhileStatement) node);
-			return false;
-		} else if (node instanceof ForStatement) {
-			this.generateForLoop((ForStatement) node);
-			return false;
-		} else if (node instanceof AllocExpression) {
-			this.generateAllocExpression((AllocExpression) node);
-			return false;
-		} else if (node instanceof ArrayAccess) {
-			this.generateArrayAccessRightValue((ArrayAccess) node);
-			return false;
 		} else if (node instanceof FieldAccess) {
 			this.generateFieldAccessRightValue((FieldAccess) node);
 			return false;
 		} else if (node instanceof FieldDereferenceAccess) {
 			this.generateFieldDereferenceAccessRightValue((FieldDereferenceAccess) node);
 			return false;
-		}
+		} else if (node instanceof LiteralPrimary) {
+			this.generateLiteral((LiteralPrimary) node);
+			return false;
+		} 
 
 		return true;
 	}
