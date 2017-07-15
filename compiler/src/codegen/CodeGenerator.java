@@ -200,7 +200,9 @@ public class CodeGenerator extends SemanticsVisitor {
 			throw new CodeGenerationException(msg);
 		}
 
-		if (unaryExpr.getOperand() instanceof Name) {
+		if (unaryExpr.getOperand() instanceof Name
+				&& (unaryExpr.getOperator().ordinal() == UnaryExpression.Operator.INCR.ordinal()
+						|| unaryExpr.getOperator().ordinal() == UnaryExpression.Operator.DECR.ordinal())) {
 			this.generateVariableAccessLeftValue((Name) unaryExpr.getOperand());
 			this.code.add("store");
 			this.code.add("pop");
@@ -509,25 +511,8 @@ public class CodeGenerator extends SemanticsVisitor {
 
 	private void generateFieldAccessLeftValue(FieldAccess fieldAccess)
 			throws CodeGenerationException, SymbolTableException, Exception {
-		boolean isPrefDeref = false;
-		if (fieldAccess.getPrefix() instanceof ExpressionPrimary) {
-			ExpressionPrimary primExp = (ExpressionPrimary) fieldAccess.getPrefix();
-			if (primExp.getExpression() instanceof ExpressionPrimary) {
-				ExpressionPrimary primExp2 = (ExpressionPrimary) primExp.getExpression();
-				if (primExp2.getExpression() instanceof UnaryExpression) {
-					UnaryExpression unExp = (UnaryExpression) primExp2.getExpression();
-					if (unExp.getOperator().ordinal() == UnaryExpression.Operator.STAR.ordinal()) {
-						isPrefDeref = true;
-						unExp.getOperand().accept(this); // (*p).field: prevent dereferencing p
-					}
-				}
-			}
-		}
-
-		if (!isPrefDeref) {
-			fieldAccess.getPrefix().accept(this);
-		}
-
+		fieldAccess.getPrefix().accept(this);
+		Logger.log("Code:" + String.join("\n", this.code));
 		this.code.add("loadc " + this.getFieldAccesFieldIndex(fieldAccess));
 		this.code.add("add");
 	}
@@ -607,7 +592,7 @@ public class CodeGenerator extends SemanticsVisitor {
 		ASTNode currentParent = unaryExpr.getParent();
 
 		while (!(currentParent instanceof FileUnit)) {
-			if (currentParent instanceof AssignmentExpression) {
+			if (currentParent instanceof AssignmentExpression || currentParent instanceof FieldAccess) {
 				isDereferenceForLeftValue = true;
 				break;
 			} else if (currentParent instanceof UnaryExpression && ((UnaryExpression) currentParent).getOperator()
