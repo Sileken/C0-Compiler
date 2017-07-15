@@ -237,12 +237,12 @@ public class TypeChecker extends SemanticsVisitor {
 		} else if (node instanceof ReturnStatement) {
 			hasReturn = true;
 
+			if(node.getParent() instanceof Block)
+				hasNotNestedReturn = true;
+
 			// Check if return type match function type
 			if (((ReturnStatement) node).hasExpression()) {
-				Type returnType = popType();
-
-				if(node.getParent() instanceof Block)
-					hasNotNestedReturn = true;
+				Type returnType = popType();		
 
 				if (currentFunctionReturnType instanceof ReferenceType && returnType instanceof NullType) {
 					/* NULL can be returned for pointers */ } else if (!returnType.getFullyQualifiedName()
