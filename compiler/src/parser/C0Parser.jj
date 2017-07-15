@@ -504,7 +504,6 @@ Expression RelationalExpression() :
 
 Expression AdditiveExpression() :
 {
-  Expression leftExp = null;
   boolean isPlus = false;
   boolean isMinus = false;
 
@@ -512,12 +511,9 @@ Expression AdditiveExpression() :
   Expression expression = null;
 }
 {
-  leftExp = MultiplicativeExpression() 
+  expression = MultiplicativeExpression() 
   ( ( <PLUS> { isPlus = true; } | <MINUS> { isMinus = true; } ) rightExp = MultiplicativeExpression() 
     {
-        if(expression == null)
-          expression = leftExp;
-
         expression = isPlus 
             ? new BinaryExpression(expression, BinaryExpression.Operator.PLUS, rightExp)
             : new BinaryExpression(expression, BinaryExpression.Operator.MINUS, rightExp);
