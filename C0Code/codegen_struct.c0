@@ -3,6 +3,18 @@ struct person {
   int age;
 };
 
+struct c {
+    int k;
+};
+
+struct b {
+    struct c* t;
+};
+
+struct a{
+    struct b* t;
+};
+
 int main(){
     struct person* p = alloc(struct person);
     struct person* p2 = alloc(struct person);
@@ -17,5 +29,13 @@ int main(){
 
     p2->age -= 2;
 
-    return p2->age + (*p).age;
+    struct a* sa = alloc(struct a);
+    sa->t = alloc(struct b);
+    sa->t->t = alloc(struct c);
+    sa->t->t->k = 1;
+    sa->t->t->k += 1;
+    sa->t->t->k += sa->t->t->k;
+    sa->t->t->k = sa->t->t->k + sa->t->t->k * sa->t->t->k + sa->t->t->k;
+
+    return p2->age + (*p).age + sa->t->t->k; // 23 + 23 + 24 = 70
 }
