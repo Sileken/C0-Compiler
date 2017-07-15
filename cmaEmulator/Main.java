@@ -234,6 +234,9 @@ public class Main {
 	    break;
 	case "or":
 	    instr = new Or();
+		break;
+	case "not":
+	    instr = new Not();
 	    break;
 	case "xor":
 	    instr = new Xor();
