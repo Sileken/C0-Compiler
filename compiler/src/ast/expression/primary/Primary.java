@@ -11,7 +11,7 @@ public abstract class Primary extends Expression {
         super();
     }
 
-    private void setPrefix(Primary prefix) {
+    public void setPrefix(Primary prefix) {
         this.prefix = prefix;
         this.childrenList.add(0, prefix);
         prefix.parent = this;

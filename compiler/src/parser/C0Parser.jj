@@ -625,32 +625,52 @@ AssignmentExpression Assignment() :
   { return new AssignmentExpression(leftExp, AssignmentExpression.parseOperator(assignOperatorToken), rightAssignExp); }
 }
 
+//Primary PrimaryExpression() :
+//{
+//  Primary prefix;
+//  Primary suffix = null;
+//  List<Primary> suffixes = new ArrayList<Primary>();
+//}
+//{
+//  prefix = PrimaryPrefix() 
+//  (
+//    suffix = PrimarySuffix() 
+//    { suffixes.add(suffix); } 
+//  )*
+//  { 
+//    // If we have several suffixes we have to recursively build up the tree in java-code
+//    if(!suffixes.isEmpty())
+//    {
+//      // Add the prefix to the beginning of the suffix-list
+//      suffixes.add(0, prefix);
+//
+//      // Start on the last suffix so it is on top of the tree.
+//      // --> (last - 1) suffix will be the prefix of the last suffix
+//      suffix = suffixes.get(suffixes.size() - 1);
+//      suffix.addPrefixes(suffixes);
+//    }
+//
+//    return suffix == null ? prefix : suffix; 
+//  }
+//}
+
+
 Primary PrimaryExpression() :
 {
-  Primary prefix;
+  Primary exp;
   Primary suffix = null;
-  List<Primary> suffixes = new ArrayList<Primary>();
 }
 {
-  prefix = PrimaryPrefix() 
+  exp = PrimaryPrefix() 
   (
     suffix = PrimarySuffix() 
-    { suffixes.add(suffix); } 
+    { 
+       suffix.setPrefix(exp);
+       exp = suffix;
+    } 
   )*
-  { 
-    // If we have several suffixes we have to recursively build up the tree in java-code
-    if(!suffixes.isEmpty())
-    {
-      // Add the prefix to the beginning of the suffix-list
-      suffixes.add(0, prefix);
-
-      // Start on the last suffix so it is on top of the tree.
-      // --> (last - 1) suffix will be the prefix of the last suffix
-      suffix = suffixes.get(suffixes.size() - 1);
-      suffix.addPrefixes(suffixes);
-    }
-
-    return suffix == null ? prefix : suffix; 
+  {
+    return exp; 
   }
 }
 
