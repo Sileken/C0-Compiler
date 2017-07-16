@@ -28,7 +28,7 @@ public class DeepDeclarationVisitor extends SemanticsVisitor {
 		} else if (node instanceof StructDefinition) { // Add struct type scope to symboltable
 			FileUnitScope currentScope = (FileUnitScope) this.getCurrentScope();
 			String structTypeScopeName = this.table.getStructTypeScopeName((StructDefinition) node);
-			Scope scope = this.table.addStructTypeScope(structTypeScopeName, currentScope, node);
+			Scope scope = this.table.addStructTypeScope(structTypeScopeName, currentScope, (StructDefinition) node);
 
 			this.blockCount = 0;
 			this.pushScope(scope);

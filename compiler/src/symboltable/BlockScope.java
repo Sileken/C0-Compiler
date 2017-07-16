@@ -26,9 +26,9 @@ public class BlockScope extends Scope {
 
         Symbol duplicatedSymbol = this.getVariableDeclaration(variableDecl);
         if (duplicatedSymbol != null && !(duplicatedSymbol.getNode().getParent() instanceof ForStatement)) {
-            String errorMsg = "Duplicate Variable Declaration of " + symbolName;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Duplicate Variable Declaration \"" + variableDecl.getName().getToken().image + "\" in \"" + this.getName() + "\" at line "
+                    + variableDecl.getName().getToken().beginLine + " in column "
+                    + variableDecl.getName().getToken().beginColumn);
         }
 
         Symbol symbol = new Symbol(symbolName, variableDecl, this);
@@ -55,9 +55,9 @@ public class BlockScope extends Scope {
         if (name instanceof SimpleName) {
             List<Symbol> matchedSymbols = this.findEntriesWithSuffix(this.symbols.values(), "." + name.getName());
             if (matchedSymbols.size() > 1) {
-                String errorMsg = "Resolved variable " + name.getName() + " to multiple definition " + matchedSymbols;
-                Logger.error(errorMsg);
-                throw new SymbolTableException(errorMsg);
+                throw new SymbolTableException("Symboltable internal Error: Resolved variable " + name.getName() + " at line "
+                    + name.getIdentifierNode().getToken().beginLine + " in column "
+                    + name.getIdentifierNode().getToken().beginColumn + " to multiple definition " + matchedSymbols);
             } else if (matchedSymbols.size() == 1) {
                 return matchedSymbols.get(0);
             }

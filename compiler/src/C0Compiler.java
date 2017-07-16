@@ -16,39 +16,42 @@ public class C0Compiler {
   private static LogLevel defaultLogLevel = LogLevel.DEBUG;
 
   public static void main(String args[]) {
-    initializeLogger();
-
-    C0Parser parser = getC0ParserByArguments(args);
-
     try {
-      AST ast = parser.parseTree();
+      initializeLogger();
 
-      if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
-        Logger.log("\nListing AST:");
-        Logger.log(ast.printPretty());
-        Logger.log("\nFinished listing AST");
+      C0Parser parser = getC0ParserByArguments(args);
+
+      if (parser != null) {
+        AST ast = parser.parseTree();
+
+        if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
+          Logger.log("\nListing AST:");
+          Logger.log(ast.printPretty());
+          Logger.log("\nFinished listing AST");
+        }
+
+        final SymbolTable table = new SymbolTable();
+        typeLinking(ast, table);
+
+        if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
+          Logger.log("\nListing Scopes:");
+          Logger.log(table.listScopes());
+          Logger.log("\nFinished listing Scopes");
+        }
+
+        nameLinking(ast, table);
+        typeChecking(ast, table);
+        indexing(ast);
+        generateCode(ast, table);
+        writeCode(ast, table);
       }
 
-      final SymbolTable table = new SymbolTable();
-      typeLinking(ast, table);
-
-      if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
-        Logger.log("\nListing Scopes:");
-        Logger.log(table.listScopes());
-        Logger.log("\nFinished listing Scopes");
-      }
-
-      nameLinking(ast, table);
-      typeChecking(ast, table);
-      indexing(ast);
-      generateCode(ast, table);
-      writeCode(ast, table);
-    } catch (ParseException parseException) {
-      Logger.log(klaff + ": Encountered errors during parse.");
-      parseException.printStackTrace();
     } catch (Exception exception) {
-      Logger.log(klaff + ": Encountered errors during interpretation/tree building.");
-      exception.printStackTrace();
+      if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
+        exception.printStackTrace();
+      } else {
+        Logger.error(exception.getMessage());
+      }
     }
   }
 
@@ -61,9 +64,7 @@ public class C0Compiler {
         parser = new C0Parser(args[0]);
         Logger.log(klaff + ": Finished reading from file " + args[0]);
       } catch (java.io.FileNotFoundException e) {
-        String errorMsg = klaff + ": File " + args[0] + " not found.";
-        Logger.error(errorMsg);
-        throw new IllegalArgumentException(errorMsg);
+        throw new IllegalArgumentException(klaff + ": File " + args[0] + " not found.");
       }
     } else {
       Logger.log(klaff + ": Usage :");

@@ -9,6 +9,7 @@ import logger.*;
 
 import ast.*;
 import ast.definition.*;
+import ast.type.*;
 
 /** Symbol Table holds all possible scopes and provides functions to create a scope */
 public class SymbolTable {
@@ -26,15 +27,11 @@ public class SymbolTable {
     public FileUnitScope addFileUnitScope(FileUnit fileUnit) throws SymbolTableException {
         String fileUnitName = getFileUnitScopeName(fileUnit);
         if (this.scopes.containsKey(fileUnitName)) {
-            String errorMsg = "Duplicate File Unit: " + fileUnitName;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Found duplicated File \"" + fileUnitName);
         }
 
         if (fileUnitScope != null) {
-            String errorMsg = "Only one FileUnitScope is allowed";
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Symboltable internal Error: Only one FileUnitScope is allowed");
         }
 
         fileUnitScope = new FileUnitScope(fileUnitName, fileUnit);
@@ -46,9 +43,7 @@ public class SymbolTable {
         String fileUnitName = getFileUnitScopeName(fileUnit);
         Scope scope = this.scopes.get(fileUnitName);
         if (scope != null && !(scope instanceof FileUnitScope)) {
-            String errorMsg = "Expecting BlockScope but get " + scope;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Symboltable internal Error: Expecting BlockScope but get " + scope);
         }
 
         return (FileUnitScope) scope;
@@ -56,9 +51,7 @@ public class SymbolTable {
 
     public FileUnitScope getFileUnitScope() throws SymbolTableException {
         if (fileUnitScope == null) {
-            String errorMsg = "FileUnitScope is not set in Symbol-Table";
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Symboltable internal Error: FileUnitScope is not set in Symbol-Table");
         }
 
         return fileUnitScope;
@@ -70,9 +63,7 @@ public class SymbolTable {
 
     public BlockScope addBlockScope(String blockName, Scope parent, ASTNode referenceNode) throws SymbolTableException {
         if (this.scopes.containsKey(blockName)) {
-            String errorMsg = "Duplicate Block Declaration: " + blockName;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Symboltable internal Error: Duplicate Block Declaration: " + blockName);
         }
 
         BlockScope scope = new BlockScope(blockName, parent, referenceNode);
@@ -80,12 +71,10 @@ public class SymbolTable {
         return scope;
     }
 
-    public BlockScope getBlockScope(String blockName) throws SymbolTableException {
+      public BlockScope getBlockScope(String blockName) throws SymbolTableException {
         Scope scope = this.scopes.get(blockName);
         if (scope != null && !(scope instanceof BlockScope)) {
-            String errorMsg = "Expecting BlockScope but get " + scope;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Symboltable internal Error: Expecting BlockScope but get " + scope);
         }
 
         return (BlockScope) scope;
@@ -95,12 +84,13 @@ public class SymbolTable {
         return "struct." + structDefinition.getName().getName();
     }
 
-    public StructTypeScope addStructTypeScope(String structTypeName, Scope parent, ASTNode referenceNode)
+    public StructTypeScope addStructTypeScope(String structTypeName, Scope parent, StructDefinition referenceNode)
             throws SymbolTableException {
         if (this.scopes.containsKey(structTypeName)) {
-            String errorMsg = "Duplicate Struct Defintion: " + structTypeName;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            StructType structType = (StructType) referenceNode.getType();
+            throw new SymbolTableException("Duplicate Struct Defintion \"" + structType.getIdentifier() + "\" at line "
+                    + structType.getIdentifierNode().getToken().beginLine + " in column "
+                    + structType.getIdentifierNode().getToken().beginColumn);
         }
 
         StructTypeScope scope = new StructTypeScope(structTypeName, parent, referenceNode);
@@ -111,15 +101,13 @@ public class SymbolTable {
     public StructTypeScope getStructTypeScope(String structTypeName) throws SymbolTableException {
         Scope scope = this.scopes.get(structTypeName);
         if (scope != null && !(scope instanceof StructTypeScope)) {
-            String errorMsg = "Expecting StructTypeScope but get " + scope;
-            Logger.error(errorMsg);
-            throw new SymbolTableException(errorMsg);
+            throw new SymbolTableException("Symboltable internal Error: Expecting " + StructTypeScope.class.getSimpleName()  + scope.getClass().getSimpleName());
         }
 
         return (StructTypeScope) scope;
     }
 
-    public String listScopes() {
+   public String listScopes() {
         String out = "";
 
         List<String> keys = new ArrayList<String>(this.scopes.keySet());

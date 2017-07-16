@@ -12,6 +12,10 @@ public class StructType extends Type {
         this.addChild(this.structTypeIdentifier);
     }
 
+    public StructIdentifier getIdentifierNode() {
+        return structTypeIdentifier;
+    }
+
     @Override
     public String getFullyQualifiedName() {
         return "struct " + structTypeIdentifier.getName();
