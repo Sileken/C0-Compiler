@@ -31,7 +31,7 @@ public class SymbolTable {
         }
 
         if (fileUnitScope != null) {
-            throw new SymbolTableException("Symboltable internal Error: Only one FileUnitScope is allowed");
+            throw new SymbolTableException("Symboltable internal error: Only one FileUnitScope is allowed");
         }
 
         fileUnitScope = new FileUnitScope(fileUnitName, fileUnit);
@@ -43,7 +43,7 @@ public class SymbolTable {
         String fileUnitName = getFileUnitScopeName(fileUnit);
         Scope scope = this.scopes.get(fileUnitName);
         if (scope != null && !(scope instanceof FileUnitScope)) {
-            throw new SymbolTableException("Symboltable internal Error: Expecting BlockScope but get " + scope);
+            throw new SymbolTableException("Symboltable internal error: Expecting BlockScope but get " + scope);
         }
 
         return (FileUnitScope) scope;
@@ -51,7 +51,7 @@ public class SymbolTable {
 
     public FileUnitScope getFileUnitScope() throws SymbolTableException {
         if (fileUnitScope == null) {
-            throw new SymbolTableException("Symboltable internal Error: FileUnitScope is not set in Symbol-Table");
+            throw new SymbolTableException("Symboltable internal error: FileUnitScope is not set in Symbol-Table");
         }
 
         return fileUnitScope;
@@ -63,7 +63,7 @@ public class SymbolTable {
 
     public BlockScope addBlockScope(String blockName, Scope parent, ASTNode referenceNode) throws SymbolTableException {
         if (this.scopes.containsKey(blockName)) {
-            throw new SymbolTableException("Symboltable internal Error: Duplicate Block Declaration: " + blockName);
+            throw new SymbolTableException("Symboltable internal error: Duplicate Block Declaration: " + blockName);
         }
 
         BlockScope scope = new BlockScope(blockName, parent, referenceNode);
@@ -74,7 +74,7 @@ public class SymbolTable {
       public BlockScope getBlockScope(String blockName) throws SymbolTableException {
         Scope scope = this.scopes.get(blockName);
         if (scope != null && !(scope instanceof BlockScope)) {
-            throw new SymbolTableException("Symboltable internal Error: Expecting BlockScope but get " + scope);
+            throw new SymbolTableException("Symboltable internal error: Expecting BlockScope but get " + scope);
         }
 
         return (BlockScope) scope;
@@ -101,7 +101,7 @@ public class SymbolTable {
     public StructTypeScope getStructTypeScope(String structTypeName) throws SymbolTableException {
         Scope scope = this.scopes.get(structTypeName);
         if (scope != null && !(scope instanceof StructTypeScope)) {
-            throw new SymbolTableException("Symboltable internal Error: Expecting " + StructTypeScope.class.getSimpleName()  + scope.getClass().getSimpleName());
+            throw new SymbolTableException("Symboltable internal error: Expecting " + StructTypeScope.class.getSimpleName()  + scope.getClass().getSimpleName());
         }
 
         return (StructTypeScope) scope;

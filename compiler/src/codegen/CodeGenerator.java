@@ -197,9 +197,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("sub");
 			break;
 		default:
-			String msg = "Unsupported Operation while generating unary expression code.";
-			Logger.error(msg);
-			throw new CodeGenerationException(msg);
+			throw new CodeGenerationException("Code generation internal error: Unsupported unary operation while generating unary expression code.");
 		}
 
 		if (unaryExpr.getOperand() instanceof Name
@@ -266,9 +264,7 @@ public class CodeGenerator extends SemanticsVisitor {
 			this.code.add("band");
 			break;
 		default:
-			String msg = "Unsupported Operation while generating binary expression code.";
-			Logger.error(msg);
-			throw new CodeGenerationException(msg);
+			throw new CodeGenerationException("Code generation internal error: Unsupported binary operation while generating binary expression code.");
 		}
 	}
 
@@ -326,9 +322,7 @@ public class CodeGenerator extends SemanticsVisitor {
 					this.code.add("xor");
 					break;
 				default:
-					String msg = "Unsupported Operation while generating assignment operator expression code.";
-					Logger.error(msg);
-					throw new CodeGenerationException(msg);
+					throw new CodeGenerationException( "Code generation internal error: Unsupported assignment operation while generating assignment expression code.");
 				}
 			} else {
 				assignmentExpression.getRightValue().accept(this);
@@ -579,10 +573,8 @@ public class CodeGenerator extends SemanticsVisitor {
 		}
 
 		if (fieldIndex == -1) {
-			String msg = "Not exisiting Field \"" + fieldName + "\" in struct type \""
-					+ structType.getFullyQualifiedName() + "\" while field access code.";
-			Logger.error(msg);
-			throw new CodeGenerationException(msg);
+			throw new CodeGenerationException("Not exisiting field \"" + fieldName + "\" in struct type \""
+					+ structType.getFullyQualifiedName() + "\" while generating field access code.");
 		}
 
 		return fieldIndex;
