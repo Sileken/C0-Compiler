@@ -54,12 +54,9 @@ public class NameLinker extends SemanticsVisitor {
 				Logger.debug("Resolved " + name + "\" at line " + nameNode.getIdentifierNode().getToken().beginLine
 						+ " in column " + nameNode.getIdentifierNode().getToken().beginColumn);
 			} else {
-				String errorMsg = "Could not to resolve \"" + name + "\" in \"" + currentScope.getName() + "\" at line "
+				throw new SymbolTableException("Could not to resolve \"" + name + "\" in \"" + currentScope.getName() + "\" at line "
 						+ nameNode.getIdentifierNode().getToken().beginLine + " in column "
-						+ nameNode.getIdentifierNode().getToken().beginColumn;
-
-				Logger.error(errorMsg);
-				throw new SymbolTableException(errorMsg);
+						+ nameNode.getIdentifierNode().getToken().beginColumn);
 			}
 		}
 		return true;

@@ -13,11 +13,12 @@ import logger.Logger.LogLevel;
 public class C0Compiler {
   private static String klaff = "C0 Compiler";
   private static String falk = "C0Compiler";
-  private static LogLevel defaultLogLevel = LogLevel.DEBUG;
+  private static LogLevel defaultLogLevel = LogLevel.ERROR;
 
   public static void main(String args[]) {
     try {
       initializeLogger();
+      Logger.log("Start compiling ...");
 
       C0Parser parser = getC0ParserByArguments(args);
 
@@ -45,7 +46,7 @@ public class C0Compiler {
         generateCode(ast, table);
         writeCode(ast, table);
       }
-
+      Logger.log("Finished compiling.");
     } catch (Exception exception) {
       if (Logger.getLogLevel().ordinal() <= LogLevel.TRACE.ordinal()) {
         exception.printStackTrace();
@@ -59,10 +60,10 @@ public class C0Compiler {
     C0Parser parser = null;
 
     if (args.length >= 1) {
-      Logger.log(klaff + ": Reading from file " + args[0]);
+      Logger.info(klaff + ": Reading from file " + args[0]);
       try {
         parser = new C0Parser(args[0]);
-        Logger.log(klaff + ": Finished reading from file " + args[0]);
+        Logger.info(klaff + ": Finished reading from file " + args[0]);
       } catch (java.io.FileNotFoundException e) {
         throw new IllegalArgumentException(klaff + ": File " + args[0] + " not found.");
       }
@@ -75,53 +76,53 @@ public class C0Compiler {
   }
 
   private static void typeLinking(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + klaff + ": Typ Linking startet");
+    Logger.info("\n" + klaff + ": Typ Linking startet");
 
     Logger.debug(klaff + ": Typ Linking for Global Declarations startet");
     ast.getRoot().accept(new GlobalDeclarationAndDefinitionVisitor(symbolTable));
     Logger.debug(klaff + ": Typ Linking for Global Declarations finished");
 
-    Logger.log("");
+    Logger.info("");
     Logger.debug(klaff + ": Typ Linking for Deep Declarations startet");
     ast.getRoot().accept(new DeepDeclarationVisitor(symbolTable));
     Logger.debug(klaff + ": Typ Linking for Deep Declarations finished");
 
-    Logger.log(klaff + ": Typ Linking finished");
+    Logger.info(klaff + ": Typ Linking finished");
   }
 
   private static void nameLinking(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + klaff + ": Name Linking startet");
+    Logger.info("\n" + klaff + ": Name Linking startet");
     ast.getRoot().accept(new NameLinker(symbolTable));
-    Logger.log(klaff + ": Name Linking finished");
+    Logger.info(klaff + ": Name Linking finished");
   }
 
   private static void typeChecking(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + klaff + ": Type Checking startet");
+    Logger.info("\n" + klaff + ": Type Checking startet");
     ast.getRoot().accept(new TypeChecker(symbolTable));
-    Logger.log(klaff + ": Type Checking finished");
+    Logger.info(klaff + ": Type Checking finished");
   }
 
   private static void indexing(AST ast) throws Exception {
-    Logger.log("\n" + klaff + ": Indexing staret");
+    Logger.info("\n" + klaff + ": Indexing staret");
     ast.getRoot().accept(new IndexerVisitor());
-    Logger.log(klaff + ": Indexing finished");
+    Logger.info(klaff + ": Indexing finished");
   }
 
   private static void generateCode(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + klaff + ": Code generation started");
+    Logger.info("\n" + klaff + ": Code generation started");
     ast.getRoot().accept(new CodeGenerator(symbolTable));
 
-    Logger.log("\n" + klaff + ": Peep Hole optimization started");
+    Logger.info("\n" + klaff + ": Peep Hole optimization started");
     ast.getRoot().accept(new PeepHoleOptimizer(symbolTable));
-    Logger.log(klaff + ": Peep Hole optimization finished");
+    Logger.info(klaff + ": Peep Hole optimization finished");
 
-    Logger.log("\n" + klaff + ": Code generation finished");
+    Logger.info("\n" + klaff + ": Code generation finished");
   }
 
   private static void writeCode(AST ast, SymbolTable symbolTable) throws Exception {
-    Logger.log("\n" + klaff + ": Writing code started");
+    Logger.info("\n" + klaff + ": Writing code started");
     ast.getRoot().accept(new FileUnitWriter(symbolTable));
-    Logger.log(klaff + ": Writing code finished");
+    Logger.info(klaff + ": Writing code finished");
   }
 
   private static void initializeLogger() {

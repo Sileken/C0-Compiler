@@ -201,15 +201,15 @@ AST parseTree() :
 }
 {
   {
-    Logger.log("\n" + compilerName + ": Parsing startet");
-    Logger.log(compilerName + ": Abstract syntax tree constructing");  
+    Logger.info("\n" + compilerName + ": Parsing startet");
+    Logger.info(compilerName + ": Abstract syntax tree constructing");  
   }
   rootNode = prog() <EOF> 
   {
     AST ast = new AST();
     ast.setRoot(rootNode);
-    Logger.log(compilerName + ": Abstract syntax tree constructed");  
-    Logger.log(compilerName + ": Parsing finished");
+    Logger.info(compilerName + ": Abstract syntax tree constructed");  
+    Logger.info(compilerName + ": Parsing finished");
     return ast;
   }
 }

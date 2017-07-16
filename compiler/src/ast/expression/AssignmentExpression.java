@@ -87,9 +87,9 @@ public class AssignmentExpression extends Expression {
             parsedOperator = Operator.ORASSIGN;
             break;
         default:
-            String errorMsg = "Can't parse assignment Operator: " + token.kind;
-            Logger.error(errorMsg);
-            throw new ParseException(errorMsg);
+            throw new ParseException("Can't parse assignment Operator \"" + token.kind + "\" at line "
+                    + token.beginLine + " in column "
+                    + token.beginColumn);
         }
 
         return parsedOperator;

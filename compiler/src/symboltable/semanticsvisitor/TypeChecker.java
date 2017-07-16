@@ -299,8 +299,6 @@ public class TypeChecker extends SemanticsVisitor {
 			// Check if a function exists with the arguments and name
 			FileUnitScope fileUnitScope = table.getFileUnitScope();
 			String functionSignature = fileUnitScope.getSignatureOfFunction(funcName, argumentTypes);
-			Logger.log(">>>>>> Function Signature: " + functionSignature);
-
 			Symbol symbol = fileUnitScope.resolveFunctionSymbol(functionSignature);
 
 			// If symbol was not found, function with those arguments does not exist

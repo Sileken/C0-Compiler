@@ -27,9 +27,6 @@ public class PrimitiveType extends Type {
 			if (type.name().equals(name))
 				return type;
 		}
-
-		String errorMsg = "Unknown primitive type " + name;
-		Logger.error(errorMsg);
 		throw new ParseException("Unknown primitive type " + name);
 	}
 
