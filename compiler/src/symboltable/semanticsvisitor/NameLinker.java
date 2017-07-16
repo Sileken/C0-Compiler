@@ -43,17 +43,21 @@ public class NameLinker extends SemanticsVisitor {
 
 			return false;
 		} else if (node instanceof Name) {
-			String name = ((Name) node).getName();
+			Name nameNode = (Name) node;
+			String name = nameNode.getName();
 			BlockScope currentScope = (BlockScope) this.getCurrentScope();
 
-			Symbol resolvedDeclaration = currentScope.resolveVariableDeclaration((Name) node);
+			Symbol resolvedDeclaration = currentScope.resolveVariableDeclaration(nameNode);
 
 			if (resolvedDeclaration != null) {
-				((Name) node).setOriginalDeclaration(resolvedDeclaration);
-				Logger.debug(
-						"Resolved " + name + " => " + resolvedDeclaration.getName() + "\tParent: " + node.getParent());
+				nameNode.setOriginalDeclaration(resolvedDeclaration);
+				Logger.debug("Resolved " + name + "\" at line " + nameNode.getIdentifierNode().getToken().beginLine
+						+ " in column " + nameNode.getIdentifierNode().getToken().beginColumn);
 			} else {
-				String errorMsg = "Fail to resolve \"" + name + "\" in scope \"" + currentScope + "\"";
+				String errorMsg = "Could not to resolve \"" + name + "\" in \"" + currentScope.getName() + "\" at line "
+						+ nameNode.getIdentifierNode().getToken().beginLine + " in column "
+						+ nameNode.getIdentifierNode().getToken().beginColumn;
+
 				Logger.error(errorMsg);
 				throw new SymbolTableException(errorMsg);
 			}

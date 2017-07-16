@@ -10,7 +10,7 @@ public abstract class Identifier extends ASTNode {
 
     public Identifier(Token idToken) {
         super();
-        
+
         this.idToken = idToken;
     }
 
@@ -18,13 +18,15 @@ public abstract class Identifier extends ASTNode {
         return this.idToken.image;
     }
 
-    public Type getType()
-    {
+    public Type getType() {
         return type;
     }
 
-    public void setType(Type type)
-    {
+    public void setType(Type type) {
         this.type = type;
+    }
+
+    public Token getToken() {
+        return this.idToken;
     }
 }
