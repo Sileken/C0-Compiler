@@ -1,0 +1,8 @@
+int inc(int i);
+
+int main() {
+    int a = 1;
+    int b = inc(a)
+
+    return b;
+}

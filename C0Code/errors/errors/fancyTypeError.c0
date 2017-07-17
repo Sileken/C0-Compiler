@@ -1,0 +1,24 @@
+struct Node {
+    int value;
+    struct Node next;
+};
+
+void assingnNode(struct Node* node);
+
+int main() {
+
+    struct Node* initNode = alloc(struct Node);
+    assignNode(initNode->next);
+
+    return 1;
+}
+
+void assignNode(struct Node* node) {
+    node = alloc(struct Node);
+}
+
+/*
+ * Error: inside of struct Node
+ * struct Node next should be => struct Node* next;
+ * TypeException, because no function "assignNode(struct Node)" exists
+ */
