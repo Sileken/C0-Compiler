@@ -79,7 +79,7 @@ public class IndexerVisitor extends ASTVisitor {
 			((FunctionDefinition) node).setTotalLocalVariables(locals);
 			// Reset parameter and local variable count
 			locals = 0;
-			parameters = 0;
+			parameters = -2;
 		} else if (node instanceof StructDefinition) {
 			Logger.debug("StructDefinition " + node.getIdentifier() + " contains " + fields + " fields");
 			((StructDefinition) node).setTotalFields(fields);

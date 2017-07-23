@@ -335,9 +335,9 @@ Expression Expression() :
     expression = AllocExpression()
   |  
     LOOKAHEAD( PrimaryExpression() AssignmentOperator() )
-    expression = Assignment()
+    expression = Assignment() // (((a))) = 35
   | 
-    expression = ConditionalExpression()
+    expression = ConditionalExpression() // (((a)))++
   )
   { return expression; }
 }
@@ -819,7 +819,6 @@ Expression ForInit() :
 { Expression expression; }
 {
   (
-    LOOKAHEAD(Type() <IDENTIFIER>)
     expression = VariableDeclarationExpression()
     |
     expression = Expression()
@@ -853,7 +852,6 @@ Statement BlockStatement() :
 { Statement statement; }
 {
   (
-    LOOKAHEAD(Type() <IDENTIFIER>)
     { Expression expression; }
     expression = VariableDeclarationExpression() <SEMICOLON>
     { statement = new ExpressionStatement(expression); }
