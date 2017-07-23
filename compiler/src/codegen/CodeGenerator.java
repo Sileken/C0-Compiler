@@ -454,9 +454,10 @@ public class CodeGenerator extends SemanticsVisitor {
 
 		this.code.add(loopStartMark + ":");
 		forStatement.getCondition().accept(this);
-		this.code.add("jumpz " + loopEndMark);
+		this.code.add("jumpz " + loopEndMark);	
 		forStatement.getStatement().accept(this);
-		forStatement.getIncrement().accept(this);
+		if(forStatement.getIncrement() != null)
+			forStatement.getIncrement().accept(this);
 		this.code.add("jump " + loopStartMark);
 		this.code.add(loopEndMark + ":");
 	}
